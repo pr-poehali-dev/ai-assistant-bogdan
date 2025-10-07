@@ -1,6 +1,3 @@
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import Icon from '@/components/ui/icon';
 
 interface QuickPromptsProps {
@@ -8,19 +5,47 @@ interface QuickPromptsProps {
 }
 
 const QUICK_PROMPTS = [
-  { icon: 'MessageCircle', title: 'Общение', description: 'Задавайте вопросы, получайте умные ответы' },
-  { icon: 'FileText', title: 'Создание текстов', description: 'Статьи, письма, посты для соцсетей' },
-  { icon: 'Search', title: 'Анализ данных', description: 'Обработка информации, выводы' },
-  { icon: 'GraduationCap', title: 'Обучение', description: 'Объяснения, решение задач' },
-  { icon: 'Lightbulb', title: 'Идеи и советы', description: 'Генерация идей, рекомендации' },
-  { icon: 'Globe', title: 'Переводы', description: 'Перевод на любые языки' },
-  { icon: 'BarChart', title: 'Резюме', description: 'Краткое изложение длинных текстов' },
-  { icon: 'Palette', title: 'Креатив', description: 'Истории, стихи, сценарии' },
+  { icon: 'MessageCircle', title: 'Общение', description: 'Диалог, вопросы и ответы' },
+  { icon: 'FileText', title: 'Тексты', description: 'Статьи, посты, письма' },
+  { icon: 'Code', title: 'Код', description: 'Программирование на любом языке' },
+  { icon: 'Search', title: 'Анализ', description: 'Обработка и структурирование данных' },
+  { icon: 'GraduationCap', title: 'Обучение', description: 'Объяснения сложных тем' },
+  { icon: 'Lightbulb', title: 'Идеи', description: 'Генерация креативных решений' },
+  { icon: 'Globe', title: 'Перевод', description: 'Перевод на 100+ языков' },
+  { icon: 'BarChart', title: 'Резюме', description: 'Краткое изложение текстов' },
+  { icon: 'Palette', title: 'Креатив', description: 'Стихи, сценарии, истории' },
+  { icon: 'Mail', title: 'Email', description: 'Деловая и личная переписка' },
+  { icon: 'Briefcase', title: 'Бизнес', description: 'Планы, стратегии, отчеты' },
+  { icon: 'BookOpen', title: 'Знания', description: 'Энциклопедические данные' },
+  { icon: 'Calculator', title: 'Математика', description: 'Решение задач и формул' },
+  { icon: 'Brain', title: 'Логика', description: 'Рассуждения и выводы' },
+  { icon: 'Image', title: 'Описание', description: 'Анализ изображений' },
+  { icon: 'Music', title: 'Музыка', description: 'Тексты песен, аккорды' },
+  { icon: 'Video', title: 'Видео', description: 'Сценарии и монтаж' },
+  { icon: 'ShoppingCart', title: 'Маркетинг', description: 'Рекламные кампании' },
+  { icon: 'Target', title: 'SEO', description: 'Оптимизация контента' },
+  { icon: 'TrendingUp', title: 'Аналитика', description: 'Метрики и KPI' },
+  { icon: 'Users', title: 'HR', description: 'Вакансии, собеседования' },
+  { icon: 'FileSearch', title: 'Исследования', description: 'Научные работы' },
+  { icon: 'Newspaper', title: 'Новости', description: 'Пресс-релизы, статьи' },
+  { icon: 'Headphones', title: 'Поддержка', description: 'Ответы клиентам' },
+  { icon: 'Database', title: 'SQL', description: 'Запросы к базам данных' },
+  { icon: 'GitBranch', title: 'Git', description: 'Коммиты, документация' },
+  { icon: 'Terminal', title: 'CLI', description: 'Команды терминала' },
+  { icon: 'Bug', title: 'Debugging', description: 'Поиск и исправление ошибок' },
+  { icon: 'Shield', title: 'Безопасность', description: 'Аудит кода, уязвимости' },
+  { icon: 'Zap', title: 'API', description: 'Интеграции и REST API' },
+  { icon: 'Layers', title: 'Архитектура', description: 'Проектирование систем' },
+  { icon: 'Settings', title: 'Конфиги', description: 'Настройка окружений' },
+  { icon: 'Smartphone', title: 'Мобильные', description: 'iOS, Android разработка' },
+  { icon: 'Globe2', title: 'Веб', description: 'Frontend и Backend' },
+  { icon: 'Cloud', title: 'DevOps', description: 'CI/CD, Docker, K8s' },
+  { icon: 'Lock', title: 'Криптография', description: 'Шифрование данных' },
 ];
 
 export default function QuickPrompts({ onSelectPrompt }: QuickPromptsProps) {
   return (
-    <div className="grid grid-cols-1 gap-2">
+    <div className="grid grid-cols-1 gap-2 max-h-[600px] overflow-y-auto pr-2">
       {QUICK_PROMPTS.map((prompt, idx) => (
         <button
           key={idx}

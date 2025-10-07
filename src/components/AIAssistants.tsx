@@ -17,71 +17,30 @@ interface Assistant {
 }
 
 const ASSISTANTS: Assistant[] = [
-  {
-    id: '1',
-    name: 'Аналитик',
-    description: 'Анализирует данные, строит отчеты и выявляет тренды',
-    icon: 'BarChart3',
-    color: 'from-blue-500 to-blue-600',
-    category: 'Бизнес',
-    skills: ['Анализ данных', 'Визуализация', 'Прогнозирование'],
-    active: true,
-  },
-  {
-    id: '2',
-    name: 'Копирайтер',
-    description: 'Создает тексты для маркетинга и соцсетей',
-    icon: 'PenTool',
-    color: 'from-purple-500 to-purple-600',
-    category: 'Контент',
-    skills: ['SEO-тексты', 'Посты', 'Рекламные тексты'],
-    active: true,
-  },
-  {
-    id: '3',
-    name: 'Программист',
-    description: 'Пишет и отлаживает код на разных языках',
-    icon: 'Code',
-    color: 'from-green-500 to-green-600',
-    category: 'Разработка',
-    skills: ['Python', 'JavaScript', 'Debugging'],
-    active: false,
-  },
-  {
-    id: '4',
-    name: 'Дизайнер',
-    description: 'Генерирует идеи для дизайна и брендинга',
-    icon: 'Palette',
-    color: 'from-pink-500 to-pink-600',
-    category: 'Креатив',
-    skills: ['UI/UX', 'Брендинг', 'Цветовые схемы'],
-    active: false,
-  },
-  {
-    id: '5',
-    name: 'Учитель',
-    description: 'Объясняет сложные темы простым языком',
-    icon: 'GraduationCap',
-    color: 'from-orange-500 to-orange-600',
-    category: 'Образование',
-    skills: ['Математика', 'Физика', 'История'],
-    active: true,
-  },
-  {
-    id: '6',
-    name: 'Переводчик',
-    description: 'Переводит тексты на 50+ языков',
-    icon: 'Languages',
-    color: 'from-cyan-500 to-cyan-600',
-    category: 'Языки',
-    skills: ['Английский', 'Немецкий', 'Китайский'],
-    active: false,
-  },
+  { id: '1', name: 'Аналитик данных', description: 'Анализирует большие данные, строит отчеты и прогнозы', icon: 'BarChart3', color: 'from-blue-500 to-blue-600', category: 'Аналитика', skills: ['SQL', 'Python', 'Визуализация', 'Прогнозирование'], active: true },
+  { id: '2', name: 'SEO-копирайтер', description: 'Создает оптимизированный контент для поисковых систем', icon: 'FileSearch', color: 'from-purple-500 to-purple-600', category: 'Маркетинг', skills: ['SEO', 'Ключевые слова', 'Метатеги', 'Контент-план'], active: true },
+  { id: '3', name: 'Full-stack разработчик', description: 'Пишет код на Python, JavaScript, TypeScript, Go', icon: 'Code', color: 'from-green-500 to-green-600', category: 'Разработка', skills: ['React', 'Node.js', 'PostgreSQL', 'REST API'], active: false },
+  { id: '4', name: 'UI/UX дизайнер', description: 'Создает интерфейсы, прототипы и дизайн-системы', icon: 'Palette', color: 'from-pink-500 to-pink-600', category: 'Дизайн', skills: ['Figma', 'Прототипы', 'Юзабилити', 'Брендинг'], active: false },
+  { id: '5', name: 'Преподаватель', description: 'Объясняет сложные темы на понятном языке с примерами', icon: 'GraduationCap', color: 'from-orange-500 to-orange-600', category: 'Образование', skills: ['Математика', 'Физика', 'Программирование', 'Языки'], active: true },
+  { id: '6', name: 'Полиглот-переводчик', description: 'Переводит на 100+ языков с учетом контекста', icon: 'Languages', color: 'from-cyan-500 to-cyan-600', category: 'Языки', skills: ['Английский', 'Китайский', 'Арабский', 'Немецкий'], active: false },
+  { id: '7', name: 'Email-маркетолог', description: 'Создает эффективные email-кампании и рассылки', icon: 'Mail', color: 'from-red-500 to-red-600', category: 'Маркетинг', skills: ['A/B тесты', 'Автоворонки', 'Сегментация', 'Конверсия'], active: false },
+  { id: '8', name: 'DevOps-инженер', description: 'Настраивает CI/CD, Docker, Kubernetes', icon: 'Cloud', color: 'from-indigo-500 to-indigo-600', category: 'DevOps', skills: ['Docker', 'K8s', 'GitLab CI', 'Terraform'], active: false },
+  { id: '9', name: 'Специалист по безопасности', description: 'Находит уязвимости и защищает от атак', icon: 'Shield', color: 'from-red-600 to-red-700', category: 'Безопасность', skills: ['Пентест', 'OWASP', 'Криптография', 'Аудит'], active: false },
+  { id: '10', name: 'Сценарист', description: 'Пишет сценарии для видео, подкастов, презентаций', icon: 'Video', color: 'from-yellow-500 to-yellow-600', category: 'Креатив', skills: ['Сторителлинг', 'Диалоги', 'YouTube', 'TikTok'], active: false },
+  { id: '11', name: 'HR-менеджер', description: 'Создает вакансии, проводит интервью, оценивает кандидатов', icon: 'Users', color: 'from-teal-500 to-teal-600', category: 'HR', skills: ['Вакансии', 'Интервью', 'Оценка', 'Онбординг'], active: false },
+  { id: '12', name: 'Финансовый аналитик', description: 'Анализирует финансы, составляет отчеты и прогнозы', icon: 'DollarSign', color: 'from-emerald-500 to-emerald-600', category: 'Финансы', skills: ['P&L', 'Cash Flow', 'Бюджет', 'Инвестиции'], active: false },
+  { id: '13', name: 'SMM-менеджер', description: 'Создает контент для соцсетей и ведет аккаунты', icon: 'Share2', color: 'from-pink-400 to-pink-500', category: 'Соцсети', skills: ['Instagram', 'TikTok', 'ВКонтакте', 'Telegram'], active: false },
+  { id: '14', name: 'Продуктовый менеджер', description: 'Разрабатывает продуктовую стратегию и roadmap', icon: 'Rocket', color: 'from-violet-500 to-violet-600', category: 'Продукт', skills: ['User Stories', 'Roadmap', 'Метрики', 'A/B тесты'], active: false },
+  { id: '15', name: 'Научный исследователь', description: 'Помогает в написании научных работ и статей', icon: 'Microscope', color: 'from-blue-600 to-blue-700', category: 'Наука', skills: ['Методология', 'Статистика', 'Публикации', 'Рецензии'], active: false },
+  { id: '16', name: 'Музыкальный продюсер', description: 'Пишет тексты песен, аккорды, музыкальные идеи', icon: 'Music', color: 'from-purple-400 to-purple-500', category: 'Музыка', skills: ['Тексты', 'Аккорды', 'Аранжировки', 'Жанры'], active: false },
+  { id: '17', name: 'Game Designer', description: 'Создает концепции игр, механики и балансировку', icon: 'Gamepad2', color: 'from-red-400 to-red-500', category: 'Геймдев', skills: ['Механики', 'Баланс', 'Сюжет', 'Монетизация'], active: false },
+  { id: '18', name: 'Юрист-консультант', description: 'Консультирует по правовым вопросам и договорам', icon: 'Scale', color: 'from-slate-600 to-slate-700', category: 'Юриспруденция', skills: ['Договоры', 'ГК РФ', 'Споры', 'Консультации'], active: false },
 ];
 
 export default function AIAssistants() {
   const [assistants, setAssistants] = useState(ASSISTANTS);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const toggleAssistant = (id: string) => {
     setAssistants(prev => prev.map(a => 
@@ -89,18 +48,22 @@ export default function AIAssistants() {
     ));
   };
 
-  const filteredAssistants = assistants.filter(a =>
-    a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    a.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    a.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const categories = ['all', ...Array.from(new Set(assistants.map(a => a.category)))];
+
+  const filteredAssistants = assistants.filter(a => {
+    const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         a.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         a.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || a.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold text-slate-800">AI Ассистенты</h2>
-          <p className="text-slate-600 mt-1">Специализированные помощники для разных задач</p>
+          <p className="text-slate-600 mt-1">18 специализированных помощников для любых задач</p>
         </div>
         <div className="flex items-center gap-3">
           <Input
@@ -114,6 +77,20 @@ export default function AIAssistants() {
             Создать своего
           </Button>
         </div>
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto pb-2">
+        {categories.map((category) => (
+          <Button
+            key={category}
+            variant={selectedCategory === category ? 'default' : 'outline'}
+            onClick={() => setSelectedCategory(category)}
+            className="whitespace-nowrap"
+            size="sm"
+          >
+            {category === 'all' ? 'Все' : category}
+          </Button>
+        ))}
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
