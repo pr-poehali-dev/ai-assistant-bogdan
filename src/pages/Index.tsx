@@ -7,10 +7,13 @@ import AboutPage from '@/components/AboutPage';
 import FeaturesPage from '@/components/FeaturesPage';
 import TeamPage from '@/components/TeamPage';
 import DocsPage from '@/components/DocsPage';
-import ChatArea from '@/components/ChatArea';
+import EnhancedChatArea from '@/components/EnhancedChatArea';
 import AdminPanel from '@/components/AdminPanel';
 import AdminLoginDialog from '@/components/dialogs/AdminLoginDialog';
-import SettingsDialog from '@/components/dialogs/SettingsDialog';
+import EnhancedSettingsDialog from '@/components/dialogs/EnhancedSettingsDialog';
+import SessionManager from '@/components/SessionManager';
+import StatsPanel from '@/components/StatsPanel';
+import QuickPrompts from '@/components/QuickPrompts';
 
 type AIModel = 'gemini' | 'llama' | 'gigachat';
 
@@ -20,6 +23,8 @@ interface Message {
   content: string;
   timestamp: Date;
   model?: AIModel;
+  attachments?: Array<{ type: 'image' | 'file'; url: string; name: string }>;
+  reactions?: Array<{ emoji: string; count: number }>;
 }
 
 interface APIConfig {
@@ -32,6 +37,10 @@ interface Settings {
   temperature: number;
   max_tokens: number;
   system_prompt: string;
+  context_length: number;
+  auto_save: boolean;
+  streaming: boolean;
+  language: string;
 }
 
 const ADMIN_PASSWORD = 'admin123';
@@ -81,6 +90,10 @@ export default function Index() {
       temperature: 0.7,
       max_tokens: 2048,
       system_prompt: '',
+      context_length: 10,
+      auto_save: true,
+      streaming: false,
+      language: 'ru',
     };
   });
   const [stats, setStats] = useState(() => {
@@ -91,6 +104,17 @@ export default function Index() {
       gigachat: 0,
     };
   });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
+  const [showSearch, setShowSearch] = useState(false);
+  const [selectedModel, setSelectedModel] = useState<AIModel | 'auto'>('auto');
+  const [chatSessions, setChatSessions] = useState<Array<{ id: string; name: string; messages: Message[]; timestamp: Date }>>(() => {
+    const saved = localStorage.getItem('chat-sessions');
+    return saved ? JSON.parse(saved).map((s: any) => ({ ...s, timestamp: new Date(s.timestamp) })) : [];
+  });
+  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isTyping, setIsTyping] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('ai-config', JSON.stringify(apiConfig));
@@ -107,6 +131,51 @@ export default function Index() {
   useEffect(() => {
     localStorage.setItem('ai-stats', JSON.stringify(stats));
   }, [stats]);
+
+  useEffect(() => {
+    if (settings.auto_save) {
+      localStorage.setItem('chat-sessions', JSON.stringify(chatSessions));
+    }
+  }, [chatSessions, settings.auto_save]);
+
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      const filtered = messages.filter(m => 
+        m.content.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setFilteredMessages(filtered);
+    } else {
+      setFilteredMessages([]);
+    }
+  }, [searchQuery, messages]);
+
+  useEffect(() => {
+    const handleKeyboard = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key.toLowerCase()) {
+          case 'k':
+            e.preventDefault();
+            createNewSession();
+            break;
+          case 'f':
+            e.preventDefault();
+            setShowSearch(!showSearch);
+            break;
+          case 'e':
+            e.preventDefault();
+            exportChat();
+            break;
+          case '/':
+            e.preventDefault();
+            setShowSettingsDialog(!showSettingsDialog);
+            break;
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyboard);
+    return () => window.removeEventListener('keydown', handleKeyboard);
+  }, [showSearch, showSettingsDialog]);
 
   const handleAdminLogin = () => {
     if (passwordInput === ADMIN_PASSWORD) {
@@ -375,6 +444,146 @@ export default function Index() {
     });
   };
 
+  const createNewSession = () => {
+    const newSession = {
+      id: Date.now().toString(),
+      name: `Сессия ${chatSessions.length + 1}`,
+      messages: [{
+        id: '1',
+        role: 'assistant' as const,
+        content: 'Здравствуйте! Чем могу помочь?',
+        timestamp: new Date(),
+      }],
+      timestamp: new Date(),
+    };
+    setChatSessions(prev => [...prev, newSession]);
+    setCurrentSessionId(newSession.id);
+    setMessages(newSession.messages);
+    toast({
+      title: 'Новая сессия',
+      description: 'Создан новый диалог',
+    });
+  };
+
+  const switchSession = (sessionId: string) => {
+    const session = chatSessions.find(s => s.id === sessionId);
+    if (session) {
+      setCurrentSessionId(sessionId);
+      setMessages(session.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })));
+    }
+  };
+
+  const deleteSession = (sessionId: string) => {
+    setChatSessions(prev => prev.filter(s => s.id !== sessionId));
+    if (currentSessionId === sessionId) {
+      setCurrentSessionId(null);
+      clearHistory();
+    }
+    toast({
+      title: 'Сессия удалена',
+      description: 'Диалог успешно удален',
+    });
+  };
+
+  const renameSession = (sessionId: string, newName: string) => {
+    setChatSessions(prev => prev.map(s => 
+      s.id === sessionId ? { ...s, name: newName } : s
+    ));
+  };
+
+  const exportAllSessions = () => {
+    const content = JSON.stringify(chatSessions, null, 2);
+    const blob = new Blob([content], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `all-sessions-${new Date().toISOString()}.json`;
+    a.click();
+    toast({
+      title: 'Экспорт завершен',
+      description: 'Все сессии сохранены',
+    });
+  };
+
+  const importSessions = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const imported = JSON.parse(e.target?.result as string);
+        setChatSessions(prev => [...prev, ...imported]);
+        toast({
+          title: 'Импорт завершен',
+          description: `Импортировано сессий: ${imported.length}`,
+        });
+      } catch (error) {
+        toast({
+          title: 'Ошибка импорта',
+          description: 'Неверный формат файла',
+          variant: 'destructive',
+        });
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const copyMessageToClipboard = (content: string) => {
+    navigator.clipboard.writeText(content);
+    toast({
+      title: 'Скопировано',
+      description: 'Сообщение скопировано в буфер обмена',
+    });
+  };
+
+  const regenerateResponse = async (messageId: string) => {
+    const messageIndex = messages.findIndex(m => m.id === messageId);
+    if (messageIndex === -1 || messageIndex === 0) return;
+    
+    const previousUserMessage = messages[messageIndex - 1];
+    if (previousUserMessage.role !== 'user') return;
+
+    setMessages(prev => prev.slice(0, messageIndex));
+    setInputMessage(previousUserMessage.content);
+    await handleSendMessage();
+  };
+
+  const addReaction = (messageId: string, emoji: string) => {
+    setMessages(prev => prev.map(m => {
+      if (m.id === messageId) {
+        const reactions = m.reactions || [];
+        const existing = reactions.find(r => r.emoji === emoji);
+        if (existing) {
+          existing.count++;
+        } else {
+          reactions.push({ emoji, count: 1 });
+        }
+        return { ...m, reactions };
+      }
+      return m;
+    }));
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files || files.length === 0) return;
+
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const attachment = {
+          type: file.type.startsWith('image/') ? 'image' as const : 'file' as const,
+          url: e.target?.result as string,
+          name: file.name,
+        };
+        
+        toast({
+          title: 'Файл загружен',
+          description: `${file.name} готов к отправке`,
+        });
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <header className="border-b border-slate-200/60 bg-white/60 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
@@ -429,15 +638,42 @@ export default function Index() {
         {currentPage === 'team' && <TeamPage />}
         {currentPage === 'docs' && <DocsPage />}
         {currentPage === 'chat' && (
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className={isAuthenticated ? 'lg:col-span-3' : 'lg:col-span-4'}>
-              <ChatArea
+          <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
+            <div className="lg:col-span-1 space-y-4">
+              <SessionManager
+                sessions={chatSessions}
+                currentSessionId={currentSessionId}
+                onCreateSession={createNewSession}
+                onSwitchSession={switchSession}
+                onDeleteSession={deleteSession}
+                onRenameSession={renameSession}
+                onExportAll={exportAllSessions}
+                onImport={importSessions}
+              />
+              <StatsPanel
+                stats={stats}
+                modelInfo={modelInfo}
+                onClearStats={clearStats}
+              />
+              <QuickPrompts
+                onSelectPrompt={(prompt) => {
+                  setInputMessage(prompt);
+                }}
+              />
+            </div>
+
+            <div className={isAuthenticated ? 'lg:col-span-4' : 'lg:col-span-5'}>
+              <EnhancedChatArea
                 messages={messages}
                 currentModel={currentModel}
+                selectedModel={selectedModel}
                 isLoading={isLoading}
                 inputMessage={inputMessage}
                 isListening={isListening}
                 isSpeaking={isSpeaking}
+                showSearch={showSearch}
+                searchQuery={searchQuery}
+                filteredMessages={filteredMessages}
                 modelInfo={modelInfo}
                 onInputChange={setInputMessage}
                 onSendMessage={handleSendMessage}
@@ -446,6 +682,18 @@ export default function Index() {
                 onStartListening={startListening}
                 onStopListening={stopListening}
                 onSpeak={speakText}
+                onCopyMessage={copyMessageToClipboard}
+                onRegenerateResponse={regenerateResponse}
+                onAddReaction={addReaction}
+                onToggleSearch={() => setShowSearch(!showSearch)}
+                onSearchChange={setSearchQuery}
+                onSelectSearchResult={(id) => {
+                  const element = document.getElementById(`message-${id}`);
+                  element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                onModelSelect={setSelectedModel}
+                onFileUpload={handleFileUpload}
+                fileInputRef={fileInputRef}
               />
             </div>
 
@@ -472,7 +720,7 @@ export default function Index() {
         onLogin={handleAdminLogin}
       />
 
-      <SettingsDialog
+      <EnhancedSettingsDialog
         open={showSettingsDialog}
         onOpenChange={setShowSettingsDialog}
         settings={settings}
