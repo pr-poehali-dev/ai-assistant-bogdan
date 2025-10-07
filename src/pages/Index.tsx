@@ -1,16 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Slider } from '@/components/ui/slider';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 import BurgerMenu from '@/components/BurgerMenu';
@@ -18,6 +7,10 @@ import AboutPage from '@/components/AboutPage';
 import FeaturesPage from '@/components/FeaturesPage';
 import TeamPage from '@/components/TeamPage';
 import DocsPage from '@/components/DocsPage';
+import ChatArea from '@/components/ChatArea';
+import AdminPanel from '@/components/AdminPanel';
+import AdminLoginDialog from '@/components/dialogs/AdminLoginDialog';
+import SettingsDialog from '@/components/dialogs/SettingsDialog';
 
 type AIModel = 'gemini' | 'llama' | 'gigachat';
 
@@ -42,6 +35,12 @@ interface Settings {
 }
 
 const ADMIN_PASSWORD = 'admin123';
+
+const modelInfo = {
+  gemini: { name: 'Gemini 2.0 Flash', fullName: 'Google Gemini 2.0 Flash Experimental', color: 'from-blue-500 to-blue-600', icon: 'Sparkles' },
+  llama: { name: 'Llama 3.3 70B', fullName: 'Meta Llama 3.3 70B Instruct', color: 'from-purple-500 to-purple-600', icon: 'Cpu' },
+  gigachat: { name: 'GigaChat', fullName: 'GigaChat (Сбер)', color: 'from-green-500 to-green-600', icon: 'MessageSquare' },
+};
 
 export default function Index() {
   const { toast } = useToast();
@@ -108,12 +107,6 @@ export default function Index() {
   useEffect(() => {
     localStorage.setItem('ai-stats', JSON.stringify(stats));
   }, [stats]);
-
-  const modelInfo = {
-    gemini: { name: 'Gemini 2.0 Flash', fullName: 'Google Gemini 2.0 Flash Experimental', color: 'from-blue-500 to-blue-600', icon: 'Sparkles' },
-    llama: { name: 'Llama 3.3 70B', fullName: 'Meta Llama 3.3 70B Instruct', color: 'from-purple-500 to-purple-600', icon: 'Cpu' },
-    gigachat: { name: 'GigaChat', fullName: 'GigaChat (Сбер)', color: 'from-green-500 to-green-600', icon: 'MessageSquare' },
-  };
 
   const handleAdminLogin = () => {
     if (passwordInput === ADMIN_PASSWORD) {
@@ -373,6 +366,15 @@ export default function Index() {
     setIsSpeaking(true);
   };
 
+  const handleSaveSettings = () => {
+    localStorage.setItem('ai-settings', JSON.stringify(settings));
+    setShowSettingsDialog(false);
+    toast({
+      title: 'Настройки сохранены',
+      description: 'Параметры AI обновлены',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <header className="border-b border-slate-200/60 bg-white/60 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
@@ -427,405 +429,56 @@ export default function Index() {
         {currentPage === 'team' && <TeamPage />}
         {currentPage === 'docs' && <DocsPage />}
         {currentPage === 'chat' && (
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          <div className={isAuthenticated ? 'lg:col-span-3' : 'lg:col-span-4'}>
-            <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
-              <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-slate-50 to-blue-50 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {currentModel && (
-                    <Badge className={`bg-gradient-to-r ${modelInfo[currentModel].color} text-white`}>
-                      <Icon name={modelInfo[currentModel].icon as any} size={14} className="mr-1" />
-                      {modelInfo[currentModel].name}
-                    </Badge>
-                  )}
-                  <Badge variant="outline" className="gap-1">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    {messages.length - 1} сообщений
-                  </Badge>
-                </div>
-                <div className="flex gap-2">
-                  <Button variant="ghost" size="sm" onClick={exportChat} className="gap-1">
-                    <Icon name="Download" size={16} />
-                    Экспорт
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={clearHistory} className="gap-1">
-                    <Icon name="Trash2" size={16} />
-                    Очистить
-                  </Button>
-                </div>
-              </div>
-
-              <ScrollArea className="flex-1 p-8">
-                <div className="space-y-6 max-w-4xl mx-auto">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex gap-4 animate-fade-in ${
-                        message.role === 'user' ? 'justify-end' : 'justify-start'
-                      }`}
-                    >
-                      {message.role === 'assistant' && (
-                        <div className="relative flex-shrink-0">
-                          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
-                          <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                            <Icon name="Sparkles" size={18} className="text-white" />
-                          </div>
-                        </div>
-                      )}
-                      <div
-                        className={`max-w-[75%] rounded-3xl px-6 py-4 shadow-md ${
-                          message.role === 'user'
-                            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
-                            : 'bg-white border border-slate-200'
-                        }`}
-                      >
-                        <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <p
-                            className={`text-xs ${
-                              message.role === 'user' ? 'text-blue-100' : 'text-slate-400'
-                            }`}
-                          >
-                            {message.timestamp.toLocaleTimeString('ru-RU', {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
-                          {message.model && (
-                            <Badge variant="outline" className="text-xs">
-                              {modelInfo[message.model].name}
-                            </Badge>
-                          )}
-                          {message.role === 'assistant' && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-6 px-2"
-                              onClick={() => speakText(message.content)}
-                            >
-                              <Icon name={isSpeaking ? 'VolumeX' : 'Volume2'} size={14} />
-                            </Button>
-                          )}
-                        </div>
-                      </div>
-                      {message.role === 'user' && (
-                        <div className="relative flex-shrink-0">
-                          <div className="absolute inset-0 bg-gradient-to-br from-slate-400 to-slate-500 rounded-2xl blur opacity-20"></div>
-                          <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center shadow-lg">
-                            <Icon name="User" size={18} className="text-white" />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                  {isLoading && (
-                    <div className="flex gap-4 justify-start animate-fade-in">
-                      <div className="relative flex-shrink-0">
-                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
-                        <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                          <Icon name="Loader2" size={18} className="text-white animate-spin" />
-                        </div>
-                      </div>
-                      <div className="bg-white border border-slate-200 rounded-3xl px-6 py-4 shadow-md">
-                        <div className="flex gap-1">
-                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </ScrollArea>
-
-              <div className="p-6 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
-                <div className="flex gap-3 max-w-4xl mx-auto">
-                  <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={isListening ? stopListening : startListening}
-                    className={`h-14 w-14 rounded-2xl ${isListening ? 'bg-red-50 border-red-300' : ''}`}
-                  >
-                    <Icon name={isListening ? 'MicOff' : 'Mic'} size={20} className={isListening ? 'text-red-600' : ''} />
-                  </Button>
-                  <div className="relative flex-1">
-                    <Input
-                      placeholder="Введите сообщение или используйте голосовой ввод..."
-                      value={inputMessage}
-                      onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
-                      disabled={isLoading}
-                      className="h-14 px-6 text-[15px] rounded-2xl border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 bg-white shadow-sm"
-                    />
-                  </div>
-                  <Button
-                    onClick={handleSendMessage}
-                    disabled={isLoading}
-                    className="h-14 px-8 gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-2xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Icon name="Loader2" size={20} className="animate-spin" />
-                        <span className="font-medium">Отправка...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Icon name="Send" size={20} />
-                        <span className="font-medium">Отправить</span>
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {isAuthenticated && (
-            <div className="lg:col-span-1">
-              <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
-                <div className="p-6 border-b border-slate-200/60 bg-gradient-to-r from-blue-50 to-purple-50">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Icon name="Shield" size={22} className="text-blue-600" />
-                    <h2 className="font-bold text-slate-800 text-lg">Управление</h2>
-                  </div>
-                  <p className="text-sm text-slate-600">Конфигурация системы</p>
-                </div>
-
-                <ScrollArea className="flex-1 p-5">
-                  <div className="space-y-4 mb-6">
-                    <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-                      <Icon name="BarChart3" size={16} />
-                      Статистика использования
-                    </h3>
-                    <div className="space-y-2">
-                      {Object.entries(modelInfo).map(([key, info]) => (
-                        <div key={key} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-                          <div className="flex items-center gap-2">
-                            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${info.color} flex items-center justify-center`}>
-                              <Icon name={info.icon as any} size={14} className="text-white" />
-                            </div>
-                            <span className="text-sm font-medium text-slate-700">{info.name}</span>
-                          </div>
-                          <Badge variant="secondary">{stats[key as AIModel]} запросов</Badge>
-                        </div>
-                      ))}
-                    </div>
-                    <Button variant="outline" size="sm" onClick={clearStats} className="w-full gap-2">
-                      <Icon name="RotateCcw" size={14} />
-                      Сбросить статистику
-                    </Button>
-                  </div>
-
-                  <Tabs defaultValue="gemini" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-xl">
-                      <TabsTrigger value="gemini" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
-                        Gemini
-                      </TabsTrigger>
-                      <TabsTrigger value="llama" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
-                        Llama
-                      </TabsTrigger>
-                      <TabsTrigger value="gigachat" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
-                        GigaChat
-                      </TabsTrigger>
-                    </TabsList>
-
-                    {Object.entries(modelInfo).map(([key, info]) => (
-                      <TabsContent key={key} value={key} className="space-y-5 mt-5">
-                        <div className="space-y-4">
-                          <div
-                            className={`p-5 rounded-2xl bg-gradient-to-br ${info.color} text-white flex items-center gap-3 shadow-lg`}
-                          >
-                            <Icon name={info.icon as any} size={28} />
-                            <div>
-                              <h3 className="font-bold text-base">{info.fullName}</h3>
-                              <p className="text-sm opacity-90">Free API</p>
-                            </div>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor={`${key}-key`} className="text-sm font-semibold text-slate-700">
-                              API Ключ
-                            </Label>
-                            <Input
-                              id={`${key}-key`}
-                              type="password"
-                              placeholder="Введите ключ..."
-                              value={apiConfig[key as AIModel].key}
-                              onChange={(e) => handleAPIKeyChange(key as AIModel, e.target.value)}
-                              className="rounded-xl border-slate-200"
-                            />
-                          </div>
-
-                          <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
-                            <div className="flex items-center gap-2">
-                              <Label htmlFor={`${key}-toggle`} className="text-sm font-medium text-slate-700">
-                                Активна
-                              </Label>
-                              {apiConfig[key as AIModel].enabled && (
-                                <Badge className="text-xs bg-green-500 hover:bg-green-600">Вкл</Badge>
-                              )}
-                            </div>
-                            <Switch
-                              id={`${key}-toggle`}
-                              checked={apiConfig[key as AIModel].enabled}
-                              onCheckedChange={(checked) => handleToggleModel(key as AIModel, checked)}
-                            />
-                          </div>
-
-                          <div className="space-y-3 pt-2">
-                            <h4 className="text-sm font-semibold text-slate-700">Статус</h4>
-                            <div className="grid grid-cols-2 gap-3">
-                              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                                <p className="text-xs text-slate-500 mb-1">Ключ</p>
-                                <p className="text-sm font-bold text-slate-700">
-                                  {apiConfig[key as AIModel].key ? '✓ Есть' : '✗ Нет'}
-                                </p>
-                              </div>
-                              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                                <p className="text-xs text-slate-500 mb-1">Режим</p>
-                                <p className="text-sm font-bold text-slate-700">
-                                  {apiConfig[key as AIModel].enabled ? '✓ Вкл' : '✗ Выкл'}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </TabsContent>
-                    ))}
-                  </Tabs>
-                </ScrollArea>
-
-                <div className="p-5 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
-                  <Button
-                    onClick={saveSettings}
-                    className="w-full gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl shadow-lg h-12"
-                  >
-                    <Icon name="Save" size={18} />
-                    <span className="font-medium">Сохранить</span>
-                  </Button>
-                </div>
-              </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className={isAuthenticated ? 'lg:col-span-3' : 'lg:col-span-4'}>
+              <ChatArea
+                messages={messages}
+                currentModel={currentModel}
+                isLoading={isLoading}
+                inputMessage={inputMessage}
+                isListening={isListening}
+                isSpeaking={isSpeaking}
+                modelInfo={modelInfo}
+                onInputChange={setInputMessage}
+                onSendMessage={handleSendMessage}
+                onExportChat={exportChat}
+                onClearHistory={clearHistory}
+                onStartListening={startListening}
+                onStopListening={stopListening}
+                onSpeak={speakText}
+              />
             </div>
-          )}
-        </div>
+
+            {isAuthenticated && (
+              <AdminPanel
+                apiConfig={apiConfig}
+                stats={stats}
+                modelInfo={modelInfo}
+                onAPIKeyChange={handleAPIKeyChange}
+                onToggleModel={handleToggleModel}
+                onSaveSettings={saveSettings}
+                onClearStats={clearStats}
+              />
+            )}
+          </div>
         )}
       </div>
 
-      <Dialog open={showAdminDialog} onOpenChange={setShowAdminDialog}>
-        <DialogContent className="sm:max-w-md rounded-3xl border-0 shadow-2xl">
-          <DialogHeader>
-            <div className="flex justify-center mb-4">
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
-                <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                  <Icon name="Lock" size={32} className="text-white" />
-                </div>
-              </div>
-            </div>
-            <DialogTitle className="text-center text-2xl font-bold">Вход в систему</DialogTitle>
-            <DialogDescription className="text-center text-slate-600">
-              Введите пароль для доступа к панели управления
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <Input
-              type="password"
-              placeholder="Пароль"
-              value={passwordInput}
-              onChange={(e) => setPasswordInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
-              className="h-12 rounded-xl border-slate-200"
-            />
-            <Button
-              onClick={handleAdminLogin}
-              className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg font-medium"
-            >
-              Войти
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <AdminLoginDialog
+        open={showAdminDialog}
+        onOpenChange={setShowAdminDialog}
+        passwordInput={passwordInput}
+        onPasswordChange={setPasswordInput}
+        onLogin={handleAdminLogin}
+      />
 
-      <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
-        <DialogContent className="sm:max-w-lg rounded-3xl border-0 shadow-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
-              <Icon name="Sliders" size={24} className="text-blue-600" />
-              Настройки AI
-            </DialogTitle>
-            <DialogDescription>
-              Настройте параметры генерации для всех моделей
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-6 pt-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">Температура</Label>
-                <Badge variant="outline">{settings.temperature.toFixed(1)}</Badge>
-              </div>
-              <Slider
-                value={[settings.temperature]}
-                onValueChange={(v) => setSettings({ ...settings, temperature: v[0] })}
-                min={0}
-                max={2}
-                step={0.1}
-                className="w-full"
-              />
-              <p className="text-xs text-slate-500">
-                Креативность ответов (0 = точность, 2 = креативность)
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">Макс. токенов</Label>
-                <Badge variant="outline">{settings.max_tokens}</Badge>
-              </div>
-              <Slider
-                value={[settings.max_tokens]}
-                onValueChange={(v) => setSettings({ ...settings, max_tokens: v[0] })}
-                min={256}
-                max={4096}
-                step={256}
-                className="w-full"
-              />
-              <p className="text-xs text-slate-500">
-                Максимальная длина ответа
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="system-prompt" className="text-sm font-semibold">
-                Системный промпт
-              </Label>
-              <Textarea
-                id="system-prompt"
-                placeholder="Например: Ты — профессиональный программист..."
-                value={settings.system_prompt}
-                onChange={(e) => setSettings({ ...settings, system_prompt: e.target.value })}
-                className="rounded-xl border-slate-200 min-h-[100px]"
-              />
-              <p className="text-xs text-slate-500">
-                Инструкции для AI (опционально)
-              </p>
-            </div>
-
-            <Button
-              onClick={() => {
-                localStorage.setItem('ai-settings', JSON.stringify(settings));
-                setShowSettingsDialog(false);
-                toast({
-                  title: 'Настройки сохранены',
-                  description: 'Параметры AI обновлены',
-                });
-              }}
-              className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg font-medium"
-            >
-              Сохранить настройки
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <SettingsDialog
+        open={showSettingsDialog}
+        onOpenChange={setShowSettingsDialog}
+        settings={settings}
+        onSettingsChange={setSettings}
+        onSave={handleSaveSettings}
+      />
     </div>
   );
 }
