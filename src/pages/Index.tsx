@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { useToast } from '@/hooks/use-toast';
 import BurgerMenu from '@/components/BurgerMenu';
 import AboutPage from '@/components/AboutPage';
 import FeaturesPage from '@/components/FeaturesPage';
@@ -14,36 +13,11 @@ import EnhancedSettingsDialog from '@/components/dialogs/EnhancedSettingsDialog'
 import SessionManager from '@/components/SessionManager';
 import StatsPanel from '@/components/StatsPanel';
 import QuickPrompts from '@/components/QuickPrompts';
-
-type AIModel = 'gemini' | 'llama' | 'gigachat';
-
-interface Message {
-  id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  model?: AIModel;
-  attachments?: Array<{ type: 'image' | 'file'; url: string; name: string }>;
-  reactions?: Array<{ emoji: string; count: number }>;
-}
-
-interface APIConfig {
-  gemini: { key: string; enabled: boolean };
-  llama: { key: string; enabled: boolean };
-  gigachat: { key: string; enabled: boolean };
-}
-
-interface Settings {
-  temperature: number;
-  max_tokens: number;
-  system_prompt: string;
-  context_length: number;
-  auto_save: boolean;
-  streaming: boolean;
-  language: string;
-}
-
-const ADMIN_PASSWORD = 'admin123';
+import { useChatLogic } from '@/hooks/useChatLogic';
+import { useVoiceControl } from '@/hooks/useVoiceControl';
+import { useSessionManager } from '@/hooks/useSessionManager';
+import { useAdminControls } from '@/hooks/useAdminControls';
+import { useToast } from '@/hooks/use-toast';
 
 const modelInfo = {
   gemini: { name: 'Gemini 2.0 Flash', fullName: 'Google Gemini 2.0 Flash Experimental', color: 'from-blue-500 to-blue-600', icon: 'Sparkles' },
@@ -54,100 +28,27 @@ const modelInfo = {
 export default function Index() {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState('chat');
-  const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
-  const [passwordInput, setPasswordInput] = useState('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isListening, setIsListening] = useState(false);
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const recognitionRef = useRef<any>(null);
-  const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const saved = localStorage.getItem('chat-history');
-    return saved ? JSON.parse(saved).map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })) : [
-      {
-        id: '1',
-        role: 'assistant',
-        content: 'Здравствуйте! Чем могу помочь?',
-        timestamp: new Date(),
-      },
-    ];
-  });
-  const [inputMessage, setInputMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [currentModel, setCurrentModel] = useState<AIModel | null>(null);
-  const [apiConfig, setApiConfig] = useState<APIConfig>(() => {
-    const saved = localStorage.getItem('ai-config');
-    return saved ? JSON.parse(saved) : {
-      gemini: { key: '', enabled: true },
-      llama: { key: '', enabled: true },
-      gigachat: { key: '', enabled: true },
-    };
-  });
-  const [settings, setSettings] = useState<Settings>(() => {
-    const saved = localStorage.getItem('ai-settings');
-    return saved ? JSON.parse(saved) : {
-      temperature: 0.7,
-      max_tokens: 2048,
-      system_prompt: '',
-      context_length: 10,
-      auto_save: true,
-      streaming: false,
-      language: 'ru',
-    };
-  });
-  const [stats, setStats] = useState(() => {
-    const saved = localStorage.getItem('ai-stats');
-    return saved ? JSON.parse(saved) : {
-      gemini: 0,
-      llama: 0,
-      gigachat: 0,
-    };
-  });
   const [searchQuery, setSearchQuery] = useState('');
-  const [filteredMessages, setFilteredMessages] = useState<Message[]>([]);
+  const [filteredMessages, setFilteredMessages] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
-  const [selectedModel, setSelectedModel] = useState<AIModel | 'auto'>('auto');
-  const [chatSessions, setChatSessions] = useState<Array<{ id: string; name: string; messages: Message[]; timestamp: Date }>>(() => {
-    const saved = localStorage.getItem('chat-sessions');
-    return saved ? JSON.parse(saved).map((s: any) => ({ ...s, timestamp: new Date(s.timestamp) })) : [];
-  });
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isTyping, setIsTyping] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem('ai-config', JSON.stringify(apiConfig));
-  }, [apiConfig]);
-
-  useEffect(() => {
-    localStorage.setItem('chat-history', JSON.stringify(messages));
-  }, [messages]);
-
-  useEffect(() => {
-    localStorage.setItem('ai-settings', JSON.stringify(settings));
-  }, [settings]);
-
-  useEffect(() => {
-    localStorage.setItem('ai-stats', JSON.stringify(stats));
-  }, [stats]);
-
-  useEffect(() => {
-    if (settings.auto_save) {
-      localStorage.setItem('chat-sessions', JSON.stringify(chatSessions));
-    }
-  }, [chatSessions, settings.auto_save]);
+  const chatLogic = useChatLogic();
+  const voiceControl = useVoiceControl();
+  const sessionManager = useSessionManager(chatLogic.settings.auto_save);
+  const adminControls = useAdminControls();
 
   useEffect(() => {
     if (searchQuery.trim()) {
-      const filtered = messages.filter(m => 
+      const filtered = chatLogic.messages.filter(m => 
         m.content.toLowerCase().includes(searchQuery.toLowerCase())
       );
       setFilteredMessages(filtered);
     } else {
       setFilteredMessages([]);
     }
-  }, [searchQuery, messages]);
+  }, [searchQuery, chatLogic.messages]);
 
   useEffect(() => {
     const handleKeyboard = (e: KeyboardEvent) => {
@@ -155,7 +56,7 @@ export default function Index() {
         switch (e.key.toLowerCase()) {
           case 'k':
             e.preventDefault();
-            createNewSession();
+            handleCreateNewSession();
             break;
           case 'f':
             e.preventDefault();
@@ -163,7 +64,7 @@ export default function Index() {
             break;
           case 'e':
             e.preventDefault();
-            exportChat();
+            chatLogic.exportChat();
             break;
           case '/':
             e.preventDefault();
@@ -177,410 +78,37 @@ export default function Index() {
     return () => window.removeEventListener('keydown', handleKeyboard);
   }, [showSearch, showSettingsDialog]);
 
-  const handleAdminLogin = () => {
-    if (passwordInput === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      setShowAdminDialog(false);
-      setPasswordInput('');
-      toast({
-        title: 'Успешный вход',
-        description: 'Добро пожаловать в панель управления',
-      });
-    } else {
-      toast({
-        title: 'Ошибка входа',
-        description: 'Неверный пароль',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const handleAdminLogout = () => {
-    setIsAuthenticated(false);
-    toast({
-      title: 'Выход выполнен',
-      description: 'Вы вышли из панели управления',
-    });
-  };
-
-  const handleSendMessage = async () => {
-    if (!inputMessage.trim() || isLoading) return;
-
-    const enabledModels = Object.entries(apiConfig).filter(([_, config]) => config.enabled && config.key);
-    
-    if (enabledModels.length === 0) {
-      toast({
-        title: 'Сервис недоступен',
-        description: 'Настройте хотя бы одну AI модель в панели управления',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: 'user',
-      content: inputMessage,
-      timestamp: new Date(),
-    };
-
-    setMessages(prev => [...prev, userMessage]);
-    const currentInput = inputMessage;
-    setInputMessage('');
-    setIsLoading(true);
-
-    try {
-      const history = messages.map(m => ({
-        role: m.role,
-        content: m.content
-      }));
-
-      const response = await fetch('https://functions.poehali.dev/81fdec08-160f-4043-a2da-cefa0ffbdf22', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: currentInput,
-          models: apiConfig,
-          history: history,
-          settings: settings,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Ошибка запроса');
-      }
-
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: data.response,
-        timestamp: new Date(),
-        model: data.model,
-      };
-
-      setMessages(prev => [...prev, assistantMessage]);
-      setCurrentModel(data.model);
-
-      setStats(prev => ({
-        ...prev,
-        [data.model]: (prev[data.model] || 0) + 1
-      }));
-
-      if (data.fallback_used) {
-        toast({
-          title: 'Использовано резервирование',
-          description: `Ответ получен от ${modelInfo[data.model as AIModel]?.name || data.model}`,
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Ошибка',
-        description: error.message || 'Не удалось получить ответ',
-        variant: 'destructive',
-      });
-
-      const errorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: 'assistant',
-        content: 'Извините, произошла ошибка. Пожалуйста, проверьте настройки API ключей.',
-        timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleAPIKeyChange = (model: AIModel, key: string) => {
-    setApiConfig((prev) => ({
-      ...prev,
-      [model]: { ...prev[model], key },
-    }));
-  };
-
-  const handleToggleModel = (model: AIModel, enabled: boolean) => {
-    setApiConfig((prev) => ({
-      ...prev,
-      [model]: { ...prev[model], enabled },
-    }));
-    toast({
-      title: enabled ? 'Модель включена' : 'Модель отключена',
-      description: `${modelInfo[model].name} ${enabled ? 'активирована' : 'деактивирована'}`,
-    });
-  };
-
-  const saveSettings = () => {
-    localStorage.setItem('ai-config', JSON.stringify(apiConfig));
-    toast({
-      title: 'Настройки сохранены',
-      description: 'Конфигурация успешно обновлена',
-    });
-  };
-
-  const clearHistory = () => {
-    setMessages([{
+  const handleCreateNewSession = () => {
+    const initialMessages = [{
       id: '1',
-      role: 'assistant',
+      role: 'assistant' as const,
       content: 'Здравствуйте! Чем могу помочь?',
       timestamp: new Date(),
-    }]);
-    toast({
-      title: 'История очищена',
-      description: 'Все сообщения удалены',
-    });
+    }];
+    const newSession = sessionManager.createNewSession(initialMessages);
+    chatLogic.setMessages(newSession.messages);
   };
 
-  const clearStats = () => {
-    setStats({ gemini: 0, llama: 0, gigachat: 0 });
-    toast({
-      title: 'Статистика сброшена',
-      description: 'Счетчики использования обнулены',
-    });
-  };
-
-  const exportChat = () => {
-    const content = messages.map(m => `[${m.timestamp.toLocaleString()}] ${m.role === 'user' ? 'Вы' : 'Богдан'}: ${m.content}`).join('\n\n');
-    const blob = new Blob([content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `chat-${new Date().toISOString()}.txt`;
-    a.click();
-    toast({
-      title: 'Экспорт завершен',
-      description: 'История чата сохранена в файл',
-    });
-  };
-
-  const startListening = () => {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      toast({
-        title: 'Не поддерживается',
-        description: 'Ваш браузер не поддерживает распознавание речи',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    recognitionRef.current = new SpeechRecognition();
-    recognitionRef.current.lang = 'ru-RU';
-    recognitionRef.current.continuous = false;
-
-    recognitionRef.current.onresult = (event: any) => {
-      const transcript = event.results[0][0].transcript;
-      setInputMessage(transcript);
-      setIsListening(false);
-    };
-
-    recognitionRef.current.onerror = () => {
-      setIsListening(false);
-      toast({
-        title: 'Ошибка',
-        description: 'Не удалось распознать речь',
-        variant: 'destructive',
-      });
-    };
-
-    recognitionRef.current.onend = () => {
-      setIsListening(false);
-    };
-
-    recognitionRef.current.start();
-    setIsListening(true);
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      recognitionRef.current.stop();
-      setIsListening(false);
+  const handleSwitchSession = (sessionId: string) => {
+    const messages = sessionManager.switchSession(sessionId);
+    if (messages) {
+      chatLogic.setMessages(messages);
     }
   };
 
-  const speakText = (text: string) => {
-    if (!('speechSynthesis' in window)) {
-      toast({
-        title: 'Не поддерживается',
-        description: 'Ваш браузер не поддерживает синтез речи',
-        variant: 'destructive',
-      });
-      return;
+  const handleDeleteSession = (sessionId: string) => {
+    const wasCurrentSession = sessionManager.deleteSession(sessionId);
+    if (wasCurrentSession) {
+      chatLogic.clearHistory();
     }
-
-    if (isSpeaking) {
-      window.speechSynthesis.cancel();
-      setIsSpeaking(false);
-      return;
-    }
-
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ru-RU';
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
-
-    utterance.onend = () => {
-      setIsSpeaking(false);
-    };
-
-    utterance.onerror = () => {
-      setIsSpeaking(false);
-    };
-
-    synthesisRef.current = utterance;
-    window.speechSynthesis.speak(utterance);
-    setIsSpeaking(true);
   };
 
   const handleSaveSettings = () => {
-    localStorage.setItem('ai-settings', JSON.stringify(settings));
+    localStorage.setItem('ai-settings', JSON.stringify(chatLogic.settings));
     setShowSettingsDialog(false);
     toast({
       title: 'Настройки сохранены',
       description: 'Параметры AI обновлены',
-    });
-  };
-
-  const createNewSession = () => {
-    const newSession = {
-      id: Date.now().toString(),
-      name: `Сессия ${chatSessions.length + 1}`,
-      messages: [{
-        id: '1',
-        role: 'assistant' as const,
-        content: 'Здравствуйте! Чем могу помочь?',
-        timestamp: new Date(),
-      }],
-      timestamp: new Date(),
-    };
-    setChatSessions(prev => [...prev, newSession]);
-    setCurrentSessionId(newSession.id);
-    setMessages(newSession.messages);
-    toast({
-      title: 'Новая сессия',
-      description: 'Создан новый диалог',
-    });
-  };
-
-  const switchSession = (sessionId: string) => {
-    const session = chatSessions.find(s => s.id === sessionId);
-    if (session) {
-      setCurrentSessionId(sessionId);
-      setMessages(session.messages.map(m => ({ ...m, timestamp: new Date(m.timestamp) })));
-    }
-  };
-
-  const deleteSession = (sessionId: string) => {
-    setChatSessions(prev => prev.filter(s => s.id !== sessionId));
-    if (currentSessionId === sessionId) {
-      setCurrentSessionId(null);
-      clearHistory();
-    }
-    toast({
-      title: 'Сессия удалена',
-      description: 'Диалог успешно удален',
-    });
-  };
-
-  const renameSession = (sessionId: string, newName: string) => {
-    setChatSessions(prev => prev.map(s => 
-      s.id === sessionId ? { ...s, name: newName } : s
-    ));
-  };
-
-  const exportAllSessions = () => {
-    const content = JSON.stringify(chatSessions, null, 2);
-    const blob = new Blob([content], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `all-sessions-${new Date().toISOString()}.json`;
-    a.click();
-    toast({
-      title: 'Экспорт завершен',
-      description: 'Все сессии сохранены',
-    });
-  };
-
-  const importSessions = (file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const imported = JSON.parse(e.target?.result as string);
-        setChatSessions(prev => [...prev, ...imported]);
-        toast({
-          title: 'Импорт завершен',
-          description: `Импортировано сессий: ${imported.length}`,
-        });
-      } catch (error) {
-        toast({
-          title: 'Ошибка импорта',
-          description: 'Неверный формат файла',
-          variant: 'destructive',
-        });
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  const copyMessageToClipboard = (content: string) => {
-    navigator.clipboard.writeText(content);
-    toast({
-      title: 'Скопировано',
-      description: 'Сообщение скопировано в буфер обмена',
-    });
-  };
-
-  const regenerateResponse = async (messageId: string) => {
-    const messageIndex = messages.findIndex(m => m.id === messageId);
-    if (messageIndex === -1 || messageIndex === 0) return;
-    
-    const previousUserMessage = messages[messageIndex - 1];
-    if (previousUserMessage.role !== 'user') return;
-
-    setMessages(prev => prev.slice(0, messageIndex));
-    setInputMessage(previousUserMessage.content);
-    await handleSendMessage();
-  };
-
-  const addReaction = (messageId: string, emoji: string) => {
-    setMessages(prev => prev.map(m => {
-      if (m.id === messageId) {
-        const reactions = m.reactions || [];
-        const existing = reactions.find(r => r.emoji === emoji);
-        if (existing) {
-          existing.count++;
-        } else {
-          reactions.push({ emoji, count: 1 });
-        }
-        return { ...m, reactions };
-      }
-      return m;
-    }));
-  };
-
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
-
-    Array.from(files).forEach(file => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const attachment = {
-          type: file.type.startsWith('image/') ? 'image' as const : 'file' as const,
-          url: e.target?.result as string,
-          name: file.name,
-        };
-        
-        toast({
-          title: 'Файл загружен',
-          description: `${file.name} готов к отправке`,
-        });
-      };
-      reader.readAsDataURL(file);
     });
   };
 
@@ -618,15 +146,15 @@ export default function Index() {
               variant="ghost"
               size="icon"
               onClick={() => {
-                if (isAuthenticated) {
-                  handleAdminLogout();
+                if (adminControls.isAuthenticated) {
+                  adminControls.handleAdminLogout();
                 } else {
-                  setShowAdminDialog(true);
+                  adminControls.setShowAdminDialog(true);
                 }
               }}
               className="rounded-xl hover:bg-slate-100"
             >
-              <Icon name={isAuthenticated ? 'LogOut' : 'Settings'} size={20} className="text-slate-600" />
+              <Icon name={adminControls.isAuthenticated ? 'LogOut' : 'Settings'} size={20} className="text-slate-600" />
             </Button>
           </div>
         </div>
@@ -641,71 +169,73 @@ export default function Index() {
           <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
             <div className="lg:col-span-1 space-y-4">
               <SessionManager
-                sessions={chatSessions}
-                currentSessionId={currentSessionId}
-                onCreateSession={createNewSession}
-                onSwitchSession={switchSession}
-                onDeleteSession={deleteSession}
-                onRenameSession={renameSession}
-                onExportAll={exportAllSessions}
-                onImport={importSessions}
+                sessions={sessionManager.chatSessions}
+                currentSessionId={sessionManager.currentSessionId}
+                onCreateSession={handleCreateNewSession}
+                onSwitchSession={handleSwitchSession}
+                onDeleteSession={handleDeleteSession}
+                onRenameSession={sessionManager.renameSession}
+                onExportAll={sessionManager.exportAllSessions}
+                onImport={sessionManager.importSessions}
               />
               <StatsPanel
-                stats={stats}
+                stats={chatLogic.stats}
                 modelInfo={modelInfo}
-                onClearStats={clearStats}
+                onClearStats={() => adminControls.clearStats(chatLogic.setStats)}
               />
               <QuickPrompts
-                onSelectPrompt={(prompt) => {
-                  setInputMessage(prompt);
-                }}
+                onSelectPrompt={(prompt) => chatLogic.setInputMessage(prompt)}
               />
             </div>
 
-            <div className={isAuthenticated ? 'lg:col-span-4' : 'lg:col-span-5'}>
+            <div className={adminControls.isAuthenticated ? 'lg:col-span-4' : 'lg:col-span-5'}>
               <EnhancedChatArea
-                messages={messages}
-                currentModel={currentModel}
-                selectedModel={selectedModel}
-                isLoading={isLoading}
-                inputMessage={inputMessage}
-                isListening={isListening}
-                isSpeaking={isSpeaking}
+                messages={chatLogic.messages}
+                currentModel={chatLogic.currentModel}
+                selectedModel={chatLogic.selectedModel}
+                isLoading={chatLogic.isLoading}
+                inputMessage={chatLogic.inputMessage}
+                isListening={voiceControl.isListening}
+                isSpeaking={voiceControl.isSpeaking}
                 showSearch={showSearch}
                 searchQuery={searchQuery}
                 filteredMessages={filteredMessages}
                 modelInfo={modelInfo}
-                onInputChange={setInputMessage}
-                onSendMessage={handleSendMessage}
-                onExportChat={exportChat}
-                onClearHistory={clearHistory}
-                onStartListening={startListening}
-                onStopListening={stopListening}
-                onSpeak={speakText}
-                onCopyMessage={copyMessageToClipboard}
-                onRegenerateResponse={regenerateResponse}
-                onAddReaction={addReaction}
+                onInputChange={chatLogic.setInputMessage}
+                onSendMessage={chatLogic.handleSendMessage}
+                onExportChat={chatLogic.exportChat}
+                onClearHistory={chatLogic.clearHistory}
+                onStartListening={() => voiceControl.startListening(chatLogic.setInputMessage)}
+                onStopListening={voiceControl.stopListening}
+                onSpeak={voiceControl.speakText}
+                onCopyMessage={chatLogic.copyMessageToClipboard}
+                onRegenerateResponse={chatLogic.regenerateResponse}
+                onAddReaction={chatLogic.addReaction}
                 onToggleSearch={() => setShowSearch(!showSearch)}
                 onSearchChange={setSearchQuery}
                 onSelectSearchResult={(id) => {
                   const element = document.getElementById(`message-${id}`);
                   element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 }}
-                onModelSelect={setSelectedModel}
-                onFileUpload={handleFileUpload}
+                onModelSelect={chatLogic.setSelectedModel}
+                onFileUpload={chatLogic.handleFileUpload}
                 fileInputRef={fileInputRef}
               />
             </div>
 
-            {isAuthenticated && (
+            {adminControls.isAuthenticated && (
               <AdminPanel
-                apiConfig={apiConfig}
-                stats={stats}
+                apiConfig={chatLogic.apiConfig}
+                stats={chatLogic.stats}
                 modelInfo={modelInfo}
-                onAPIKeyChange={handleAPIKeyChange}
-                onToggleModel={handleToggleModel}
-                onSaveSettings={saveSettings}
-                onClearStats={clearStats}
+                onAPIKeyChange={(model, key) => 
+                  adminControls.handleAPIKeyChange(model, key, chatLogic.apiConfig, chatLogic.setApiConfig)
+                }
+                onToggleModel={(model, enabled) => 
+                  adminControls.handleToggleModel(model, enabled, chatLogic.apiConfig, chatLogic.setApiConfig)
+                }
+                onSaveSettings={() => adminControls.saveSettings(chatLogic.apiConfig)}
+                onClearStats={() => adminControls.clearStats(chatLogic.setStats)}
               />
             )}
           </div>
@@ -713,18 +243,18 @@ export default function Index() {
       </div>
 
       <AdminLoginDialog
-        open={showAdminDialog}
-        onOpenChange={setShowAdminDialog}
-        passwordInput={passwordInput}
-        onPasswordChange={setPasswordInput}
-        onLogin={handleAdminLogin}
+        open={adminControls.showAdminDialog}
+        onOpenChange={adminControls.setShowAdminDialog}
+        passwordInput={adminControls.passwordInput}
+        onPasswordChange={adminControls.setPasswordInput}
+        onLogin={adminControls.handleAdminLogin}
       />
 
       <EnhancedSettingsDialog
         open={showSettingsDialog}
         onOpenChange={setShowSettingsDialog}
-        settings={settings}
-        onSettingsChange={setSettings}
+        settings={chatLogic.settings}
+        onSettingsChange={chatLogic.setSettings}
         onSave={handleSaveSettings}
       />
     </div>
