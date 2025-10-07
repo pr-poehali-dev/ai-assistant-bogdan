@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +13,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
+import BurgerMenu from '@/components/BurgerMenu';
+import AboutPage from '@/components/AboutPage';
+import FeaturesPage from '@/components/FeaturesPage';
+import TeamPage from '@/components/TeamPage';
+import DocsPage from '@/components/DocsPage';
 
 type AIModel = 'gemini' | 'llama' | 'gigachat';
 
@@ -40,10 +45,15 @@ const ADMIN_PASSWORD = 'admin123';
 
 export default function Index() {
   const { toast } = useToast();
+  const [currentPage, setCurrentPage] = useState('chat');
   const [showAdminDialog, setShowAdminDialog] = useState(false);
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const recognitionRef = useRef<any>(null);
+  const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
   const [messages, setMessages] = useState<Message[]>(() => {
     const saved = localStorage.getItem('chat-history');
     return saved ? JSON.parse(saved).map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })) : [
@@ -284,11 +294,91 @@ export default function Index() {
     });
   };
 
+  const startListening = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      toast({
+        title: 'Не поддерживается',
+        description: 'Ваш браузер не поддерживает распознавание речи',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    recognitionRef.current = new SpeechRecognition();
+    recognitionRef.current.lang = 'ru-RU';
+    recognitionRef.current.continuous = false;
+
+    recognitionRef.current.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setInputMessage(transcript);
+      setIsListening(false);
+    };
+
+    recognitionRef.current.onerror = () => {
+      setIsListening(false);
+      toast({
+        title: 'Ошибка',
+        description: 'Не удалось распознать речь',
+        variant: 'destructive',
+      });
+    };
+
+    recognitionRef.current.onend = () => {
+      setIsListening(false);
+    };
+
+    recognitionRef.current.start();
+    setIsListening(true);
+  };
+
+  const stopListening = () => {
+    if (recognitionRef.current) {
+      recognitionRef.current.stop();
+      setIsListening(false);
+    }
+  };
+
+  const speakText = (text: string) => {
+    if (!('speechSynthesis' in window)) {
+      toast({
+        title: 'Не поддерживается',
+        description: 'Ваш браузер не поддерживает синтез речи',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (isSpeaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ru-RU';
+    utterance.rate = 1.0;
+    utterance.pitch = 1.0;
+
+    utterance.onend = () => {
+      setIsSpeaking(false);
+    };
+
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+    };
+
+    synthesisRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+    setIsSpeaking(true);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <header className="border-b border-slate-200/60 bg-white/60 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
         <div className="container mx-auto px-6 py-5 flex items-center justify-between max-w-7xl">
           <div className="flex items-center gap-4">
+            <BurgerMenu onNavigate={setCurrentPage} currentPage={currentPage} />
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
               <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
@@ -303,14 +393,16 @@ export default function Index() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowSettingsDialog(true)}
-              className="rounded-xl hover:bg-slate-100"
-            >
-              <Icon name="Sliders" size={20} className="text-slate-600" />
-            </Button>
+            {currentPage === 'chat' && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowSettingsDialog(true)}
+                className="rounded-xl hover:bg-slate-100"
+              >
+                <Icon name="Sliders" size={20} className="text-slate-600" />
+              </Button>
+            )}
             <Button
               variant="ghost"
               size="icon"
@@ -330,6 +422,11 @@ export default function Index() {
       </header>
 
       <div className="container mx-auto px-6 py-8 max-w-7xl">
+        {currentPage === 'about' && <AboutPage />}
+        {currentPage === 'features' && <FeaturesPage />}
+        {currentPage === 'team' && <TeamPage />}
+        {currentPage === 'docs' && <DocsPage />}
+        {currentPage === 'chat' && (
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className={isAuthenticated ? 'lg:col-span-3' : 'lg:col-span-4'}>
             <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
@@ -399,6 +496,16 @@ export default function Index() {
                               {modelInfo[message.model].name}
                             </Badge>
                           )}
+                          {message.role === 'assistant' && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2"
+                              onClick={() => speakText(message.content)}
+                            >
+                              <Icon name={isSpeaking ? 'VolumeX' : 'Volume2'} size={14} />
+                            </Button>
+                          )}
                         </div>
                       </div>
                       {message.role === 'user' && (
@@ -433,9 +540,17 @@ export default function Index() {
 
               <div className="p-6 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
                 <div className="flex gap-3 max-w-4xl mx-auto">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={isListening ? stopListening : startListening}
+                    className={`h-14 w-14 rounded-2xl ${isListening ? 'bg-red-50 border-red-300' : ''}`}
+                  >
+                    <Icon name={isListening ? 'MicOff' : 'Mic'} size={20} className={isListening ? 'text-red-600' : ''} />
+                  </Button>
                   <div className="relative flex-1">
                     <Input
-                      placeholder="Введите сообщение..."
+                      placeholder="Введите сообщение или используйте голосовой ввод..."
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
                       onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
@@ -593,6 +708,7 @@ export default function Index() {
             </div>
           )}
         </div>
+        )}
       </div>
 
       <Dialog open={showAdminDialog} onOpenChange={setShowAdminDialog}>
