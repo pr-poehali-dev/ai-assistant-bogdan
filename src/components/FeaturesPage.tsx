@@ -6,10 +6,10 @@ export default function FeaturesPage() {
   const features = [
     {
       icon: 'MessageSquare',
-      title: 'Мультимодельный чат',
-      description: 'Работайте с тремя AI моделями одновременно с автоматическим резервированием',
+      title: 'Умный помощник',
+      description: 'Интеллектуальная система с несколькими режимами работы и автоматическим резервированием',
       color: 'from-blue-500 to-blue-600',
-      tags: ['Gemini', 'Llama', 'GigaChat'],
+      tags: ['Режим Скорость', 'Режим Точность', 'Режим Креатив'],
     },
     {
       icon: 'Mic',
@@ -21,14 +21,14 @@ export default function FeaturesPage() {
     {
       icon: 'Volume2',
       title: 'Озвучивание ответов',
-      description: 'Слушайте ответы AI с помощью встроенного синтезатора речи',
+      description: 'Слушайте ответы помощника с помощью встроенного синтезатора речи',
       color: 'from-green-500 to-green-600',
       tags: ['TTS', 'Натуральный голос'],
     },
     {
       icon: 'History',
       title: 'Память диалога',
-      description: 'AI запоминает контекст разговора для более точных и релевантных ответов',
+      description: 'Помощник запоминает контекст разговора для более точных и релевантных ответов',
       color: 'from-orange-500 to-orange-600',
       tags: ['Контекст', 'История'],
     },
@@ -49,7 +49,7 @@ export default function FeaturesPage() {
     {
       icon: 'BarChart3',
       title: 'Статистика',
-      description: 'Отслеживайте использование каждой модели и оптимизируйте свои запросы',
+      description: 'Отслеживайте использование каждого режима и оптимизируйте свои запросы',
       color: 'from-yellow-500 to-yellow-600',
       tags: ['Аналитика', 'Метрики'],
     },
@@ -63,7 +63,7 @@ export default function FeaturesPage() {
     {
       icon: 'Zap',
       title: 'Авто-резервирование',
-      description: 'Если одна модель недоступна, система автоматически переключится на другую',
+      description: 'Если один режим недоступен, система автоматически переключится на другой',
       color: 'from-indigo-500 to-indigo-600',
       tags: ['Fallback', 'Надежность'],
     },

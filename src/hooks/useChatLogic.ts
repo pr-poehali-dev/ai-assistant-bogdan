@@ -30,9 +30,9 @@ interface Settings {
 }
 
 const modelInfo = {
-  gemini: { name: 'Gemini 2.0 Flash', fullName: 'Google Gemini 2.0 Flash Experimental', color: 'from-blue-500 to-blue-600', icon: 'Sparkles' },
-  llama: { name: 'Llama 3.3 70B', fullName: 'Meta Llama 3.3 70B Instruct', color: 'from-purple-500 to-purple-600', icon: 'Cpu' },
-  gigachat: { name: 'GigaChat', fullName: 'GigaChat (Сбер)', color: 'from-green-500 to-green-600', icon: 'MessageSquare' },
+  gemini: { name: 'Режим Скорость', fullName: 'Быстрые ответы', color: 'from-blue-500 to-blue-600', icon: 'Zap' },
+  llama: { name: 'Режим Точность', fullName: 'Детальный анализ', color: 'from-purple-500 to-purple-600', icon: 'Target' },
+  gigachat: { name: 'Режим Креатив', fullName: 'Творческие решения', color: 'from-green-500 to-green-600', icon: 'Lightbulb' },
 };
 
 export function useChatLogic() {
@@ -105,7 +105,7 @@ export function useChatLogic() {
     if (enabledModels.length === 0) {
       toast({
         title: 'Сервис недоступен',
-        description: 'Настройте хотя бы одну AI модель в панели управления',
+        description: 'Настройте хотя бы один режим работы в панели управления',
         variant: 'destructive',
       });
       return;

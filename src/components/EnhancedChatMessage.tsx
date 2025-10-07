@@ -100,11 +100,7 @@ export default function EnhancedChatMessage({
                 minute: '2-digit',
               })}
             </p>
-            {message.model && (
-              <Badge variant="outline" className="text-xs">
-                {modelInfo[message.model].name}
-              </Badge>
-            )}
+
             
             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
               {message.role === 'assistant' && (

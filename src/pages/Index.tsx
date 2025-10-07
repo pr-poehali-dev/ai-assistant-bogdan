@@ -20,9 +20,9 @@ import { useAdminControls } from '@/hooks/useAdminControls';
 import { useToast } from '@/hooks/use-toast';
 
 const modelInfo = {
-  gemini: { name: 'Gemini 2.0 Flash', fullName: 'Google Gemini 2.0 Flash Experimental', color: 'from-blue-500 to-blue-600', icon: 'Sparkles' },
-  llama: { name: 'Llama 3.3 70B', fullName: 'Meta Llama 3.3 70B Instruct', color: 'from-purple-500 to-purple-600', icon: 'Cpu' },
-  gigachat: { name: 'GigaChat', fullName: 'GigaChat (Сбер)', color: 'from-green-500 to-green-600', icon: 'MessageSquare' },
+  gemini: { name: 'Режим Скорость', fullName: 'Быстрые ответы для повседневных задач', color: 'from-blue-500 to-blue-600', icon: 'Zap' },
+  llama: { name: 'Режим Точность', fullName: 'Детальный анализ сложных вопросов', color: 'from-purple-500 to-purple-600', icon: 'Target' },
+  gigachat: { name: 'Режим Креатив', fullName: 'Творческие и нестандартные решения', color: 'from-green-500 to-green-600', icon: 'Lightbulb' },
 };
 
 export default function Index() {
@@ -108,7 +108,7 @@ export default function Index() {
     setShowSettingsDialog(false);
     toast({
       title: 'Настройки сохранены',
-      description: 'Параметры AI обновлены',
+      description: 'Параметры помощника обновлены',
     });
   };
 

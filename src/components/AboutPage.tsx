@@ -18,7 +18,7 @@ export default function AboutPage() {
           О проекте Богдан
         </h1>
         <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-          Персональный AI-помощник нового поколения с интеграцией лучших языковых моделей
+          Персональный помощник нового поколения с несколькими режимами работы
         </p>
       </div>
 
@@ -29,7 +29,7 @@ export default function AboutPage() {
           </div>
           <h3 className="text-xl font-bold text-slate-800 mb-2">Быстро</h3>
           <p className="text-slate-600">
-            Мгновенные ответы благодаря оптимизированной архитектуре и использованию современных AI моделей
+            Мгновенные ответы благодаря оптимизированной архитектуре и умным алгоритмам
           </p>
         </Card>
 
@@ -49,7 +49,7 @@ export default function AboutPage() {
           </div>
           <h3 className="text-xl font-bold text-slate-800 mb-2">Бесплатно</h3>
           <p className="text-slate-600">
-            Используйте бесплатные API от Google, Meta и Сбер без ограничений
+            Используйте помощника без ограничений и скрытых платежей
           </p>
         </Card>
       </div>
@@ -59,7 +59,7 @@ export default function AboutPage() {
         <div className="space-y-4 text-slate-700 leading-relaxed">
           <p className="text-lg">
             Богдан — это платформа, которая делает искусственный интеллект доступным для всех.
-            Мы объединили лучшие AI модели в одном интерфейсе, чтобы вы могли получить максимум
+            Мы создали интуитивный интерфейс с несколькими режимами работы, чтобы вы могли получить максимум
             от современных технологий.
           </p>
           <p className="text-lg">
@@ -76,12 +76,12 @@ export default function AboutPage() {
           <div className="space-y-3">
             <h3 className="text-xl font-semibold text-slate-700 flex items-center gap-2">
               <Icon name="Cpu" size={20} className="text-blue-600" />
-              AI Модели
+              Режимы работы
             </h3>
             <div className="space-y-2">
-              <Badge className="bg-blue-500">Google Gemini 2.0 Flash</Badge>
-              <Badge className="bg-purple-500 ml-2">Meta Llama 3.3 70B</Badge>
-              <Badge className="bg-green-500 ml-2">GigaChat</Badge>
+              <Badge className="bg-blue-500">Режим Скорость</Badge>
+              <Badge className="bg-purple-500 ml-2">Режим Точность</Badge>
+              <Badge className="bg-green-500 ml-2">Режим Креатив</Badge>
             </div>
           </div>
           <div className="space-y-3">

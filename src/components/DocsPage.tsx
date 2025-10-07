@@ -47,8 +47,7 @@ export default function DocsPage() {
                     Получите API ключи
                   </h3>
                   <p className="text-slate-600">
-                    Зарегистрируйтесь на платформах Google AI, Together AI и GigaChat для
-                    получения бесплатных API ключей
+                    Зарегистрируйтесь на платформах провайдеров для получения API ключей
                   </p>
                 </div>
               </div>
@@ -57,10 +56,10 @@ export default function DocsPage() {
                   2
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-800 mb-2">Настройте модели</h3>
+                  <h3 className="font-semibold text-slate-800 mb-2">Настройте режимы</h3>
                   <p className="text-slate-600">
                     Откройте панель управления (иконка настроек) и введите ваши API ключи для
-                    каждой модели
+                    каждого режима работы
                   </p>
                 </div>
               </div>
@@ -71,8 +70,8 @@ export default function DocsPage() {
                 <div>
                   <h3 className="font-semibold text-slate-800 mb-2">Начните общаться</h3>
                   <p className="text-slate-600">
-                    Введите ваш вопрос в поле ввода и получите ответ от AI. Система
-                    автоматически выберет лучшую модель
+                    Введите ваш вопрос в поле ввода и получите ответ. Система
+                    автоматически выберет оптимальный режим работы
                   </p>
                 </div>
               </div>
@@ -89,8 +88,8 @@ export default function DocsPage() {
             <div className="space-y-6">
               <div className="border-l-4 border-blue-500 pl-4">
                 <h3 className="font-bold text-lg text-slate-800 mb-2 flex items-center gap-2">
-                  <Badge className="bg-blue-500">Gemini</Badge>
-                  Google Gemini 2.0 Flash
+                  <Badge className="bg-blue-500">Режим Скорость</Badge>
+                  Быстрые ответы
                 </h3>
                 <ol className="list-decimal list-inside space-y-2 text-slate-600">
                   <li>Перейдите на aistudio.google.com</li>
@@ -102,8 +101,8 @@ export default function DocsPage() {
 
               <div className="border-l-4 border-purple-500 pl-4">
                 <h3 className="font-bold text-lg text-slate-800 mb-2 flex items-center gap-2">
-                  <Badge className="bg-purple-500">Llama</Badge>
-                  Meta Llama 3.3 70B
+                  <Badge className="bg-purple-500">Режим Точность</Badge>
+                  Детальный анализ
                 </h3>
                 <ol className="list-decimal list-inside space-y-2 text-slate-600">
                   <li>Зарегистрируйтесь на api.together.xyz</li>
@@ -115,8 +114,8 @@ export default function DocsPage() {
 
               <div className="border-l-4 border-green-500 pl-4">
                 <h3 className="font-bold text-lg text-slate-800 mb-2 flex items-center gap-2">
-                  <Badge className="bg-green-500">GigaChat</Badge>
-                  GigaChat от Сбер
+                  <Badge className="bg-green-500">Режим Креатив</Badge>
+                  Творческие решения
                 </h3>
                 <ol className="list-decimal list-inside space-y-2 text-slate-600">
                   <li>Перейдите на developers.sber.ru/gigachat</li>
@@ -186,11 +185,10 @@ export default function DocsPage() {
 
               <div className="p-4 border-l-4 border-purple-500 bg-purple-50 rounded-r-lg">
                 <h3 className="font-semibold text-slate-800 mb-2">
-                  Какие модели действительно бесплатны?
+                  Какие режимы доступны бесплатно?
                 </h3>
                 <p className="text-slate-600">
-                  Все три модели имеют бесплатные тарифы: Gemini (60 запросов/мин), Llama
-                  (бесплатный credits), GigaChat (лимиты для физлиц).
+                  Все три режима работы доступны в бесплатных тарифах провайдеров с определенными лимитами на количество запросов.
                 </p>
               </div>
 

@@ -74,13 +74,13 @@ export default function AdminPanel({
           <Tabs defaultValue="gemini" className="w-full">
             <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-xl">
               <TabsTrigger value="gemini" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
-                Gemini
+                Скорость
               </TabsTrigger>
               <TabsTrigger value="llama" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
-                Llama
+                Точность
               </TabsTrigger>
               <TabsTrigger value="gigachat" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
-                GigaChat
+                Креатив
               </TabsTrigger>
             </TabsList>
 
