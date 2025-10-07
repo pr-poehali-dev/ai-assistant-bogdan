@@ -7,6 +7,7 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,7 +17,6 @@ interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  model?: AIModel;
   timestamp: Date;
 }
 
@@ -26,14 +26,18 @@ interface APIConfig {
   gigachat: { key: string; enabled: boolean };
 }
 
+const ADMIN_PASSWORD = 'admin123';
+
 export default function Index() {
   const { toast } = useToast();
-  const [showAdmin, setShowAdmin] = useState(false);
+  const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       role: 'assistant',
-      content: 'Здравствуйте! Я — Богдан, ваш AI-помощник. Готов помочь вам с любыми задачами. Какая модель вам интересна?',
+      content: 'Здравствуйте! Чем могу помочь?',
       timestamp: new Date(),
     },
   ]);
@@ -51,22 +55,41 @@ export default function Index() {
     gigachat: { name: 'GigaChat', color: 'from-green-500 to-green-600', icon: 'MessageSquare' },
   };
 
+  const handleAdminLogin = () => {
+    if (passwordInput === ADMIN_PASSWORD) {
+      setIsAuthenticated(true);
+      setShowAdminDialog(false);
+      setPasswordInput('');
+      toast({
+        title: 'Успешный вход',
+        description: 'Добро пожаловать в панель управления',
+      });
+    } else {
+      toast({
+        title: 'Ошибка входа',
+        description: 'Неверный пароль',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleAdminLogout = () => {
+    setIsAuthenticated(false);
+    toast({
+      title: 'Выход выполнен',
+      description: 'Вы вышли из панели управления',
+    });
+  };
+
   const handleSendMessage = () => {
     if (!inputMessage.trim()) return;
 
-    if (!apiConfig[activeModel].enabled) {
+    const enabledModels = Object.entries(apiConfig).filter(([_, config]) => config.enabled && config.key);
+    
+    if (enabledModels.length === 0) {
       toast({
-        title: 'Модель отключена',
-        description: `${modelInfo[activeModel].name} отключена в настройках. Включите её в админ-панели.`,
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!apiConfig[activeModel].key) {
-      toast({
-        title: 'API ключ отсутствует',
-        description: `Добавьте API ключ для ${modelInfo[activeModel].name} в админ-панели.`,
+        title: 'Сервис недоступен',
+        description: 'Пожалуйста, попробуйте позже',
         variant: 'destructive',
       });
       return;
@@ -82,8 +105,7 @@ export default function Index() {
     const assistantMessage: Message = {
       id: (Date.now() + 1).toString(),
       role: 'assistant',
-      content: `[${modelInfo[activeModel].name}] Обрабатываю ваш запрос: "${inputMessage}". В реальной версии здесь будет ответ от AI модели.`,
-      model: activeModel,
+      content: `Обрабатываю ваш запрос: "${inputMessage}"`,
       timestamp: new Date(),
     };
 
@@ -112,99 +134,77 @@ export default function Index() {
   const saveSettings = () => {
     toast({
       title: 'Настройки сохранены',
-      description: 'Конфигурация API успешно обновлена',
+      description: 'Конфигурация успешно обновлена',
     });
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-              <Icon name="Brain" size={24} className="text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+      <header className="border-b border-slate-200/60 bg-white/60 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-6 py-5 flex items-center justify-between max-w-7xl">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
+              <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                <Icon name="MessageSquare" size={24} className="text-white" />
+              </div>
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">AI Помощник Богдан</h1>
-              <p className="text-xs text-gray-500">Профессиональная AI платформа</p>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                Богдан
+              </h1>
+              <p className="text-sm text-slate-500 font-medium">Персональный помощник</p>
             </div>
           </div>
           <Button
-            variant={showAdmin ? 'default' : 'outline'}
-            onClick={() => setShowAdmin(!showAdmin)}
-            className="gap-2"
+            variant="ghost"
+            size="icon"
+            onClick={() => {
+              if (isAuthenticated) {
+                handleAdminLogout();
+              } else {
+                setShowAdminDialog(true);
+              }
+            }}
+            className="rounded-xl hover:bg-slate-100"
           >
-            <Icon name="Settings" size={18} />
-            {showAdmin ? 'Скрыть админ-панель' : 'Админ-панель'}
+            <Icon name={isAuthenticated ? 'LogOut' : 'Settings'} size={20} className="text-slate-600" />
           </Button>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className={showAdmin ? 'lg:col-span-2' : 'lg:col-span-3'}>
-            <Card className="h-[calc(100vh-180px)] flex flex-col shadow-lg">
-              <div className="p-4 border-b bg-gradient-to-r from-gray-50 to-gray-100">
-                <div className="flex items-center justify-between mb-3">
-                  <h2 className="font-semibold text-gray-700">Выберите AI модель</h2>
-                  <Badge variant="outline" className="gap-1">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                    Онлайн
-                  </Badge>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  {Object.entries(modelInfo).map(([key, info]) => (
-                    <button
-                      key={key}
-                      onClick={() => setActiveModel(key as AIModel)}
-                      disabled={!apiConfig[key as AIModel].enabled}
-                      className={`p-3 rounded-lg border-2 transition-all ${
-                        activeModel === key
-                          ? 'border-blue-500 bg-blue-50'
-                          : 'border-gray-200 bg-white hover:border-gray-300'
-                      } ${!apiConfig[key as AIModel].enabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <div
-                          className={`w-10 h-10 rounded-lg bg-gradient-to-br ${info.color} flex items-center justify-center`}
-                        >
-                          <Icon name={info.icon as any} size={20} className="text-white" />
-                        </div>
-                        <span className="text-xs font-medium text-gray-700">{info.name}</span>
-                        {!apiConfig[key as AIModel].enabled && (
-                          <Badge variant="secondary" className="text-xs">
-                            Выкл
-                          </Badge>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <ScrollArea className="flex-1 p-6">
-                <div className="space-y-4">
+      <div className="container mx-auto px-6 py-8 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className={isAuthenticated ? 'lg:col-span-3' : 'lg:col-span-4'}>
+            <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
+              <ScrollArea className="flex-1 p-8">
+                <div className="space-y-6 max-w-4xl mx-auto">
                   {messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                      className={`flex gap-4 animate-fade-in ${
+                        message.role === 'user' ? 'justify-end' : 'justify-start'
+                      }`}
                     >
                       {message.role === 'assistant' && (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0">
-                          <Icon name="Bot" size={16} className="text-white" />
+                        <div className="relative flex-shrink-0">
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
+                          <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                            <Icon name="Sparkles" size={18} className="text-white" />
+                          </div>
                         </div>
                       )}
                       <div
-                        className={`max-w-[70%] rounded-2xl px-4 py-3 ${
+                        className={`max-w-[75%] rounded-3xl px-6 py-4 shadow-md ${
                           message.role === 'user'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-white border border-gray-200'
+                            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
+                            : 'bg-white border border-slate-200'
                         }`}
                       >
-                        <p className="text-sm">{message.content}</p>
+                        <p className="text-[15px] leading-relaxed">{message.content}</p>
                         <p
-                          className={`text-xs mt-1 ${
-                            message.role === 'user' ? 'text-blue-100' : 'text-gray-400'
+                          className={`text-xs mt-2 ${
+                            message.role === 'user' ? 'text-blue-100' : 'text-slate-400'
                           }`}
                         >
                           {message.timestamp.toLocaleTimeString('ru-RU', {
@@ -214,8 +214,11 @@ export default function Index() {
                         </p>
                       </div>
                       {message.role === 'user' && (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-gray-400 to-gray-500 flex items-center justify-center flex-shrink-0">
-                          <Icon name="User" size={16} className="text-white" />
+                        <div className="relative flex-shrink-0">
+                          <div className="absolute inset-0 bg-gradient-to-br from-slate-400 to-slate-500 rounded-2xl blur opacity-20"></div>
+                          <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-400 to-slate-500 flex items-center justify-center shadow-lg">
+                            <Icon name="User" size={18} className="text-white" />
+                          </div>
                         </div>
                       )}
                     </div>
@@ -223,80 +226,88 @@ export default function Index() {
                 </div>
               </ScrollArea>
 
-              <div className="p-4 border-t bg-white">
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Введите ваш вопрос..."
-                    value={inputMessage}
-                    onChange={(e) => setInputMessage(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    className="flex-1"
-                  />
-                  <Button onClick={handleSendMessage} className="gap-2 bg-blue-500 hover:bg-blue-600">
-                    <Icon name="Send" size={18} />
-                    Отправить
+              <div className="p-6 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
+                <div className="flex gap-3 max-w-4xl mx-auto">
+                  <div className="relative flex-1">
+                    <Input
+                      placeholder="Введите сообщение..."
+                      value={inputMessage}
+                      onChange={(e) => setInputMessage(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      className="h-14 px-6 text-[15px] rounded-2xl border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 bg-white shadow-sm"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleSendMessage}
+                    className="h-14 px-8 gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                  >
+                    <Icon name="Send" size={20} />
+                    <span className="font-medium">Отправить</span>
                   </Button>
                 </div>
               </div>
             </Card>
           </div>
 
-          {showAdmin && (
+          {isAuthenticated && (
             <div className="lg:col-span-1">
-              <Card className="h-[calc(100vh-180px)] flex flex-col shadow-lg">
-                <div className="p-4 border-b bg-gradient-to-r from-blue-50 to-blue-100">
-                  <div className="flex items-center gap-2">
-                    <Icon name="Shield" size={20} className="text-blue-600" />
-                    <h2 className="font-semibold text-gray-800">Админ-панель</h2>
+              <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
+                <div className="p-6 border-b border-slate-200/60 bg-gradient-to-r from-blue-50 to-purple-50">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Icon name="Shield" size={22} className="text-blue-600" />
+                    <h2 className="font-bold text-slate-800 text-lg">Управление</h2>
                   </div>
-                  <p className="text-xs text-gray-600 mt-1">Управление API ключами</p>
+                  <p className="text-sm text-slate-600">Конфигурация системы</p>
                 </div>
 
-                <ScrollArea className="flex-1 p-4">
+                <ScrollArea className="flex-1 p-5">
                   <Tabs defaultValue="gemini" className="w-full">
-                    <TabsList className="grid w-full grid-cols-3">
-                      <TabsTrigger value="gemini" className="text-xs">
+                    <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-xl">
+                      <TabsTrigger value="gemini" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
                         Gemini
                       </TabsTrigger>
-                      <TabsTrigger value="llama" className="text-xs">
+                      <TabsTrigger value="llama" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
                         Llama
                       </TabsTrigger>
-                      <TabsTrigger value="gigachat" className="text-xs">
+                      <TabsTrigger value="gigachat" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
                         GigaChat
                       </TabsTrigger>
                     </TabsList>
 
                     {Object.entries(modelInfo).map(([key, info]) => (
-                      <TabsContent key={key} value={key} className="space-y-4 mt-4">
+                      <TabsContent key={key} value={key} className="space-y-5 mt-5">
                         <div className="space-y-4">
                           <div
-                            className={`p-4 rounded-lg bg-gradient-to-br ${info.color} text-white flex items-center gap-3`}
+                            className={`p-5 rounded-2xl bg-gradient-to-br ${info.color} text-white flex items-center gap-3 shadow-lg`}
                           >
-                            <Icon name={info.icon as any} size={24} />
+                            <Icon name={info.icon as any} size={28} />
                             <div>
-                              <h3 className="font-semibold">{info.name}</h3>
-                              <p className="text-xs opacity-90">Настройки интеграции</p>
+                              <h3 className="font-bold text-base">{info.name}</h3>
+                              <p className="text-sm opacity-90">Интеграция</p>
                             </div>
                           </div>
 
                           <div className="space-y-2">
-                            <Label htmlFor={`${key}-key`}>API ключ</Label>
+                            <Label htmlFor={`${key}-key`} className="text-sm font-semibold text-slate-700">
+                              API Ключ
+                            </Label>
                             <Input
                               id={`${key}-key`}
                               type="password"
-                              placeholder="Введите API ключ..."
+                              placeholder="Введите ключ..."
                               value={apiConfig[key as AIModel].key}
                               onChange={(e) => handleAPIKeyChange(key as AIModel, e.target.value)}
+                              className="rounded-xl border-slate-200"
                             />
                           </div>
 
-                          <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+                          <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
                             <div className="flex items-center gap-2">
-                              <Label htmlFor={`${key}-toggle`}>Модель активна</Label>
+                              <Label htmlFor={`${key}-toggle`} className="text-sm font-medium text-slate-700">
+                                Активна
+                              </Label>
                               {apiConfig[key as AIModel].enabled && (
-                                <Badge variant="default" className="text-xs bg-green-500">
-                                  Включена
-                                </Badge>
+                                <Badge className="text-xs bg-green-500 hover:bg-green-600">Вкл</Badge>
                               )}
                             </div>
                             <Switch
@@ -306,19 +317,19 @@ export default function Index() {
                             />
                           </div>
 
-                          <div className="space-y-2 pt-2">
-                            <h4 className="text-sm font-medium text-gray-700">Статус</h4>
-                            <div className="grid grid-cols-2 gap-2">
-                              <div className="p-2 rounded bg-gray-50 text-center">
-                                <p className="text-xs text-gray-500">API ключ</p>
-                                <p className="text-sm font-semibold text-gray-700">
-                                  {apiConfig[key as AIModel].key ? 'Установлен' : 'Не задан'}
+                          <div className="space-y-3 pt-2">
+                            <h4 className="text-sm font-semibold text-slate-700">Статус</h4>
+                            <div className="grid grid-cols-2 gap-3">
+                              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                                <p className="text-xs text-slate-500 mb-1">Ключ</p>
+                                <p className="text-sm font-bold text-slate-700">
+                                  {apiConfig[key as AIModel].key ? '✓ Есть' : '✗ Нет'}
                                 </p>
                               </div>
-                              <div className="p-2 rounded bg-gray-50 text-center">
-                                <p className="text-xs text-gray-500">Состояние</p>
-                                <p className="text-sm font-semibold text-gray-700">
-                                  {apiConfig[key as AIModel].enabled ? 'Активна' : 'Отключена'}
+                              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
+                                <p className="text-xs text-slate-500 mb-1">Режим</p>
+                                <p className="text-sm font-bold text-slate-700">
+                                  {apiConfig[key as AIModel].enabled ? '✓ Вкл' : '✗ Выкл'}
                                 </p>
                               </div>
                             </div>
@@ -329,10 +340,13 @@ export default function Index() {
                   </Tabs>
                 </ScrollArea>
 
-                <div className="p-4 border-t bg-white">
-                  <Button onClick={saveSettings} className="w-full gap-2 bg-green-600 hover:bg-green-700">
+                <div className="p-5 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
+                  <Button
+                    onClick={saveSettings}
+                    className="w-full gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl shadow-lg h-12"
+                  >
                     <Icon name="Save" size={18} />
-                    Сохранить настройки
+                    <span className="font-medium">Сохранить</span>
                   </Button>
                 </div>
               </Card>
@@ -340,6 +354,41 @@ export default function Index() {
           )}
         </div>
       </div>
+
+      <Dialog open={showAdminDialog} onOpenChange={setShowAdminDialog}>
+        <DialogContent className="sm:max-w-md rounded-3xl border-0 shadow-2xl">
+          <DialogHeader>
+            <div className="flex justify-center mb-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
+                <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                  <Icon name="Lock" size={32} className="text-white" />
+                </div>
+              </div>
+            </div>
+            <DialogTitle className="text-center text-2xl font-bold">Вход в систему</DialogTitle>
+            <DialogDescription className="text-center text-slate-600">
+              Введите пароль для доступа к панели управления
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-4">
+            <Input
+              type="password"
+              placeholder="Пароль"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleAdminLogin()}
+              className="h-12 rounded-xl border-slate-200"
+            />
+            <Button
+              onClick={handleAdminLogin}
+              className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg font-medium"
+            >
+              Войти
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
