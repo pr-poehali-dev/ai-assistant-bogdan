@@ -20,23 +20,23 @@ const QUICK_PROMPTS = [
 
 export default function QuickPrompts({ onSelectPrompt }: QuickPromptsProps) {
   return (
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 gap-2">
       {QUICK_PROMPTS.map((prompt, idx) => (
-        <div
+        <button
           key={idx}
-          className="p-4 rounded-2xl bg-gradient-to-br from-slate-700 to-slate-800 cursor-pointer hover:from-slate-600 hover:to-slate-700 transition-all shadow-lg hover:shadow-xl"
+          className="p-3 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100 hover:from-blue-50 hover:to-blue-100 cursor-pointer transition-all border border-slate-200 hover:border-blue-300 text-left group"
           onClick={() => onSelectPrompt(prompt.title)}
         >
-          <div className="flex flex-col items-center text-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center">
-              <Icon name={prompt.icon as any} size={28} className="text-white" />
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform">
+              <Icon name={prompt.icon as any} size={18} className="text-white" />
             </div>
-            <div>
-              <h4 className="text-base font-bold text-white mb-1">{prompt.title}</h4>
-              <p className="text-xs text-white/80 leading-relaxed">{prompt.description}</p>
+            <div className="flex-1 min-w-0">
+              <h4 className="text-sm font-bold text-slate-800 mb-0.5">{prompt.title}</h4>
+              <p className="text-xs text-slate-600 line-clamp-1">{prompt.description}</p>
             </div>
           </div>
-        </div>
+        </button>
       ))}
     </div>
   );

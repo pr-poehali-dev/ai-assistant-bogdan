@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import BurgerMenu from '@/components/BurgerMenu';
 import AboutPage from '@/components/AboutPage';
 import FeaturesPage from '@/components/FeaturesPage';
@@ -13,6 +15,9 @@ import EnhancedSettingsDialog from '@/components/dialogs/EnhancedSettingsDialog'
 import SessionManager from '@/components/SessionManager';
 import StatsPanel from '@/components/StatsPanel';
 import QuickPrompts from '@/components/QuickPrompts';
+import AIAssistants from '@/components/AIAssistants';
+import KnowledgeBase from '@/components/KnowledgeBase';
+import Marketplace from '@/components/Marketplace';
 import { useChatLogic } from '@/hooks/useChatLogic';
 import { useVoiceControl } from '@/hooks/useVoiceControl';
 import { useSessionManager } from '@/hooks/useSessionManager';
@@ -28,6 +33,7 @@ const modelInfo = {
 export default function Index() {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState('chat');
+  const [activeTab, setActiveTab] = useState('chat');
   const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredMessages, setFilteredMessages] = useState<any[]>([]);
@@ -112,36 +118,66 @@ export default function Index() {
     });
   };
 
+  if (currentPage !== 'chat') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+        <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+          <div className="container mx-auto px-6 py-5 flex items-center justify-between max-w-7xl">
+            <div className="flex items-center gap-4">
+              <BurgerMenu onNavigate={setCurrentPage} currentPage={currentPage} />
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
+                <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                  <Icon name="MessageSquare" size={24} className="text-white" />
+                </div>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                  Богдан
+                </h1>
+                <p className="text-sm text-slate-500 font-medium">Экосистема ИИ</p>
+              </div>
+            </div>
+          </div>
+        </header>
+        <div className="container mx-auto px-6 py-8 max-w-7xl">
+          {currentPage === 'about' && <AboutPage />}
+          {currentPage === 'features' && <FeaturesPage />}
+          {currentPage === 'team' && <TeamPage />}
+          {currentPage === 'docs' && <DocsPage />}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-      <header className="border-b border-slate-200/60 bg-white/60 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
-        <div className="container mx-auto px-6 py-5 flex items-center justify-between max-w-7xl">
+      <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+        <div className="container mx-auto px-6 py-4 flex items-center justify-between max-w-[1600px]">
           <div className="flex items-center gap-4">
             <BurgerMenu onNavigate={setCurrentPage} currentPage={currentPage} />
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
               <div className="relative w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
-                <Icon name="MessageSquare" size={24} className="text-white" />
+                <Icon name="Bot" size={24} className="text-white" />
               </div>
             </div>
             <div>
               <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                Богдан
+                Богдан AI
               </h1>
-              <p className="text-sm text-slate-500 font-medium">Персональный помощник</p>
+              <p className="text-xs text-slate-500 font-medium">Экосистема искусственного интеллекта</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {currentPage === 'chat' && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setShowSettingsDialog(true)}
-                className="rounded-xl hover:bg-slate-100"
-              >
-                <Icon name="Sliders" size={20} className="text-slate-600" />
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSettingsDialog(true)}
+              className="rounded-xl hover:bg-slate-100"
+            >
+              <Icon name="Sliders" size={20} className="text-slate-600" />
+            </Button>
             <Button
               variant="ghost"
               size="icon"
@@ -160,86 +196,175 @@ export default function Index() {
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8 max-w-7xl">
-        {currentPage === 'about' && <AboutPage />}
-        {currentPage === 'features' && <FeaturesPage />}
-        {currentPage === 'team' && <TeamPage />}
-        {currentPage === 'docs' && <DocsPage />}
-        {currentPage === 'chat' && (
-          <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
-            <div className="lg:col-span-1 space-y-4">
-              <SessionManager
-                sessions={sessionManager.chatSessions}
-                currentSessionId={sessionManager.currentSessionId}
-                onCreateSession={handleCreateNewSession}
-                onSwitchSession={handleSwitchSession}
-                onDeleteSession={handleDeleteSession}
-                onRenameSession={sessionManager.renameSession}
-                onExportAll={sessionManager.exportAllSessions}
-                onImport={sessionManager.importSessions}
-              />
-              <StatsPanel
-                stats={chatLogic.stats}
-                modelInfo={modelInfo}
-                onClearStats={() => adminControls.clearStats(chatLogic.setStats)}
-              />
-              <QuickPrompts
-                onSelectPrompt={(prompt) => chatLogic.setInputMessage(prompt)}
-              />
-            </div>
+      <div className="container mx-auto px-6 py-6 max-w-[1600px]">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-sm p-1.5 rounded-2xl shadow-lg mb-6 max-w-3xl mx-auto">
+            <TabsTrigger value="chat" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white">
+              <Icon name="MessageSquare" size={16} className="mr-2" />
+              Чат
+            </TabsTrigger>
+            <TabsTrigger value="assistants" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white">
+              <Icon name="Users" size={16} className="mr-2" />
+              Ассистенты
+            </TabsTrigger>
+            <TabsTrigger value="knowledge" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white">
+              <Icon name="BookOpen" size={16} className="mr-2" />
+              База знаний
+            </TabsTrigger>
+            <TabsTrigger value="marketplace" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white">
+              <Icon name="ShoppingBag" size={16} className="mr-2" />
+              Маркетплейс
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="rounded-xl data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white">
+              <Icon name="BarChart3" size={16} className="mr-2" />
+              Аналитика
+            </TabsTrigger>
+          </TabsList>
 
-            <div className={adminControls.isAuthenticated ? 'lg:col-span-4' : 'lg:col-span-5'}>
-              <EnhancedChatArea
-                messages={chatLogic.messages}
-                currentModel={chatLogic.currentModel}
-                selectedModel={chatLogic.selectedModel}
-                isLoading={chatLogic.isLoading}
-                inputMessage={chatLogic.inputMessage}
-                isListening={voiceControl.isListening}
-                isSpeaking={voiceControl.isSpeaking}
-                showSearch={showSearch}
-                searchQuery={searchQuery}
-                filteredMessages={filteredMessages}
-                modelInfo={modelInfo}
-                onInputChange={chatLogic.setInputMessage}
-                onSendMessage={chatLogic.handleSendMessage}
-                onExportChat={chatLogic.exportChat}
-                onClearHistory={chatLogic.clearHistory}
-                onStartListening={() => voiceControl.startListening(chatLogic.setInputMessage)}
-                onStopListening={voiceControl.stopListening}
-                onSpeak={voiceControl.speakText}
-                onCopyMessage={chatLogic.copyMessageToClipboard}
-                onRegenerateResponse={chatLogic.regenerateResponse}
-                onAddReaction={chatLogic.addReaction}
-                onToggleSearch={() => setShowSearch(!showSearch)}
-                onSearchChange={setSearchQuery}
-                onSelectSearchResult={(id) => {
-                  const element = document.getElementById(`message-${id}`);
-                  element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }}
-                onModelSelect={chatLogic.setSelectedModel}
-                onFileUpload={chatLogic.handleFileUpload}
-                fileInputRef={fileInputRef}
-              />
-            </div>
+          <TabsContent value="chat" className="mt-0">
+            <div className="grid grid-cols-12 gap-6">
+              <div className="col-span-2">
+                <div className="space-y-4">
+                  <Card className="p-4 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                    <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                      <Icon name="Folder" size={18} className="text-blue-600" />
+                      Сессии
+                    </h3>
+                    <SessionManager
+                      sessions={sessionManager.chatSessions}
+                      currentSessionId={sessionManager.currentSessionId}
+                      onCreateSession={handleCreateNewSession}
+                      onSwitchSession={handleSwitchSession}
+                      onDeleteSession={handleDeleteSession}
+                      onRenameSession={sessionManager.renameSession}
+                      onExportAll={sessionManager.exportAllSessions}
+                      onImport={sessionManager.importSessions}
+                    />
+                  </Card>
+                  <Card className="p-4 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                    <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                      <Icon name="TrendingUp" size={18} className="text-green-600" />
+                      Статистика
+                    </h3>
+                    <StatsPanel
+                      stats={chatLogic.stats}
+                      modelInfo={modelInfo}
+                      onClearStats={() => adminControls.clearStats(chatLogic.setStats)}
+                    />
+                  </Card>
+                </div>
+              </div>
 
-            {adminControls.isAuthenticated && (
-              <AdminPanel
-                apiConfig={chatLogic.apiConfig}
-                stats={chatLogic.stats}
-                modelInfo={modelInfo}
-                onAPIKeyChange={(model, key) => 
-                  adminControls.handleAPIKeyChange(model, key, chatLogic.apiConfig, chatLogic.setApiConfig)
-                }
-                onToggleModel={(model, enabled) => 
-                  adminControls.handleToggleModel(model, enabled, chatLogic.apiConfig, chatLogic.setApiConfig)
-                }
-                onSaveSettings={() => adminControls.saveSettings(chatLogic.apiConfig)}
-                onClearStats={() => adminControls.clearStats(chatLogic.setStats)}
-              />
-            )}
-          </div>
-        )}
+              <div className="col-span-8">
+                <EnhancedChatArea
+                  messages={chatLogic.messages}
+                  currentModel={chatLogic.currentModel}
+                  selectedModel={chatLogic.selectedModel}
+                  isLoading={chatLogic.isLoading}
+                  inputMessage={chatLogic.inputMessage}
+                  isListening={voiceControl.isListening}
+                  isSpeaking={voiceControl.isSpeaking}
+                  showSearch={showSearch}
+                  searchQuery={searchQuery}
+                  filteredMessages={filteredMessages}
+                  modelInfo={modelInfo}
+                  onInputChange={chatLogic.setInputMessage}
+                  onSendMessage={chatLogic.handleSendMessage}
+                  onExportChat={chatLogic.exportChat}
+                  onClearHistory={chatLogic.clearHistory}
+                  onStartListening={() => voiceControl.startListening(chatLogic.setInputMessage)}
+                  onStopListening={voiceControl.stopListening}
+                  onSpeak={voiceControl.speakText}
+                  onCopyMessage={chatLogic.copyMessageToClipboard}
+                  onRegenerateResponse={chatLogic.regenerateResponse}
+                  onAddReaction={chatLogic.addReaction}
+                  onToggleSearch={() => setShowSearch(!showSearch)}
+                  onSearchChange={setSearchQuery}
+                  onSelectSearchResult={(id) => {
+                    const element = document.getElementById(`message-${id}`);
+                    element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                  }}
+                  onModelSelect={chatLogic.setSelectedModel}
+                  onFileUpload={chatLogic.handleFileUpload}
+                  fileInputRef={fileInputRef}
+                />
+              </div>
+
+              <div className="col-span-2">
+                <div className="space-y-4">
+                  <Card className="p-4 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                    <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
+                      <Icon name="Sparkles" size={18} className="text-purple-600" />
+                      Быстрые действия
+                    </h3>
+                    <QuickPrompts
+                      onSelectPrompt={(prompt) => chatLogic.setInputMessage(prompt)}
+                    />
+                  </Card>
+                  {adminControls.isAuthenticated && (
+                    <AdminPanel
+                      apiConfig={chatLogic.apiConfig}
+                      stats={chatLogic.stats}
+                      modelInfo={modelInfo}
+                      onAPIKeyChange={(model, key) => 
+                        adminControls.handleAPIKeyChange(model, key, chatLogic.apiConfig, chatLogic.setApiConfig)
+                      }
+                      onToggleModel={(model, enabled) => 
+                        adminControls.handleToggleModel(model, enabled, chatLogic.apiConfig, chatLogic.setApiConfig)
+                      }
+                      onSaveSettings={() => adminControls.saveSettings(chatLogic.apiConfig)}
+                      onClearStats={() => adminControls.clearStats(chatLogic.setStats)}
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="assistants" className="mt-0">
+            <AIAssistants />
+          </TabsContent>
+
+          <TabsContent value="knowledge" className="mt-0">
+            <KnowledgeBase />
+          </TabsContent>
+
+          <TabsContent value="marketplace" className="mt-0">
+            <Marketplace />
+          </TabsContent>
+
+          <TabsContent value="analytics" className="mt-0">
+            <Card className="p-8 bg-white/80 backdrop-blur-sm border-0 shadow-xl">
+              <div className="text-center space-y-4">
+                <Icon name="BarChart3" size={64} className="text-blue-600 mx-auto" />
+                <h2 className="text-3xl font-bold text-slate-800">Аналитика</h2>
+                <p className="text-slate-600 max-w-2xl mx-auto">
+                  Детальная статистика использования, анализ эффективности запросов и персональные рекомендации
+                </p>
+                <div className="grid md:grid-cols-3 gap-6 mt-8">
+                  <Card className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 border-0">
+                    <Icon name="Activity" size={32} className="text-blue-600 mb-3" />
+                    <h3 className="font-bold text-xl text-slate-800 mb-2">Активность</h3>
+                    <p className="text-3xl font-bold text-blue-600">{chatLogic.messages.length}</p>
+                    <p className="text-sm text-slate-600 mt-1">Всего сообщений</p>
+                  </Card>
+                  <Card className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 border-0">
+                    <Icon name="Clock" size={32} className="text-purple-600 mb-3" />
+                    <h3 className="font-bold text-xl text-slate-800 mb-2">Сессии</h3>
+                    <p className="text-3xl font-bold text-purple-600">{sessionManager.chatSessions.length}</p>
+                    <p className="text-sm text-slate-600 mt-1">Всего диалогов</p>
+                  </Card>
+                  <Card className="p-6 bg-gradient-to-br from-green-50 to-green-100 border-0">
+                    <Icon name="TrendingUp" size={32} className="text-green-600 mb-3" />
+                    <h3 className="font-bold text-xl text-slate-800 mb-2">Эффективность</h3>
+                    <p className="text-3xl font-bold text-green-600">98%</p>
+                    <p className="text-sm text-slate-600 mt-1">Успешных ответов</p>
+                  </Card>
+                </div>
+              </div>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
 
       <AdminLoginDialog
