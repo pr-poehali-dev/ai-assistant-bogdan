@@ -145,7 +145,12 @@ export function useChatLogic() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Ошибка запроса');
+        let errorMsg = data.error || 'Ошибка запроса';
+        if (data.details && Array.isArray(data.details)) {
+          const errorDetails = data.details.map((d: any) => `${d.model}: ${d.error}`).join(', ');
+          errorMsg = `${errorMsg}. Детали: ${errorDetails}`;
+        }
+        throw new Error(errorMsg);
       }
 
       const assistantMessage: Message = {
@@ -171,16 +176,34 @@ export function useChatLogic() {
         });
       }
     } catch (error: any) {
+      let errorTitle = 'Ошибка подключения';
+      let errorDescription = error.message || 'Не удалось получить ответ';
+      let userFriendlyMessage = 'Извините, произошла ошибка. ';
+      
+      if (error.message?.includes('timeout')) {
+        errorTitle = 'Превышено время ожидания';
+        errorDescription = 'Сервис не отвечает. Попробуйте другой режим работы.';
+        userFriendlyMessage = '⏱️ Сервис не успел ответить. Попробуйте переключиться на другой режим работы в настройках или попробуйте позже.';
+      } else if (error.message?.includes('API') || error.message?.includes('key')) {
+        errorTitle = 'Ошибка API';
+        errorDescription = 'Проверьте API ключи в настройках';
+        userFriendlyMessage = '🔑 Проверьте API ключи. Войдите как администратор (кнопка шестеренка справа вверху) и настройте хотя бы один режим работы.';
+      } else if (error.message?.includes('network') || error.message?.includes('fetch')) {
+        errorTitle = 'Проблема с сетью';
+        errorDescription = 'Проверьте интернет-соединение';
+        userFriendlyMessage = '🌐 Проблема с интернет-соединением. Проверьте подключение к сети.';
+      }
+      
       toast({
-        title: 'Ошибка',
-        description: error.message || 'Не удалось получить ответ',
+        title: errorTitle,
+        description: errorDescription,
         variant: 'destructive',
       });
 
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: 'Извините, произошла ошибка. Пожалуйста, проверьте настройки API ключей.',
+        content: userFriendlyMessage,
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, errorMessage]);

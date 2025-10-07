@@ -292,6 +292,27 @@ export default function Index() {
 
               <div className="col-span-2">
                 <div className="space-y-4">
+                  {!adminControls.isAuthenticated && Object.values(chatLogic.apiConfig).every(c => !c.key || !c.enabled) && (
+                    <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-lg">
+                      <div className="flex items-start gap-3">
+                        <Icon name="AlertCircle" size={20} className="text-amber-600 mt-0.5" />
+                        <div className="flex-1">
+                          <h4 className="font-semibold text-amber-900 text-sm mb-1">Требуется настройка</h4>
+                          <p className="text-xs text-amber-700 mb-2">
+                            Для работы ИИ необходимо настроить API ключи
+                          </p>
+                          <Button
+                            size="sm"
+                            onClick={() => adminControls.setShowAdminDialog(true)}
+                            className="bg-amber-600 hover:bg-amber-700 text-white text-xs h-7"
+                          >
+                            <Icon name="Settings" size={14} className="mr-1" />
+                            Настроить сейчас
+                          </Button>
+                        </div>
+                      </div>
+                    </Card>
+                  )}
                   <Card className="p-4 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
                     <h3 className="font-bold text-slate-800 mb-3 flex items-center gap-2">
                       <Icon name="Sparkles" size={18} className="text-purple-600" />

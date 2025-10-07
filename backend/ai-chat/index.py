@@ -109,7 +109,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
 
 def call_gemini_2_flash(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
-    '''Call Google Gemini 2.0 Flash Experimental (free)'''
+    '''Call Google Gemini 2.0 Flash Experimental with timeout protection'''
     import requests
     
     url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={api_key}'
@@ -141,8 +141,13 @@ def call_gemini_2_flash(message: str, api_key: str, history: List[Dict[str, str]
             'parts': [{'text': settings['system_prompt']}]
         }
     
-    response = requests.post(url, json=payload, timeout=30)
-    response.raise_for_status()
+    try:
+        response = requests.post(url, json=payload, timeout=25)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise Exception('Gemini timeout - try again')
+    except requests.exceptions.RequestException as e:
+        raise Exception(f'Gemini API error: {str(e)}')
     
     data = response.json()
     
@@ -153,7 +158,7 @@ def call_gemini_2_flash(message: str, api_key: str, history: List[Dict[str, str]
 
 
 def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
-    '''Call Meta Llama 3.3 70B Instruct (free via Together AI)'''
+    '''Call Meta Llama 3.3 70B Instruct with timeout protection'''
     import requests
     
     url = 'https://api.together.xyz/v1/chat/completions'
@@ -189,8 +194,13 @@ def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]],
         'max_tokens': settings.get('max_tokens', 2048),
     }
     
-    response = requests.post(url, headers=headers, json=payload, timeout=60)
-    response.raise_for_status()
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=25)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise Exception('Llama timeout - try again')
+    except requests.exceptions.RequestException as e:
+        raise Exception(f'Llama API error: {str(e)}')
     
     data = response.json()
     
@@ -201,7 +211,7 @@ def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]],
 
 
 def call_gigachat(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
-    '''Call GigaChat API (Sber)'''
+    '''Call GigaChat API (Sber) with timeout protection'''
     import requests
     import uuid
     
@@ -213,10 +223,17 @@ def call_gigachat(message: str, api_key: str, history: List[Dict[str, str]], set
     }
     auth_data = {'scope': 'GIGACHAT_API_PERS'}
     
-    auth_response = requests.post(auth_url, headers=auth_headers, data=auth_data, timeout=10, verify=False)
-    auth_response.raise_for_status()
+    try:
+        auth_response = requests.post(auth_url, headers=auth_headers, data=auth_data, timeout=5, verify=False)
+        auth_response.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise Exception('GigaChat auth timeout - service unavailable')
+    except requests.exceptions.RequestException as e:
+        raise Exception(f'GigaChat auth failed: {str(e)}')
     
-    access_token = auth_response.json()['access_token']
+    access_token = auth_response.json().get('access_token')
+    if not access_token:
+        raise Exception('No access token in GigaChat response')
     
     chat_url = 'https://gigachat.devices.sberbank.ru/api/v1/chat/completions'
     chat_headers = {
@@ -247,11 +264,16 @@ def call_gigachat(message: str, api_key: str, history: List[Dict[str, str]], set
         'model': 'GigaChat',
         'messages': messages,
         'temperature': settings.get('temperature', 0.7),
-        'max_tokens': settings.get('max_tokens', 2048)
+        'max_tokens': min(settings.get('max_tokens', 2048), 1024)
     }
     
-    chat_response = requests.post(chat_url, headers=chat_headers, json=chat_payload, timeout=30, verify=False)
-    chat_response.raise_for_status()
+    try:
+        chat_response = requests.post(chat_url, headers=chat_headers, json=chat_payload, timeout=20, verify=False)
+        chat_response.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise Exception('GigaChat response timeout - try again later')
+    except requests.exceptions.RequestException as e:
+        raise Exception(f'GigaChat API error: {str(e)}')
     
     data = chat_response.json()
     
