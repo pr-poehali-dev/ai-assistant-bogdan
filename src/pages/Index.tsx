@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -42,12 +42,19 @@ export default function Index() {
     },
   ]);
   const [inputMessage, setInputMessage] = useState('');
-  const [activeModel, setActiveModel] = useState<AIModel>('gemini');
-  const [apiConfig, setApiConfig] = useState<APIConfig>({
-    gemini: { key: '', enabled: true },
-    llama: { key: '', enabled: true },
-    gigachat: { key: '', enabled: true },
+  const [isLoading, setIsLoading] = useState(false);
+  const [apiConfig, setApiConfig] = useState<APIConfig>(() => {
+    const saved = localStorage.getItem('ai-config');
+    return saved ? JSON.parse(saved) : {
+      gemini: { key: '', enabled: true },
+      llama: { key: '', enabled: true },
+      gigachat: { key: '', enabled: true },
+    };
   });
+
+  useEffect(() => {
+    localStorage.setItem('ai-config', JSON.stringify(apiConfig));
+  }, [apiConfig]);
 
   const modelInfo = {
     gemini: { name: 'Google Gemini', color: 'from-blue-500 to-blue-600', icon: 'Sparkles' },
@@ -81,15 +88,15 @@ export default function Index() {
     });
   };
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || isLoading) return;
 
     const enabledModels = Object.entries(apiConfig).filter(([_, config]) => config.enabled && config.key);
     
     if (enabledModels.length === 0) {
       toast({
         title: 'Сервис недоступен',
-        description: 'Пожалуйста, попробуйте позже',
+        description: 'Настройте хотя бы одну AI модель в панели управления',
         variant: 'destructive',
       });
       return;
@@ -102,15 +109,61 @@ export default function Index() {
       timestamp: new Date(),
     };
 
-    const assistantMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      role: 'assistant',
-      content: `Обрабатываю ваш запрос: "${inputMessage}"`,
-      timestamp: new Date(),
-    };
-
-    setMessages([...messages, userMessage, assistantMessage]);
+    setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputMessage;
     setInputMessage('');
+    setIsLoading(true);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/81fdec08-160f-4043-a2da-cefa0ffbdf22', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: currentInput,
+          models: apiConfig,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Ошибка запроса');
+      }
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: data.response,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+
+      if (data.fallback_used) {
+        toast({
+          title: 'Использовано резервирование',
+          description: `Ответ получен от ${modelInfo[data.model as AIModel]?.name || data.model}`,
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Ошибка',
+        description: error.message || 'Не удалось получить ответ',
+        variant: 'destructive',
+      });
+
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: 'assistant',
+        content: 'Извините, произошла ошибка. Пожалуйста, проверьте настройки API ключей.',
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleAPIKeyChange = (model: AIModel, key: string) => {
@@ -132,6 +185,7 @@ export default function Index() {
   };
 
   const saveSettings = () => {
+    localStorage.setItem('ai-config', JSON.stringify(apiConfig));
     toast({
       title: 'Настройки сохранены',
       description: 'Конфигурация успешно обновлена',
@@ -239,10 +293,20 @@ export default function Index() {
                   </div>
                   <Button
                     onClick={handleSendMessage}
-                    className="h-14 px-8 gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-2xl shadow-lg hover:shadow-xl transition-all"
+                    disabled={isLoading}
+                    className="h-14 px-8 gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-2xl shadow-lg hover:shadow-xl transition-all disabled:opacity-50"
                   >
-                    <Icon name="Send" size={20} />
-                    <span className="font-medium">Отправить</span>
+                    {isLoading ? (
+                      <>
+                        <Icon name="Loader2" size={20} className="animate-spin" />
+                        <span className="font-medium">Отправка...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="Send" size={20} />
+                        <span className="font-medium">Отправить</span>
+                      </>
+                    )}
                   </Button>
                 </div>
               </div>
