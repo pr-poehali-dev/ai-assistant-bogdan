@@ -4,10 +4,10 @@ from typing import Dict, Any, List, Optional
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: AI chat endpoint with fallback between Gemini, Llama, GigaChat
-    Args: event with httpMethod, body (message, models config)
+    Business: AI chat with Gemini 2.0 Flash, Llama 3.3 70B, GigaChat - stream, history, settings
+    Args: event with httpMethod, body (message, models, history, settings)
           context with request_id
-    Returns: AI response or error with fallback info
+    Returns: AI response with model info and fallback
     '''
     method: str = event.get('httpMethod', 'POST')
     
@@ -34,6 +34,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(event.get('body', '{}'))
         message: str = body_data.get('message', '')
         models_config: Dict[str, Dict[str, Any]] = body_data.get('models', {})
+        history: List[Dict[str, str]] = body_data.get('history', [])
+        settings: Dict[str, Any] = body_data.get('settings', {
+            'temperature': 0.7,
+            'max_tokens': 2048,
+            'system_prompt': ''
+        })
         
         if not message:
             return {
@@ -61,11 +67,11 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 api_key = config.get('key', '')
                 
                 if model_name == 'gemini':
-                    response = call_gemini(message, api_key)
+                    response = call_gemini_2_flash(message, api_key, history, settings)
                 elif model_name == 'llama':
-                    response = call_llama(message, api_key)
+                    response = call_llama_33_70b(message, api_key, history, settings)
                 elif model_name == 'gigachat':
-                    response = call_gigachat(message, api_key)
+                    response = call_gigachat(message, api_key, history, settings)
                 else:
                     continue
                 
@@ -76,7 +82,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     'body': json.dumps({
                         'response': response,
                         'model': model_name,
-                        'fallback_used': len(errors) > 0
+                        'fallback_used': len(errors) > 0,
+                        'errors': errors if errors else None
                     })
                 }
                 
@@ -101,19 +108,38 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
 
 
-def call_gemini(message: str, api_key: str) -> str:
-    '''Call Google Gemini API'''
+def call_gemini_2_flash(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
+    '''Call Google Gemini 2.0 Flash Experimental (free)'''
     import requests
     
-    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={api_key}'
+    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={api_key}'
+    
+    contents = []
+    
+    for msg in history[-10:]:
+        role = 'user' if msg['role'] == 'user' else 'model'
+        contents.append({
+            'role': role,
+            'parts': [{'text': msg['content']}]
+        })
+    
+    contents.append({
+        'role': 'user',
+        'parts': [{'text': message}]
+    })
     
     payload = {
-        'contents': [{
-            'parts': [{
-                'text': message
-            }]
-        }]
+        'contents': contents,
+        'generationConfig': {
+            'temperature': settings.get('temperature', 0.7),
+            'maxOutputTokens': settings.get('max_tokens', 2048),
+        }
     }
+    
+    if settings.get('system_prompt'):
+        payload['systemInstruction'] = {
+            'parts': [{'text': settings['system_prompt']}]
+        }
     
     response = requests.post(url, json=payload, timeout=30)
     response.raise_for_status()
@@ -126,58 +152,55 @@ def call_gemini(message: str, api_key: str) -> str:
     raise Exception('Invalid Gemini response format')
 
 
-def call_llama(message: str, api_key: str) -> str:
-    '''Call Meta Llama via Replicate API'''
+def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
+    '''Call Meta Llama 3.3 70B Instruct (free via Together AI)'''
     import requests
     
+    url = 'https://api.together.xyz/v1/chat/completions'
+    
     headers = {
-        'Authorization': f'Token {api_key}',
+        'Authorization': f'Bearer {api_key}',
         'Content-Type': 'application/json'
     }
     
+    messages = []
+    
+    if settings.get('system_prompt'):
+        messages.append({
+            'role': 'system',
+            'content': settings['system_prompt']
+        })
+    
+    for msg in history[-10:]:
+        messages.append({
+            'role': msg['role'],
+            'content': msg['content']
+        })
+    
+    messages.append({
+        'role': 'user',
+        'content': message
+    })
+    
     payload = {
-        'version': 'meta/llama-2-70b-chat',
-        'input': {
-            'prompt': message,
-            'max_length': 500
-        }
+        'model': 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+        'messages': messages,
+        'temperature': settings.get('temperature', 0.7),
+        'max_tokens': settings.get('max_tokens', 2048),
     }
     
-    response = requests.post(
-        'https://api.replicate.com/v1/predictions',
-        headers=headers,
-        json=payload,
-        timeout=30
-    )
+    response = requests.post(url, headers=headers, json=payload, timeout=60)
     response.raise_for_status()
     
     data = response.json()
     
-    if 'output' in data:
-        return ''.join(data['output']) if isinstance(data['output'], list) else str(data['output'])
-    
-    if 'urls' in data and 'get' in data['urls']:
-        import time
-        get_url = data['urls']['get']
-        
-        for _ in range(30):
-            time.sleep(1)
-            status_response = requests.get(get_url, headers=headers, timeout=10)
-            status_response.raise_for_status()
-            status_data = status_response.json()
-            
-            if status_data.get('status') == 'succeeded':
-                output = status_data.get('output', [])
-                return ''.join(output) if isinstance(output, list) else str(output)
-            elif status_data.get('status') == 'failed':
-                raise Exception('Llama prediction failed')
-        
-        raise Exception('Llama timeout')
+    if 'choices' in data and len(data['choices']) > 0:
+        return data['choices'][0]['message']['content']
     
     raise Exception('Invalid Llama response format')
 
 
-def call_gigachat(message: str, api_key: str) -> str:
+def call_gigachat(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
     '''Call GigaChat API (Sber)'''
     import requests
     import uuid
@@ -201,13 +224,30 @@ def call_gigachat(message: str, api_key: str) -> str:
         'Content-Type': 'application/json'
     }
     
+    messages = []
+    
+    if settings.get('system_prompt'):
+        messages.append({
+            'role': 'system',
+            'content': settings['system_prompt']
+        })
+    
+    for msg in history[-10:]:
+        messages.append({
+            'role': msg['role'],
+            'content': msg['content']
+        })
+    
+    messages.append({
+        'role': 'user',
+        'content': message
+    })
+    
     chat_payload = {
         'model': 'GigaChat',
-        'messages': [{
-            'role': 'user',
-            'content': message
-        }],
-        'temperature': 0.7
+        'messages': messages,
+        'temperature': settings.get('temperature', 0.7),
+        'max_tokens': settings.get('max_tokens', 2048)
     }
     
     chat_response = requests.post(chat_url, headers=chat_headers, json=chat_payload, timeout=30, verify=False)

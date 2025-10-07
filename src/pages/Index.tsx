@@ -1,13 +1,16 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { Slider } from '@/components/ui/slider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
@@ -18,6 +21,7 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  model?: AIModel;
 }
 
 interface APIConfig {
@@ -26,23 +30,34 @@ interface APIConfig {
   gigachat: { key: string; enabled: boolean };
 }
 
+interface Settings {
+  temperature: number;
+  max_tokens: number;
+  system_prompt: string;
+}
+
 const ADMIN_PASSWORD = 'admin123';
 
 export default function Index() {
   const { toast } = useToast();
   const [showAdminDialog, setShowAdminDialog] = useState(false);
+  const [showSettingsDialog, setShowSettingsDialog] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Здравствуйте! Чем могу помочь?',
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const saved = localStorage.getItem('chat-history');
+    return saved ? JSON.parse(saved).map((m: any) => ({ ...m, timestamp: new Date(m.timestamp) })) : [
+      {
+        id: '1',
+        role: 'assistant',
+        content: 'Здравствуйте! Чем могу помочь?',
+        timestamp: new Date(),
+      },
+    ];
+  });
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [currentModel, setCurrentModel] = useState<AIModel | null>(null);
   const [apiConfig, setApiConfig] = useState<APIConfig>(() => {
     const saved = localStorage.getItem('ai-config');
     return saved ? JSON.parse(saved) : {
@@ -51,15 +66,43 @@ export default function Index() {
       gigachat: { key: '', enabled: true },
     };
   });
+  const [settings, setSettings] = useState<Settings>(() => {
+    const saved = localStorage.getItem('ai-settings');
+    return saved ? JSON.parse(saved) : {
+      temperature: 0.7,
+      max_tokens: 2048,
+      system_prompt: '',
+    };
+  });
+  const [stats, setStats] = useState(() => {
+    const saved = localStorage.getItem('ai-stats');
+    return saved ? JSON.parse(saved) : {
+      gemini: 0,
+      llama: 0,
+      gigachat: 0,
+    };
+  });
 
   useEffect(() => {
     localStorage.setItem('ai-config', JSON.stringify(apiConfig));
   }, [apiConfig]);
 
+  useEffect(() => {
+    localStorage.setItem('chat-history', JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('ai-settings', JSON.stringify(settings));
+  }, [settings]);
+
+  useEffect(() => {
+    localStorage.setItem('ai-stats', JSON.stringify(stats));
+  }, [stats]);
+
   const modelInfo = {
-    gemini: { name: 'Google Gemini', color: 'from-blue-500 to-blue-600', icon: 'Sparkles' },
-    llama: { name: 'Meta Llama', color: 'from-purple-500 to-purple-600', icon: 'Cpu' },
-    gigachat: { name: 'GigaChat', color: 'from-green-500 to-green-600', icon: 'MessageSquare' },
+    gemini: { name: 'Gemini 2.0 Flash', fullName: 'Google Gemini 2.0 Flash Experimental', color: 'from-blue-500 to-blue-600', icon: 'Sparkles' },
+    llama: { name: 'Llama 3.3 70B', fullName: 'Meta Llama 3.3 70B Instruct', color: 'from-purple-500 to-purple-600', icon: 'Cpu' },
+    gigachat: { name: 'GigaChat', fullName: 'GigaChat (Сбер)', color: 'from-green-500 to-green-600', icon: 'MessageSquare' },
   };
 
   const handleAdminLogin = () => {
@@ -115,6 +158,11 @@ export default function Index() {
     setIsLoading(true);
 
     try {
+      const history = messages.map(m => ({
+        role: m.role,
+        content: m.content
+      }));
+
       const response = await fetch('https://functions.poehali.dev/81fdec08-160f-4043-a2da-cefa0ffbdf22', {
         method: 'POST',
         headers: {
@@ -123,6 +171,8 @@ export default function Index() {
         body: JSON.stringify({
           message: currentInput,
           models: apiConfig,
+          history: history,
+          settings: settings,
         }),
       });
 
@@ -137,9 +187,16 @@ export default function Index() {
         role: 'assistant',
         content: data.response,
         timestamp: new Date(),
+        model: data.model,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      setCurrentModel(data.model);
+
+      setStats(prev => ({
+        ...prev,
+        [data.model]: (prev[data.model] || 0) + 1
+      }));
 
       if (data.fallback_used) {
         toast({
@@ -192,6 +249,41 @@ export default function Index() {
     });
   };
 
+  const clearHistory = () => {
+    setMessages([{
+      id: '1',
+      role: 'assistant',
+      content: 'Здравствуйте! Чем могу помочь?',
+      timestamp: new Date(),
+    }]);
+    toast({
+      title: 'История очищена',
+      description: 'Все сообщения удалены',
+    });
+  };
+
+  const clearStats = () => {
+    setStats({ gemini: 0, llama: 0, gigachat: 0 });
+    toast({
+      title: 'Статистика сброшена',
+      description: 'Счетчики использования обнулены',
+    });
+  };
+
+  const exportChat = () => {
+    const content = messages.map(m => `[${m.timestamp.toLocaleString()}] ${m.role === 'user' ? 'Вы' : 'Богдан'}: ${m.content}`).join('\n\n');
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `chat-${new Date().toISOString()}.txt`;
+    a.click();
+    toast({
+      title: 'Экспорт завершен',
+      description: 'История чата сохранена в файл',
+    });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
       <header className="border-b border-slate-200/60 bg-white/60 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
@@ -210,20 +302,30 @@ export default function Index() {
               <p className="text-sm text-slate-500 font-medium">Персональный помощник</p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              if (isAuthenticated) {
-                handleAdminLogout();
-              } else {
-                setShowAdminDialog(true);
-              }
-            }}
-            className="rounded-xl hover:bg-slate-100"
-          >
-            <Icon name={isAuthenticated ? 'LogOut' : 'Settings'} size={20} className="text-slate-600" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setShowSettingsDialog(true)}
+              className="rounded-xl hover:bg-slate-100"
+            >
+              <Icon name="Sliders" size={20} className="text-slate-600" />
+            </Button>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (isAuthenticated) {
+                  handleAdminLogout();
+                } else {
+                  setShowAdminDialog(true);
+                }
+              }}
+              className="rounded-xl hover:bg-slate-100"
+            >
+              <Icon name={isAuthenticated ? 'LogOut' : 'Settings'} size={20} className="text-slate-600" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -231,6 +333,31 @@ export default function Index() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           <div className={isAuthenticated ? 'lg:col-span-3' : 'lg:col-span-4'}>
             <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
+              <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-slate-50 to-blue-50 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {currentModel && (
+                    <Badge className={`bg-gradient-to-r ${modelInfo[currentModel].color} text-white`}>
+                      <Icon name={modelInfo[currentModel].icon as any} size={14} className="mr-1" />
+                      {modelInfo[currentModel].name}
+                    </Badge>
+                  )}
+                  <Badge variant="outline" className="gap-1">
+                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+                    {messages.length - 1} сообщений
+                  </Badge>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="ghost" size="sm" onClick={exportChat} className="gap-1">
+                    <Icon name="Download" size={16} />
+                    Экспорт
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={clearHistory} className="gap-1">
+                    <Icon name="Trash2" size={16} />
+                    Очистить
+                  </Button>
+                </div>
+              </div>
+
               <ScrollArea className="flex-1 p-8">
                 <div className="space-y-6 max-w-4xl mx-auto">
                   {messages.map((message) => (
@@ -255,17 +382,24 @@ export default function Index() {
                             : 'bg-white border border-slate-200'
                         }`}
                       >
-                        <p className="text-[15px] leading-relaxed">{message.content}</p>
-                        <p
-                          className={`text-xs mt-2 ${
-                            message.role === 'user' ? 'text-blue-100' : 'text-slate-400'
-                          }`}
-                        >
-                          {message.timestamp.toLocaleTimeString('ru-RU', {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
+                        <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <p
+                            className={`text-xs ${
+                              message.role === 'user' ? 'text-blue-100' : 'text-slate-400'
+                            }`}
+                          >
+                            {message.timestamp.toLocaleTimeString('ru-RU', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                          {message.model && (
+                            <Badge variant="outline" className="text-xs">
+                              {modelInfo[message.model].name}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                       {message.role === 'user' && (
                         <div className="relative flex-shrink-0">
@@ -277,6 +411,23 @@ export default function Index() {
                       )}
                     </div>
                   ))}
+                  {isLoading && (
+                    <div className="flex gap-4 justify-start animate-fade-in">
+                      <div className="relative flex-shrink-0">
+                        <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl blur opacity-20"></div>
+                        <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                          <Icon name="Loader2" size={18} className="text-white animate-spin" />
+                        </div>
+                      </div>
+                      <div className="bg-white border border-slate-200 rounded-3xl px-6 py-4 shadow-md">
+                        <div className="flex gap-1">
+                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                          <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </ScrollArea>
 
@@ -287,7 +438,8 @@ export default function Index() {
                       placeholder="Введите сообщение..."
                       value={inputMessage}
                       onChange={(e) => setInputMessage(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      onKeyPress={(e) => e.key === 'Enter' && !e.shiftKey && handleSendMessage()}
+                      disabled={isLoading}
                       className="h-14 px-6 text-[15px] rounded-2xl border-slate-200 focus:border-blue-400 focus:ring-blue-400/20 bg-white shadow-sm"
                     />
                   </div>
@@ -325,6 +477,30 @@ export default function Index() {
                 </div>
 
                 <ScrollArea className="flex-1 p-5">
+                  <div className="space-y-4 mb-6">
+                    <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                      <Icon name="BarChart3" size={16} />
+                      Статистика использования
+                    </h3>
+                    <div className="space-y-2">
+                      {Object.entries(modelInfo).map(([key, info]) => (
+                        <div key={key} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
+                          <div className="flex items-center gap-2">
+                            <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${info.color} flex items-center justify-center`}>
+                              <Icon name={info.icon as any} size={14} className="text-white" />
+                            </div>
+                            <span className="text-sm font-medium text-slate-700">{info.name}</span>
+                          </div>
+                          <Badge variant="secondary">{stats[key as AIModel]} запросов</Badge>
+                        </div>
+                      ))}
+                    </div>
+                    <Button variant="outline" size="sm" onClick={clearStats} className="w-full gap-2">
+                      <Icon name="RotateCcw" size={14} />
+                      Сбросить статистику
+                    </Button>
+                  </div>
+
                   <Tabs defaultValue="gemini" className="w-full">
                     <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-xl">
                       <TabsTrigger value="gemini" className="text-xs rounded-lg data-[state=active]:bg-white data-[state=active]:shadow">
@@ -346,8 +522,8 @@ export default function Index() {
                           >
                             <Icon name={info.icon as any} size={28} />
                             <div>
-                              <h3 className="font-bold text-base">{info.name}</h3>
-                              <p className="text-sm opacity-90">Интеграция</p>
+                              <h3 className="font-bold text-base">{info.fullName}</h3>
+                              <p className="text-sm opacity-90">Free API</p>
                             </div>
                           </div>
 
@@ -449,6 +625,87 @@ export default function Index() {
               className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg font-medium"
             >
               Войти
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showSettingsDialog} onOpenChange={setShowSettingsDialog}>
+        <DialogContent className="sm:max-w-lg rounded-3xl border-0 shadow-2xl">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+              <Icon name="Sliders" size={24} className="text-blue-600" />
+              Настройки AI
+            </DialogTitle>
+            <DialogDescription>
+              Настройте параметры генерации для всех моделей
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 pt-4">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Температура</Label>
+                <Badge variant="outline">{settings.temperature.toFixed(1)}</Badge>
+              </div>
+              <Slider
+                value={[settings.temperature]}
+                onValueChange={(v) => setSettings({ ...settings, temperature: v[0] })}
+                min={0}
+                max={2}
+                step={0.1}
+                className="w-full"
+              />
+              <p className="text-xs text-slate-500">
+                Креативность ответов (0 = точность, 2 = креативность)
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Макс. токенов</Label>
+                <Badge variant="outline">{settings.max_tokens}</Badge>
+              </div>
+              <Slider
+                value={[settings.max_tokens]}
+                onValueChange={(v) => setSettings({ ...settings, max_tokens: v[0] })}
+                min={256}
+                max={4096}
+                step={256}
+                className="w-full"
+              />
+              <p className="text-xs text-slate-500">
+                Максимальная длина ответа
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="system-prompt" className="text-sm font-semibold">
+                Системный промпт
+              </Label>
+              <Textarea
+                id="system-prompt"
+                placeholder="Например: Ты — профессиональный программист..."
+                value={settings.system_prompt}
+                onChange={(e) => setSettings({ ...settings, system_prompt: e.target.value })}
+                className="rounded-xl border-slate-200 min-h-[100px]"
+              />
+              <p className="text-xs text-slate-500">
+                Инструкции для AI (опционально)
+              </p>
+            </div>
+
+            <Button
+              onClick={() => {
+                localStorage.setItem('ai-settings', JSON.stringify(settings));
+                setShowSettingsDialog(false);
+                toast({
+                  title: 'Настройки сохранены',
+                  description: 'Параметры AI обновлены',
+                });
+              }}
+              className="w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-lg font-medium"
+            >
+              Сохранить настройки
             </Button>
           </div>
         </DialogContent>
