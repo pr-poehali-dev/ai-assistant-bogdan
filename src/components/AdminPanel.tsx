@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
+import { useToast } from '@/hooks/use-toast';
 
 type AIModel = 'gemini' | 'llama' | 'gigachat';
 
@@ -25,6 +27,54 @@ export default function AdminPanel({
   onToggleModel,
   onSaveSettings,
 }: AdminPanelProps) {
+  const { toast } = useToast();
+  const [testingModel, setTestingModel] = useState<AIModel | null>(null);
+
+  const testModel = async (model: AIModel) => {
+    if (!apiConfig[model].key) {
+      toast({
+        title: 'Ошибка',
+        description: 'Введите API ключ',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setTestingModel(model);
+
+    try {
+      const response = await fetch('https://functions.poehali.dev/81fdec08-160f-4043-a2da-cefa0ffbdf22', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Привет! Ответ одним словом: работаю',
+          models: { [model]: { key: apiConfig[model].key, enabled: true } },
+          history: [],
+          settings: { temperature: 0.7, max_tokens: 50 },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: '✅ Тест пройден',
+          description: `Ответ: ${data.response}`,
+        });
+      } else {
+        throw new Error(data.error || 'Ошибка теста');
+      }
+    } catch (error: any) {
+      toast({
+        title: '❌ Тест не пройден',
+        description: error.message || 'Проверьте API ключ',
+        variant: 'destructive',
+      });
+    } finally {
+      setTestingModel(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 p-8">
       <div className="max-w-4xl mx-auto">
@@ -70,6 +120,25 @@ export default function AdminPanel({
                   onCheckedChange={(checked) => onToggleModel('gemini', checked)}
                 />
               </div>
+
+              <Button
+                onClick={() => testModel('gemini')}
+                disabled={!apiConfig.gemini.key || testingModel === 'gemini'}
+                variant="outline"
+                className="w-full h-12 gap-2"
+              >
+                {testingModel === 'gemini' ? (
+                  <>
+                    <Icon name="Loader2" size={18} className="animate-spin" />
+                    <span>Тестирование...</span>
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Play" size={18} />
+                    <span>Протестировать API</span>
+                  </>
+                )}
+              </Button>
 
               <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
                 <p className="text-sm text-blue-800">
@@ -118,6 +187,25 @@ export default function AdminPanel({
                 />
               </div>
 
+              <Button
+                onClick={() => testModel('llama')}
+                disabled={!apiConfig.llama.key || testingModel === 'llama'}
+                variant="outline"
+                className="w-full h-12 gap-2"
+              >
+                {testingModel === 'llama' ? (
+                  <>
+                    <Icon name="Loader2" size={18} className="animate-spin" />
+                    <span>Тестирование...</span>
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Play" size={18} />
+                    <span>Протестировать API</span>
+                  </>
+                )}
+              </Button>
+
               <div className="p-4 rounded-xl bg-purple-50 border border-purple-200">
                 <p className="text-sm text-purple-800">
                   Используйте тот же ключ, что и для Gemini
@@ -162,6 +250,25 @@ export default function AdminPanel({
                   onCheckedChange={(checked) => onToggleModel('gigachat', checked)}
                 />
               </div>
+
+              <Button
+                onClick={() => testModel('gigachat')}
+                disabled={!apiConfig.gigachat.key || testingModel === 'gigachat'}
+                variant="outline"
+                className="w-full h-12 gap-2"
+              >
+                {testingModel === 'gigachat' ? (
+                  <>
+                    <Icon name="Loader2" size={18} className="animate-spin" />
+                    <span>Тестирование...</span>
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Play" size={18} />
+                    <span>Протестировать API</span>
+                  </>
+                )}
+              </Button>
 
               <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
                 <p className="text-sm text-amber-800 mb-2">
