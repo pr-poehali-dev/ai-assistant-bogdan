@@ -230,6 +230,8 @@ def call_gigachat(message: str, api_key: str, history: List[Dict[str, str]], set
     '''Call GigaChat API (Sber) with timeout protection'''
     import requests
     import uuid
+    import urllib3
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     
     auth_url = 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth'
     auth_headers = {
@@ -240,10 +242,10 @@ def call_gigachat(message: str, api_key: str, history: List[Dict[str, str]], set
     auth_data = {'scope': 'GIGACHAT_API_PERS'}
     
     try:
-        auth_response = requests.post(auth_url, headers=auth_headers, data=auth_data, timeout=5, verify=False)
+        auth_response = requests.post(auth_url, headers=auth_headers, data=auth_data, timeout=8, verify=False)
         auth_response.raise_for_status()
     except requests.exceptions.Timeout:
-        raise Exception('GigaChat auth timeout - service unavailable')
+        raise Exception('GigaChat auth timeout (8s) - service unavailable')
     except requests.exceptions.RequestException as e:
         raise Exception(f'GigaChat auth failed: {str(e)}')
     
@@ -284,10 +286,10 @@ def call_gigachat(message: str, api_key: str, history: List[Dict[str, str]], set
     }
     
     try:
-        chat_response = requests.post(chat_url, headers=chat_headers, json=chat_payload, timeout=20, verify=False)
+        chat_response = requests.post(chat_url, headers=chat_headers, json=chat_payload, timeout=15, verify=False)
         chat_response.raise_for_status()
     except requests.exceptions.Timeout:
-        raise Exception('GigaChat response timeout - try again later')
+        raise Exception('GigaChat response timeout (15s) - try again later')
     except requests.exceptions.RequestException as e:
         raise Exception(f'GigaChat API error: {str(e)}')
     

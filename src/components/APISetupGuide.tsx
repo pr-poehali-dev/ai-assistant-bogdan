@@ -240,9 +240,13 @@ export default function APISetupGuide() {
                 </div>
               </div>
               <div className="mt-4 p-3 bg-white/50 rounded-lg">
-                <p className="text-xs text-slate-700">
+                <p className="text-xs text-slate-700 mb-2">
                   <Icon name="Gift" size={12} className="inline mr-1" />
                   <strong>Бесплатно:</strong> Версия для физ. лиц
+                </p>
+                <p className="text-xs text-amber-700">
+                  <Icon name="AlertCircle" size={12} className="inline mr-1" />
+                  <strong>Внимание:</strong> API может работать медленно (15-30 сек ответ)
                 </p>
               </div>
             </Card>
