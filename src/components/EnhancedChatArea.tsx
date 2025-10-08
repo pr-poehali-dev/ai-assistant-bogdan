@@ -9,6 +9,8 @@ import EnhancedChatMessage from '@/components/EnhancedChatMessage';
 import ChatInput from '@/components/ChatInput';
 import SearchBar from '@/components/SearchBar';
 import VoiceHistoryPanel from '@/components/VoiceHistoryPanel';
+import ImageGenerationButton from '@/components/ImageGenerationButton';
+import DocumentCompareButton from '@/components/DocumentCompareButton';
 
 type AIModel = 'gemini' | 'llama' | 'gigachat';
 
@@ -217,6 +219,22 @@ export default function EnhancedChatArea({
             <Icon name="Paperclip" size={16} />
             Файл
           </Button>
+          <ImageGenerationButton 
+            onImageGenerated={(url, prompt) => {
+              const fakeEvent = {
+                target: { 
+                  files: [new File([url], 'generated-image.png', { type: 'image/png' })] as any,
+                  value: '' 
+                }
+              } as React.ChangeEvent<HTMLInputElement>;
+              onInputChange(prompt);
+            }} 
+          />
+          <DocumentCompareButton
+            onCompare={(file1, file2) => {
+              onInputChange(`Сравни эти два документа и найди все различия: ${file1.name} и ${file2.name}`);
+            }}
+          />
           <Button variant="ghost" size="sm" onClick={onExportChat} className="gap-1">
             <Icon name="Download" size={16} />
             Экспорт

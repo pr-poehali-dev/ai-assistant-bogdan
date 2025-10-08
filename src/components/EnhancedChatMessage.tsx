@@ -11,6 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import CodeBlock from '@/components/CodeBlock';
 
 type AIModel = 'gemini' | 'llama' | 'gigachat';
 
@@ -73,6 +74,41 @@ export default function EnhancedChatMessage({
   const [showReactions, setShowReactions] = useState(false);
   const [showVoiceSettings, setShowVoiceSettings] = useState(false);
 
+  const parseMessageContent = (content: string) => {
+    const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/g;
+    const parts: Array<{ type: 'text' | 'code'; content: string; language?: string }> = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = codeBlockRegex.exec(content)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push({
+          type: 'text',
+          content: content.substring(lastIndex, match.index),
+        });
+      }
+
+      parts.push({
+        type: 'code',
+        content: match[2].trim(),
+        language: match[1] || 'javascript',
+      });
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < content.length) {
+      parts.push({
+        type: 'text',
+        content: content.substring(lastIndex),
+      });
+    }
+
+    return parts.length > 0 ? parts : [{ type: 'text' as const, content }];
+  };
+
+  const messageParts = parseMessageContent(message.content);
+
   return (
     <div
       className={`flex gap-4 animate-fade-in group ${
@@ -95,7 +131,14 @@ export default function EnhancedChatMessage({
               : 'bg-white border border-slate-200'
           }`}
         >
-          <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
+          <div className="text-[15px] leading-relaxed">
+            {messageParts.map((part, idx) => {
+              if (part.type === 'code') {
+                return <CodeBlock key={idx} code={part.content} language={part.language || 'javascript'} />;
+              }
+              return <p key={idx} className="whitespace-pre-wrap break-words">{part.content}</p>;
+            })}
+          </div>
           
           {message.attachments && message.attachments.length > 0 && (
             <div className="mt-3 space-y-2">

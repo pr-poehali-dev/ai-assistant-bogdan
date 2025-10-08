@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import PromptTemplatesButton from '@/components/PromptTemplatesButton';
 
 interface ChatInputProps {
   value: string;
@@ -13,6 +14,7 @@ interface ChatInputProps {
   onStopListening: () => void;
   onVoiceMessageSend?: (audioBlob: Blob, duration: number) => void;
   onFileUpload?: (files: FileList) => void;
+  showTemplates?: boolean;
 }
 
 export default function ChatInput({
@@ -25,6 +27,7 @@ export default function ChatInput({
   onStopListening,
   onVoiceMessageSend,
   onFileUpload,
+  showTemplates = true,
 }: ChatInputProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -258,8 +261,13 @@ export default function ChatInput({
           )}
         </Button>
       </div>
-      <div className="max-w-4xl mx-auto mt-2 text-center">
-        <p className="text-xs text-slate-500">
+      <div className="max-w-4xl mx-auto mt-2 flex items-center justify-between">
+        <div className="flex-1">
+          {showTemplates && (
+            <PromptTemplatesButton onTemplateSelect={onChange} />
+          )}
+        </div>
+        <p className="text-xs text-slate-500 text-center">
           {onFileUpload && (
             <>
               <Icon name="Paperclip" size={12} className="inline mr-1" />
@@ -273,6 +281,7 @@ export default function ChatInput({
             </>
           )}
         </p>
+        <div className="flex-1"></div>
       </div>
     </div>
   );

@@ -331,6 +331,12 @@ export function useChatLogic() {
               description: `Извлекаю текст из ${file.name}`,
             });
             extractedText = await extractTextFromPDF(file);
+          } else if (file.type.startsWith('image/')) {
+            toast({
+              title: '🖼️ Анализирую изображение...',
+              description: `Отправляю ${file.name} на анализ`,
+            });
+            extractedText = `🖼️ Прикреплено изображение "${file.name}". Пожалуйста, опиши что на нём изображено и проанализируй детали.`;
           }
           
           resolve({ url, text: extractedText });
@@ -346,7 +352,7 @@ export function useChatLogic() {
       newAttachments.push(attachment);
       
       if (fileData.text) {
-        extractedTexts.push(`📄 Содержимое файла "${file.name}":\n${fileData.text}`);
+        extractedTexts.push(fileData.text);
       }
     }
 
