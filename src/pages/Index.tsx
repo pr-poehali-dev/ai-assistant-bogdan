@@ -191,6 +191,14 @@ export default function Index() {
     }
   };
 
+  const handleFileUpload = (files: FileList) => {
+    const fileNames = Array.from(files).map(f => f.name).join(', ');
+    toast({
+      title: '📎 Файлы загружены',
+      description: fileNames,
+    });
+  };
+
   if (currentPage !== 'chat') {
     return (
       <div className={`min-h-screen transition-colors ${isDarkMode ? 'dark bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100'}`}>

@@ -297,6 +297,10 @@ export default function EnhancedChatArea({
         onStartListening={onStartListening}
         onStopListening={onStopListening}
         onVoiceMessageSend={onVoiceMessageSend}
+        onFileUpload={(files) => {
+          const event = { target: { files } } as unknown as React.ChangeEvent<HTMLInputElement>;
+          onFileUpload(event);
+        }}
       />
     </Card>
   );

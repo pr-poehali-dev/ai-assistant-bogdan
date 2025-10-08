@@ -12,6 +12,7 @@ interface ChatInputProps {
   onStartListening: () => void;
   onStopListening: () => void;
   onVoiceMessageSend?: (audioBlob: Blob, duration: number) => void;
+  onFileUpload?: (files: FileList) => void;
 }
 
 export default function ChatInput({
@@ -23,12 +24,25 @@ export default function ChatInput({
   onStartListening,
   onStopListening,
   onVoiceMessageSend,
+  onFileUpload,
 }: ChatInputProps) {
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0 && onFileUpload) {
+      onFileUpload(e.target.files);
+      e.target.value = '';
+    }
+  };
 
   useEffect(() => {
     return () => {
@@ -167,19 +181,27 @@ export default function ChatInput({
   return (
     <div className="p-6 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
       <div className="flex gap-3 max-w-4xl mx-auto">
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={isListening ? onStopListening : onStartListening}
-          className={`h-14 w-14 rounded-2xl transition-all ${
-            isListening 
-              ? 'bg-red-50 border-red-300 hover:bg-red-100 shadow-lg' 
-              : 'hover:bg-slate-50 hover:border-blue-300'
-          }`}
-          title="Голосовой ввод текста"
-        >
-          <Icon name={isListening ? 'MicOff' : 'Mic'} size={20} className={isListening ? 'text-red-600' : 'text-slate-700'} />
-        </Button>
+        {onFileUpload && (
+          <>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+              multiple
+              accept="image/*,.pdf,.doc,.docx,.txt"
+            />
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleFileClick}
+              className="h-14 w-14 rounded-2xl hover:bg-slate-50 hover:border-blue-300 transition-all"
+              title="Загрузить файлы"
+            >
+              <Icon name="Paperclip" size={20} className="text-slate-700" />
+            </Button>
+          </>
+        )}
         <div className="relative flex-1">
           <Input
             placeholder="Напишите сообщение или используйте голосовой ввод..."
@@ -238,10 +260,18 @@ export default function ChatInput({
       </div>
       <div className="max-w-4xl mx-auto mt-2 text-center">
         <p className="text-xs text-slate-500">
-          <Icon name="Mic" size={12} className="inline mr-1" />
-          Голосовой ввод — диктуйте текст  |
-          <Icon name="Mic" size={12} className="inline mx-1" />
-          Запись голоса — автораспознавание речи + отправка ИИ
+          {onFileUpload && (
+            <>
+              <Icon name="Paperclip" size={12} className="inline mr-1" />
+              Файлы  |
+            </>
+          )}
+          {onVoiceMessageSend && (
+            <>
+              <Icon name="Mic" size={12} className="inline mx-1" />
+              Голосовое сообщение
+            </>
+          )}
         </p>
       </div>
     </div>
