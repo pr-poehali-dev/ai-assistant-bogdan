@@ -8,6 +8,8 @@ interface ChatHeaderProps {
   onAdminClick: () => void;
   isAdminAuthenticated: boolean;
   showAdminPanel: boolean;
+  isDarkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
 export default function ChatHeader({ 
@@ -16,10 +18,16 @@ export default function ChatHeader({
   onSettingsClick, 
   onAdminClick,
   isAdminAuthenticated,
-  showAdminPanel
+  showAdminPanel,
+  isDarkMode,
+  onToggleDarkMode
 }: ChatHeaderProps) {
   return (
-    <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+    <header className={`border-b transition-colors sticky top-0 z-50 shadow-sm ${
+      isDarkMode 
+        ? 'border-slate-700 bg-slate-900/90 backdrop-blur-xl' 
+        : 'border-slate-200/60 bg-white/80 backdrop-blur-xl'
+    }`}>
       <div className="container mx-auto px-3 sm:px-4 py-2 sm:py-2.5 flex items-center justify-between max-w-[1600px]">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="relative">
@@ -29,10 +37,14 @@ export default function ChatHeader({
             </div>
           </div>
           <div>
-            <h1 className="text-base sm:text-lg font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+            <h1 className={`text-base sm:text-lg font-bold bg-gradient-to-r bg-clip-text text-transparent ${
+              isDarkMode ? 'from-blue-400 to-blue-200' : 'from-slate-800 to-slate-600'
+            }`}>
               Богдан AI
             </h1>
-            <p className="hidden sm:block text-[10px] text-slate-500 font-medium">Экосистема ИИ</p>
+            <p className={`hidden sm:block text-[10px] font-medium ${
+              isDarkMode ? 'text-slate-400' : 'text-slate-500'
+            }`}>Экосистема ИИ</p>
           </div>
         </div>
         <CompactMenu
@@ -40,6 +52,8 @@ export default function ChatHeader({
           onNavigate={onNavigate}
           onSettingsClick={onSettingsClick}
           onAdminClick={onAdminClick}
+          isDarkMode={isDarkMode}
+          onToggleDarkMode={onToggleDarkMode}
         />
       </div>
     </header>

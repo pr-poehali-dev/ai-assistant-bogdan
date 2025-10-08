@@ -9,6 +9,8 @@ interface PageHeaderProps {
   isAdminAuthenticated?: boolean;
   title?: string;
   subtitle?: string;
+  isDarkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
 export default function PageHeader({ 
@@ -18,10 +20,16 @@ export default function PageHeader({
   onAdminClick = () => {}, 
   isAdminAuthenticated = false,
   title = 'Богдан', 
-  subtitle = 'Экосистема ИИ' 
+  subtitle = 'Экосистема ИИ',
+  isDarkMode,
+  onToggleDarkMode
 }: PageHeaderProps) {
   return (
-    <header className="border-b border-slate-200/60 bg-white/80 backdrop-blur-xl sticky top-0 z-50 shadow-sm">
+    <header className={`border-b transition-colors sticky top-0 z-50 shadow-sm ${
+      isDarkMode 
+        ? 'border-slate-700 bg-slate-900/90 backdrop-blur-xl' 
+        : 'border-slate-200/60 bg-white/80 backdrop-blur-xl'
+    }`}>
       <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between max-w-7xl">
         <div className="flex items-center gap-2 sm:gap-3">
           <div className="relative">
@@ -32,10 +40,14 @@ export default function PageHeader({
             </div>
           </div>
           <div>
-            <h1 className="text-lg sm:text-2xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+            <h1 className={`text-lg sm:text-2xl font-bold bg-gradient-to-r bg-clip-text text-transparent ${
+              isDarkMode ? 'from-blue-400 to-blue-200' : 'from-slate-800 to-slate-600'
+            }`}>
               {title}
             </h1>
-            <p className="text-xs sm:text-sm text-slate-500 font-medium">{subtitle}</p>
+            <p className={`text-xs sm:text-sm font-medium ${
+              isDarkMode ? 'text-slate-400' : 'text-slate-500'
+            }`}>{subtitle}</p>
           </div>
         </div>
         <CompactMenu
@@ -43,6 +55,8 @@ export default function PageHeader({
           onNavigate={onNavigate}
           onSettingsClick={onSettingsClick}
           onAdminClick={onAdminClick}
+          isDarkMode={isDarkMode}
+          onToggleDarkMode={onToggleDarkMode}
         />
       </div>
     </header>

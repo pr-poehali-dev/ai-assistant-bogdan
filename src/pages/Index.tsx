@@ -36,7 +36,20 @@ export default function Index() {
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(window.innerWidth < 1024);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [voiceLang, setVoiceLang] = useState('ru-RU');
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem('dark-mode');
+    return saved ? JSON.parse(saved) : false;
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    localStorage.setItem('dark-mode', JSON.stringify(isDarkMode));
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
 
   const chatLogic = useChatLogic();
   const voiceControl = useVoiceControl();
@@ -73,6 +86,10 @@ export default function Index() {
           case '/':
             e.preventDefault();
             setShowSettingsDialog(!showSettingsDialog);
+            break;
+          case 'd':
+            e.preventDefault();
+            setIsDarkMode(!isDarkMode);
             break;
         }
       }
@@ -119,13 +136,15 @@ export default function Index() {
 
   if (currentPage !== 'chat') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+      <div className={`min-h-screen transition-colors ${isDarkMode ? 'dark bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100'}`}>
         <PageHeader 
           currentPage={currentPage} 
           onNavigate={setCurrentPage}
           onSettingsClick={() => setShowSettingsDialog(true)}
           onAdminClick={handleAdminClick}
           isAdminAuthenticated={adminControls.isAuthenticated}
+          isDarkMode={isDarkMode}
+          onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
         />
         <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-8 max-w-7xl">
           {currentPage === 'about' && <AboutPage />}
@@ -138,7 +157,7 @@ export default function Index() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
+    <div className={`min-h-screen transition-colors ${isDarkMode ? 'dark bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900' : 'bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100'}`}>
       <ChatHeader
         currentPage={currentPage}
         onNavigate={setCurrentPage}
@@ -146,6 +165,8 @@ export default function Index() {
         onAdminClick={handleAdminClick}
         isAdminAuthenticated={adminControls.isAuthenticated}
         showAdminPanel={showAdminPanel}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
       />
 
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 max-w-[1600px]">

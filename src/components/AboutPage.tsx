@@ -14,40 +14,40 @@ export default function AboutPage() {
             </div>
           </div>
         </div>
-        <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 bg-clip-text text-transparent">
+        <h1 className="text-5xl font-bold bg-gradient-to-r from-slate-800 to-slate-600 dark:from-blue-400 dark:to-blue-200 bg-clip-text text-transparent">
           О проекте Богдан
         </h1>
-        <p className="text-xl text-slate-600 max-w-3xl mx-auto">
+        <p className="text-xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto">
           Персональный помощник нового поколения с несколькими режимами работы
         </p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6">
-        <Card className="p-6 hover:shadow-xl transition-all border-0 bg-gradient-to-br from-blue-50 to-blue-100">
+        <Card className="p-6 hover:shadow-xl transition-all border-0 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
           <div className="w-12 h-12 rounded-xl bg-blue-500 flex items-center justify-center mb-4">
             <Icon name="Zap" size={24} className="text-white" />
           </div>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">Быстро</h3>
-          <p className="text-slate-600">
+          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Быстро</h3>
+          <p className="text-slate-600 dark:text-slate-300">
             Мгновенные ответы благодаря оптимизированной архитектуре и умным алгоритмам
           </p>
         </Card>
 
-        <Card className="p-6 hover:shadow-xl transition-all border-0 bg-gradient-to-br from-purple-50 to-purple-100">
+        <Card className="p-6 hover:shadow-xl transition-all border-0 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
           <div className="w-12 h-12 rounded-xl bg-purple-500 flex items-center justify-center mb-4">
             <Icon name="Shield" size={24} className="text-white" />
           </div>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">Безопасно</h3>
-          <p className="text-slate-600">
+          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Безопасно</h3>
+          <p className="text-slate-600 dark:text-slate-300">
             Ваши данные защищены. Все API ключи хранятся локально в вашем браузере
           </p>
         </Card>
 
-        <Card className="p-6 hover:shadow-xl transition-all border-0 bg-gradient-to-br from-green-50 to-green-100">
+        <Card className="p-6 hover:shadow-xl transition-all border-0 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
           <div className="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center mb-4">
             <Icon name="Globe" size={24} className="text-white" />
           </div>
-          <h3 className="text-xl font-bold text-slate-800 mb-2">Бесплатно</h3>
+          <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Бесплатно</h3>
           <p className="text-slate-600">
             Используйте помощника без ограничений и скрытых платежей
           </p>

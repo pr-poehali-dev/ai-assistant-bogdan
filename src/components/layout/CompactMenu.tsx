@@ -14,6 +14,8 @@ interface CompactMenuProps {
   onNavigate: (page: string) => void;
   onSettingsClick: () => void;
   onAdminClick: () => void;
+  isDarkMode?: boolean;
+  onToggleDarkMode?: () => void;
 }
 
 export default function CompactMenu({
@@ -21,6 +23,8 @@ export default function CompactMenu({
   onNavigate,
   onSettingsClick,
   onAdminClick,
+  isDarkMode,
+  onToggleDarkMode,
 }: CompactMenuProps) {
   const [open, setOpen] = useState(false);
 
@@ -35,12 +39,16 @@ export default function CompactMenu({
         <Button
           variant="ghost"
           size="icon"
-          className="rounded-lg sm:rounded-xl hover:bg-slate-100 h-8 w-8 sm:h-10 sm:w-10"
+          className={`rounded-lg sm:rounded-xl h-8 w-8 sm:h-10 sm:w-10 ${
+            isDarkMode ? 'hover:bg-slate-700' : 'hover:bg-slate-100'
+          }`}
         >
-          <Icon name="Menu" size={20} className="text-slate-600" />
+          <Icon name="Menu" size={20} className={isDarkMode ? 'text-slate-300' : 'text-slate-600'} />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className={`w-56 ${
+        isDarkMode ? 'bg-slate-800 border-slate-700' : ''
+      }`}>
         <DropdownMenuItem onClick={() => handleNavigate('chat')} className="gap-2 cursor-pointer">
           <Icon name="MessageSquare" size={18} className="text-blue-600" />
           <span>Главная</span>
@@ -73,6 +81,17 @@ export default function CompactMenu({
           <Icon name={isAdminAuthenticated ? 'Shield' : 'Lock'} size={18} className="text-slate-600" />
           <span>{isAdminAuthenticated ? 'Админ-панель' : 'Вход для админа'}</span>
         </DropdownMenuItem>
+        
+        {onToggleDarkMode && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => { onToggleDarkMode(); }} className="gap-2 cursor-pointer">
+              <Icon name={isDarkMode ? 'Sun' : 'Moon'} size={18} className="text-amber-500" />
+              <span>{isDarkMode ? 'Светлая тема' : 'Тёмная тема'}</span>
+              <kbd className="ml-auto text-xs opacity-60">Ctrl+D</kbd>
+            </DropdownMenuItem>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
