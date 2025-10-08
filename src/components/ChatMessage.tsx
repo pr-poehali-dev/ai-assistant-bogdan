@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
-type AIModel = 'gemini' | 'llama' | 'gigachat';
+type AIModel = 'gemini' | 'llama' | 'gigachat' | 'phi' | 'qwen' | 'mistral';
 
 interface Message {
   id: string;
@@ -69,8 +69,12 @@ export default function ChatMessage({ message, modelInfo, isSpeaking, onSpeak, v
               minute: '2-digit',
             })}
           </p>
-          {message.model && (
-            <Badge variant="outline" className="text-xs">
+          {message.model && modelInfo[message.model] && (
+            <Badge 
+              variant="outline" 
+              className={`text-xs font-semibold bg-gradient-to-r ${modelInfo[message.model].color} text-white border-0`}
+            >
+              <Icon name={modelInfo[message.model].icon as any} size={12} className="mr-1" />
               {modelInfo[message.model].name}
             </Badge>
           )}

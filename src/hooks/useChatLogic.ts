@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import * as pdfjsLib from 'pdfjs-dist';
+import { selectBestModel, getModelDisplayName } from '@/lib/modelSelector';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
@@ -122,7 +123,9 @@ export function useChatLogic() {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
-    const enabledModels = Object.entries(apiConfig).filter(([_, config]) => config.enabled && config.key);
+    const enabledModels = Object.entries(apiConfig)
+      .filter(([_, config]) => config.enabled && config.key)
+      .map(([model]) => model as AIModel);
     
     if (enabledModels.length === 0) {
       toast({
@@ -132,6 +135,14 @@ export function useChatLogic() {
       });
       return;
     }
+
+    const { model: selectedAIModel, reason } = selectBestModel(inputMessage, enabledModels);
+
+    toast({
+      title: `🤖 ${getModelDisplayName(selectedAIModel)}`,
+      description: reason,
+      duration: 2000,
+    });
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -144,6 +155,7 @@ export function useChatLogic() {
     const currentInput = inputMessage;
     setInputMessage('');
     setIsLoading(true);
+    setCurrentModel(selectedAIModel);
 
     try {
       const history = messages.map(m => ({
@@ -161,6 +173,7 @@ export function useChatLogic() {
           models: apiConfig,
           history: history,
           settings: settings,
+          preferredModel: selectedAIModel,
         }),
       });
 
