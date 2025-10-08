@@ -34,17 +34,29 @@ export default function ChatInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileClick = () => {
-    console.log('File button clicked');
-    fileInputRef.current?.click();
+    console.log('File button clicked', fileInputRef.current);
+    if (!fileInputRef.current) {
+      console.error('File input ref is null!');
+      return;
+    }
+    fileInputRef.current.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log('File input changed', e.target.files);
-    if (e.target.files && e.target.files.length > 0 && onFileUpload) {
-      console.log('Calling onFileUpload with files:', e.target.files.length);
-      onFileUpload(e.target.files);
-      e.target.value = '';
+    if (!e.target.files || e.target.files.length === 0) {
+      console.log('No files selected');
+      return;
     }
+    
+    if (!onFileUpload) {
+      console.error('onFileUpload is not defined!');
+      return;
+    }
+    
+    console.log('Calling onFileUpload with files:', e.target.files.length);
+    onFileUpload(e.target.files);
+    e.target.value = '';
   };
 
   useEffect(() => {
