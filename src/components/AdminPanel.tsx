@@ -29,7 +29,41 @@ export default function AdminPanel({
 }: AdminPanelProps) {
   const { toast } = useToast();
   const [testingModel, setTestingModel] = useState<AIModel | null>(null);
+
+  const validateKey = (model: AIModel, key: string): string | null => {
+    if (!key) return null;
+    
+    if (model === 'gigachat') {
+      const base64Regex = /^[A-Za-z0-9+/]+=*$/;
+      if (!base64Regex.test(key)) {
+        return 'Неверный формат: должен быть Base64';
+      }
+      if (key.length < 20) {
+        return 'Слишком короткий ключ';
+      }
+    } else {
+      if (!key.startsWith('sk-or-v1-')) {
+        return 'Ключ должен начинаться с sk-or-v1-';
+      }
+      if (key.length < 40) {
+        return 'Слишком короткий ключ';
+      }
+    }
+    
+    return null;
+  };
+
+  const handleKeyChange = (model: AIModel, key: string) => {
+    onAPIKeyChange(model, key);
+    const error = validateKey(model, key);
+    setKeyErrors(prev => ({ ...prev, [model]: error }));
+  };
   const [testResults, setTestResults] = useState<Record<AIModel, 'success' | 'error' | null>>({
+    gemini: null,
+    llama: null,
+    gigachat: null,
+  });
+  const [keyErrors, setKeyErrors] = useState<Record<AIModel, string | null>>({
     gemini: null,
     llama: null,
     gigachat: null,
@@ -148,12 +182,19 @@ export default function AdminPanel({
                   type="password"
                   placeholder="sk-or-v1-..."
                   value={apiConfig.gemini.key}
-                  onChange={(e) => onAPIKeyChange('gemini', e.target.value)}
-                  className="h-12 text-base"
+                  onChange={(e) => handleKeyChange('gemini', e.target.value)}
+                  className={`h-12 text-base ${keyErrors.gemini ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                 />
-                <p className="text-xs text-slate-500 mt-2">
-                  Формат: <code className="bg-slate-100 px-1 py-0.5 rounded">sk-or-v1-...</code> (начинается с sk-or-v1-)
-                </p>
+                {keyErrors.gemini ? (
+                  <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                    <Icon name="AlertCircle" size={12} />
+                    {keyErrors.gemini}
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-500 mt-2">
+                    Формат: <code className="bg-slate-100 px-1 py-0.5 rounded">sk-or-v1-...</code> (начинается с sk-or-v1-)
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
@@ -169,7 +210,7 @@ export default function AdminPanel({
 
               <Button
                 onClick={() => testModel('gemini')}
-                disabled={!apiConfig.gemini.key || testingModel === 'gemini'}
+                disabled={!apiConfig.gemini.key || testingModel === 'gemini' || !!keyErrors.gemini}
                 variant="outline"
                 className="w-full h-12 gap-2"
               >
@@ -246,9 +287,15 @@ export default function AdminPanel({
                   type="password"
                   placeholder="sk-or-v1-..."
                   value={apiConfig.llama.key}
-                  onChange={(e) => onAPIKeyChange('llama', e.target.value)}
-                  className="h-12 text-base"
+                  onChange={(e) => handleKeyChange('llama', e.target.value)}
+                  className={`h-12 text-base ${keyErrors.llama ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                 />
+                {keyErrors.llama && (
+                  <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                    <Icon name="AlertCircle" size={12} />
+                    {keyErrors.llama}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
@@ -264,7 +311,7 @@ export default function AdminPanel({
 
               <Button
                 onClick={() => testModel('llama')}
-                disabled={!apiConfig.llama.key || testingModel === 'llama'}
+                disabled={!apiConfig.llama.key || testingModel === 'llama' || !!keyErrors.llama}
                 variant="outline"
                 className="w-full h-12 gap-2"
               >
@@ -336,9 +383,15 @@ export default function AdminPanel({
                   type="password"
                   placeholder="MDE5OWMwNmEt..."
                   value={apiConfig.gigachat.key}
-                  onChange={(e) => onAPIKeyChange('gigachat', e.target.value)}
-                  className="h-12 text-base"
+                  onChange={(e) => handleKeyChange('gigachat', e.target.value)}
+                  className={`h-12 text-base ${keyErrors.gigachat ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                 />
+                {keyErrors.gigachat && (
+                  <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                    <Icon name="AlertCircle" size={12} />
+                    {keyErrors.gigachat}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
@@ -354,7 +407,7 @@ export default function AdminPanel({
 
               <Button
                 onClick={() => testModel('gigachat')}
-                disabled={!apiConfig.gigachat.key || testingModel === 'gigachat'}
+                disabled={!apiConfig.gigachat.key || testingModel === 'gigachat' || !!keyErrors.gigachat}
                 variant="outline"
                 className="w-full h-12 gap-2"
               >
