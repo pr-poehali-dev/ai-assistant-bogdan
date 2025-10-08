@@ -45,6 +45,15 @@ export default function AdminPanel({
       return;
     }
 
+    if (model !== 'gigachat' && !apiConfig[model].key.startsWith('sk-or-v1-')) {
+      toast({
+        title: 'Неверный формат ключа',
+        description: 'OpenRouter ключ должен начинаться с sk-or-v1-',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setTestingModel(model);
 
     try {
@@ -142,6 +151,9 @@ export default function AdminPanel({
                   onChange={(e) => onAPIKeyChange('gemini', e.target.value)}
                   className="h-12 text-base"
                 />
+                <p className="text-xs text-slate-500 mt-2">
+                  Формат: <code className="bg-slate-100 px-1 py-0.5 rounded">sk-or-v1-...</code> (начинается с sk-or-v1-)
+                </p>
               </div>
 
               <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
@@ -174,12 +186,15 @@ export default function AdminPanel({
                 )}
               </Button>
 
-              <div className="p-4 rounded-xl bg-blue-50 border border-blue-200">
-                <p className="text-sm text-blue-800">
-                  <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" className="underline font-semibold">
-                    Получить ключ на OpenRouter →
-                  </a>
-                </p>
+              <div className="p-4 rounded-xl bg-blue-50 border border-blue-200 space-y-2">
+                <p className="text-sm text-blue-900 font-semibold">📝 Инструкция:</p>
+                <ol className="text-sm text-blue-800 space-y-1 ml-4 list-decimal">
+                  <li>Перейдите на <a href="https://openrouter.ai/keys" target="_blank" rel="noopener" className="underline font-semibold">OpenRouter.ai</a></li>
+                  <li>Войдите через Google/GitHub</li>
+                  <li>Нажмите "Create Key"</li>
+                  <li>Скопируйте ключ (начинается с sk-or-v1-)</li>
+                  <li>Вставьте его в поле выше</li>
+                </ol>
               </div>
             </div>
           </div>
@@ -268,7 +283,7 @@ export default function AdminPanel({
 
               <div className="p-4 rounded-xl bg-purple-50 border border-purple-200">
                 <p className="text-sm text-purple-800">
-                  Используйте тот же ключ, что и для Gemini
+                  🔑 Используйте тот же OpenRouter ключ, что и для Gemini
                 </p>
               </div>
             </div>
