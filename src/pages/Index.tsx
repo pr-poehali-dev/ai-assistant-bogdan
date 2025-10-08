@@ -199,6 +199,7 @@ export default function Index() {
             }}
             onModelSelect={chatLogic.setSelectedModel}
             onFileUpload={chatLogic.handleFileUpload}
+            onVoiceMessageSend={chatLogic.handleVoiceMessageSend}
           />
 
           <AllTabsContent

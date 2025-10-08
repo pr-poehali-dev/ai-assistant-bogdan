@@ -9,7 +9,7 @@ interface Message {
   content: string;
   timestamp: Date;
   model?: AIModel;
-  attachments?: Array<{ type: 'image' | 'file'; url: string; name: string }>;
+  attachments?: Array<{ type: 'image' | 'file' | 'audio'; url: string; name: string; duration?: number }>;
   reactions?: Array<{ emoji: string; count: number }>;
 }
 
@@ -324,6 +324,31 @@ export function useChatLogic() {
     event.target.value = '';
   };
 
+  const handleVoiceMessageSend = (audioBlob: Blob, duration: number) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const voiceMessage: Message = {
+        id: Date.now().toString(),
+        role: 'user',
+        content: '🎤 Голосовое сообщение',
+        timestamp: new Date(),
+        attachments: [{
+          type: 'audio',
+          url: e.target?.result as string,
+          name: `voice-${Date.now()}.webm`,
+          duration: duration,
+        }],
+      };
+      setMessages(prev => [...prev, voiceMessage]);
+      
+      toast({
+        title: 'Голосовое сообщение отправлено',
+        description: `Продолжительность: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
+      });
+    };
+    reader.readAsDataURL(audioBlob);
+  };
+
   return {
     messages,
     setMessages,
@@ -346,5 +371,6 @@ export function useChatLogic() {
     regenerateResponse,
     addReaction,
     handleFileUpload,
+    handleVoiceMessageSend,
   };
 }

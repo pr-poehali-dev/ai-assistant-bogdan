@@ -44,6 +44,7 @@ interface ChatTabContentProps {
   onSelectSearchResult: (id: string) => void;
   onModelSelect: (model: string) => void;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onVoiceMessageSend?: (audioBlob: Blob, duration: number) => void;
 }
 
 export default function ChatTabContent({
@@ -139,6 +140,7 @@ export default function ChatTabContent({
             voicePitch={voicePitch}
             onVoiceRateChange={onVoiceRateChange}
             onVoicePitchChange={onVoicePitchChange}
+            onVoiceMessageSend={onVoiceMessageSend}
           />
         </div>
       </div>

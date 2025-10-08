@@ -20,7 +20,7 @@ interface Message {
   content: string;
   timestamp: Date;
   model?: AIModel;
-  attachments?: Array<{ type: 'image' | 'file'; url: string; name: string }>;
+  attachments?: Array<{ type: 'image' | 'file' | 'audio'; url: string; name: string; duration?: number }>;
   reactions?: Array<{ emoji: string; count: number }>;
 }
 
@@ -107,6 +107,20 @@ export default function EnhancedChatMessage({
                       alt={attachment.name}
                       className="rounded-xl max-w-full h-auto"
                     />
+                  ) : attachment.type === 'audio' ? (
+                    <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
+                      <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
+                        <Icon name="Mic" size={20} className="text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <audio controls src={attachment.url} className="w-full h-8" />
+                      </div>
+                      {attachment.duration && (
+                        <span className="text-xs text-slate-600 font-medium">
+                          {Math.floor(attachment.duration / 60)}:{(attachment.duration % 60).toString().padStart(2, '0')}
+                        </span>
+                      )}
+                    </div>
                   ) : (
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-100">
                       <Icon name="File" size={16} />

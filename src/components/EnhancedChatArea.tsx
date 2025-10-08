@@ -17,7 +17,7 @@ interface Message {
   content: string;
   timestamp: Date;
   model?: AIModel;
-  attachments?: Array<{ type: 'image' | 'file'; url: string; name: string }>;
+  attachments?: Array<{ type: 'image' | 'file' | 'audio'; url: string; name: string; duration?: number }>;
   reactions?: Array<{ emoji: string; count: number }>;
 }
 
@@ -54,6 +54,7 @@ interface EnhancedChatAreaProps {
   onSelectSearchResult: (messageId: string) => void;
   onModelSelect: (model: AIModel | 'auto') => void;
   onFileUpload: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onVoiceMessageSend?: (audioBlob: Blob, duration: number) => void;
   fileInputRef: React.RefObject<HTMLInputElement>;
 }
 
@@ -91,6 +92,7 @@ export default function EnhancedChatArea({
   voicePitch,
   onVoiceRateChange,
   onVoicePitchChange,
+  onVoiceMessageSend,
 }: EnhancedChatAreaProps) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -265,6 +267,7 @@ export default function EnhancedChatArea({
         isListening={isListening}
         onStartListening={onStartListening}
         onStopListening={onStopListening}
+        onVoiceMessageSend={onVoiceMessageSend}
       />
     </Card>
   );
