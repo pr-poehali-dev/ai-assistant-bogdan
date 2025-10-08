@@ -16,10 +16,19 @@ interface WeatherData {
   icon: string;
 }
 
+interface ForecastDay {
+  date: string;
+  temp_min: number;
+  temp_max: number;
+  description: string;
+  icon: string;
+}
+
 export default function Weather() {
   const { toast } = useToast();
   const [city, setCity] = useState('');
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [forecast, setForecast] = useState<ForecastDay[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const API_KEY = '895284fb2d2c50a520ea537456963d9c';
@@ -36,25 +45,53 @@ export default function Weather() {
 
     setIsLoading(true);
     try {
-      const response = await fetch(
+      const weatherResponse = await fetch(
         `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=ru`
       );
       
-      if (!response.ok) {
+      if (!weatherResponse.ok) {
         throw new Error('Город не найден');
       }
 
-      const data = await response.json();
+      const weatherData = await weatherResponse.json();
       setWeather({
-        city: data.name,
-        country: data.sys.country,
-        temp: Math.round(data.main.temp),
-        feels_like: Math.round(data.main.feels_like),
-        description: data.weather[0].description,
-        humidity: data.main.humidity,
-        wind_speed: Math.round(data.wind.speed),
-        icon: data.weather[0].icon,
+        city: weatherData.name,
+        country: weatherData.sys.country,
+        temp: Math.round(weatherData.main.temp),
+        feels_like: Math.round(weatherData.main.feels_like),
+        description: weatherData.weather[0].description,
+        humidity: weatherData.main.humidity,
+        wind_speed: Math.round(weatherData.wind.speed),
+        icon: weatherData.weather[0].icon,
       });
+
+      const forecastResponse = await fetch(
+        `https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${API_KEY}&units=metric&lang=ru`
+      );
+      
+      if (forecastResponse.ok) {
+        const forecastData = await forecastResponse.json();
+        const dailyForecasts: ForecastDay[] = [];
+        const processedDates = new Set<string>();
+
+        forecastData.list.forEach((item: any) => {
+          const date = new Date(item.dt * 1000);
+          const dateStr = date.toLocaleDateString('ru-RU', { weekday: 'short', day: 'numeric', month: 'short' });
+          
+          if (!processedDates.has(dateStr) && dailyForecasts.length < 7) {
+            processedDates.add(dateStr);
+            dailyForecasts.push({
+              date: dateStr,
+              temp_min: Math.round(item.main.temp_min),
+              temp_max: Math.round(item.main.temp_max),
+              description: item.weather[0].description,
+              icon: item.weather[0].icon,
+            });
+          }
+        });
+        
+        setForecast(dailyForecasts);
+      }
     } catch (error: any) {
       toast({
         title: 'Ошибка',
@@ -195,6 +232,31 @@ export default function Weather() {
             </div>
           </Card>
         )}
+
+        {forecast.length > 0 && (
+          <Card className="p-6 bg-white/70 border-0 mt-6">
+            <h3 className="font-bold text-xl text-slate-800 mb-4 flex items-center gap-2">
+              <Icon name="Calendar" size={24} className="text-blue-600" />
+              Прогноз на неделю
+            </h3>
+            <div className="grid grid-cols-7 gap-3">
+              {forecast.map((day, index) => (
+                <Card key={index} className="p-3 bg-white border-blue-100 hover:border-blue-300 transition-all">
+                  <p className="text-xs font-semibold text-slate-600 mb-2 text-center">{day.date}</p>
+                  <div className="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center mx-auto mb-2">
+                    <Icon name={getWeatherIcon(day.icon) as any} size={28} className="text-blue-600" />
+                  </div>
+                  <p className="text-center">
+                    <span className="text-lg font-bold text-orange-600">{day.temp_max}°</span>
+                    <span className="text-sm text-slate-400 mx-1">/</span>
+                    <span className="text-sm font-semibold text-cyan-600">{day.temp_min}°</span>
+                  </p>
+                  <p className="text-xs text-slate-500 text-center mt-1 truncate capitalize">{day.description}</p>
+                </Card>
+              ))}
+            </div>
+          </Card>
+        )}
       </Card>
 
       <Card className="p-6 bg-gradient-to-br from-cyan-50 to-blue-50 border-blue-200">
@@ -205,19 +267,23 @@ export default function Weather() {
         <ul className="space-y-2 text-slate-700">
           <li className="flex items-start gap-2">
             <Icon name="Check" size={18} className="text-green-600 mt-0.5" />
-            <span>Данные о погоде для любого города мира</span>
+            <span>Актуальная погода для любого города мира</span>
           </li>
           <li className="flex items-start gap-2">
             <Icon name="Check" size={18} className="text-green-600 mt-0.5" />
-            <span>Температура, влажность, скорость ветра</span>
+            <span>Прогноз погоды на 7 дней вперед</span>
           </li>
           <li className="flex items-start gap-2">
             <Icon name="Check" size={18} className="text-green-600 mt-0.5" />
-            <span>Ощущаемая температура</span>
+            <span>Температура, ощущения, влажность, скорость ветра</span>
           </li>
           <li className="flex items-start gap-2">
             <Icon name="Check" size={18} className="text-green-600 mt-0.5" />
             <span>Описание погодных условий на русском языке</span>
+          </li>
+          <li className="flex items-start gap-2">
+            <Icon name="Check" size={18} className="text-green-600 mt-0.5" />
+            <span>Минимальная и максимальная температура на каждый день</span>
           </li>
         </ul>
       </Card>

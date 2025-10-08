@@ -37,6 +37,42 @@ const LANGUAGES = [
   { code: 'fa', name: 'Персидский', flag: '🇮🇷' },
   { code: 'bn', name: 'Бенгальский', flag: '🇧🇩' },
   { code: 'ro', name: 'Румынский', flag: '🇷🇴' },
+  { code: 'hu', name: 'Венгерский', flag: '🇭🇺' },
+  { code: 'sk', name: 'Словацкий', flag: '🇸🇰' },
+  { code: 'bg', name: 'Болгарский', flag: '🇧🇬' },
+  { code: 'hr', name: 'Хорватский', flag: '🇭🇷' },
+  { code: 'sr', name: 'Сербский', flag: '🇷🇸' },
+  { code: 'sl', name: 'Словенский', flag: '🇸🇮' },
+  { code: 'lt', name: 'Литовский', flag: '🇱🇹' },
+  { code: 'lv', name: 'Латышский', flag: '🇱🇻' },
+  { code: 'et', name: 'Эстонский', flag: '🇪🇪' },
+  { code: 'is', name: 'Исландский', flag: '🇮🇸' },
+  { code: 'ga', name: 'Ирландский', flag: '🇮🇪' },
+  { code: 'mt', name: 'Мальтийский', flag: '🇲🇹' },
+  { code: 'sq', name: 'Албанский', flag: '🇦🇱' },
+  { code: 'mk', name: 'Македонский', flag: '🇲🇰' },
+  { code: 'be', name: 'Белорусский', flag: '🇧🇾' },
+  { code: 'kk', name: 'Казахский', flag: '🇰🇿' },
+  { code: 'uz', name: 'Узбекский', flag: '🇺🇿' },
+  { code: 'hy', name: 'Армянский', flag: '🇦🇲' },
+  { code: 'ka', name: 'Грузинский', flag: '🇬🇪' },
+  { code: 'az', name: 'Азербайджанский', flag: '🇦🇿' },
+  { code: 'ur', name: 'Урду', flag: '🇵🇰' },
+  { code: 'ne', name: 'Непальский', flag: '🇳🇵' },
+  { code: 'si', name: 'Сингальский', flag: '🇱🇰' },
+  { code: 'km', name: 'Кхмерский', flag: '🇰🇭' },
+  { code: 'lo', name: 'Лаосский', flag: '🇱🇦' },
+  { code: 'my', name: 'Бирманский', flag: '🇲🇲' },
+  { code: 'mn', name: 'Монгольский', flag: '🇲🇳' },
+  { code: 'tl', name: 'Тагальский', flag: '🇵🇭' },
+  { code: 'sw', name: 'Суахили', flag: '🇹🇿' },
+  { code: 'am', name: 'Амхарский', flag: '🇪🇹' },
+  { code: 'af', name: 'Африкаанс', flag: '🇿🇦' },
+  { code: 'zu', name: 'Зулу', flag: '🇿🇦' },
+  { code: 'xh', name: 'Коса', flag: '🇿🇦' },
+  { code: 'ig', name: 'Игбо', flag: '🇳🇬' },
+  { code: 'yo', name: 'Йоруба', flag: '🇳🇬' },
+  { code: 'ha', name: 'Хауса', flag: '🇳🇬' },
 ];
 
 export default function Translator() {
@@ -223,15 +259,15 @@ export default function Translator() {
         <ul className="space-y-2 text-slate-700">
           <li className="flex items-start gap-2">
             <Icon name="Check" size={18} className="text-green-600 mt-0.5" />
-            <span>Поддержка 30+ языков мира</span>
+            <span>Поддержка 67 языков мира</span>
           </li>
           <li className="flex items-start gap-2">
             <Icon name="Check" size={18} className="text-green-600 mt-0.5" />
-            <span>Озвучка текста на любом языке</span>
+            <span>Озвучка текста на любом языке с нативным произношением</span>
           </li>
           <li className="flex items-start gap-2">
             <Icon name="Check" size={18} className="text-green-600 mt-0.5" />
-            <span>Быстрая смена направления перевода</span>
+            <span>Быстрая смена направления перевода одной кнопкой</span>
           </li>
           <li className="flex items-start gap-2">
             <Icon name="Check" size={18} className="text-green-600 mt-0.5" />
