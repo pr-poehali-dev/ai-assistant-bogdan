@@ -3,6 +3,7 @@ import { Tabs } from '@/components/ui/tabs';
 import PageHeader from '@/components/layout/PageHeader';
 import ChatHeader from '@/components/layout/ChatHeader';
 import TabNavigation from '@/components/layout/TabNavigation';
+import MobileTabMenu from '@/components/layout/MobileTabMenu';
 import ChatTabContent from '@/components/tabs/ChatTabContent';
 import AllTabsContent from '@/components/tabs/AllTabsContent';
 import AdminLoginDialog from '@/components/dialogs/AdminLoginDialog';
@@ -118,8 +119,14 @@ export default function Index() {
   if (currentPage !== 'chat') {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-        <PageHeader currentPage={currentPage} onNavigate={setCurrentPage} />
-        <div className="container mx-auto px-6 py-8 max-w-7xl">
+        <PageHeader 
+          currentPage={currentPage} 
+          onNavigate={setCurrentPage}
+          onSettingsClick={() => setShowSettingsDialog(true)}
+          onAdminClick={handleAdminClick}
+          isAdminAuthenticated={adminControls.isAuthenticated}
+        />
+        <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-8 max-w-7xl">
           {currentPage === 'about' && <AboutPage />}
           {currentPage === 'features' && <FeaturesPage />}
           {currentPage === 'team' && <TeamPage />}
@@ -142,7 +149,9 @@ export default function Index() {
 
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 max-w-[1600px]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabNavigation />
+          <div className="hidden sm:block">
+            <TabNavigation />
+          </div>
 
           <ChatTabContent
             leftPanelCollapsed={leftPanelCollapsed}
@@ -190,6 +199,8 @@ export default function Index() {
             sessionsCount={sessionManager.chatSessions.length}
           />
         </Tabs>
+        
+        <MobileTabMenu activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
       <AdminLoginDialog
