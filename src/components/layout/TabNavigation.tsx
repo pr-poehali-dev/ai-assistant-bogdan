@@ -80,36 +80,37 @@ export default function TabNavigation({ activeTab, onTabChange }: TabNavigationP
   const isToolActive = !MAIN_TABS.some((t) => t.value === activeTab);
 
   return (
-    <div className="flex w-full bg-white/90 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-full mx-auto text-xs gap-1">
-      {MAIN_TABS.map((tab) => (
-        <button
-          key={tab.value}
-          onClick={() => onTabChange(tab.value)}
-          className={`flex items-center flex-shrink-0 rounded-lg px-3 py-2 whitespace-nowrap transition-all ${
-            activeTab === tab.value
-              ? `bg-gradient-to-r ${tab.gradient} text-white shadow-md`
-              : 'hover:bg-gray-100'
-          }`}
-        >
-          <Icon name={tab.icon as any} size={14} className="mr-1.5" />
-          <span className="hidden sm:inline">{tab.label}</span>
-        </button>
-      ))}
-
-      <DropdownMenu open={isToolsOpen} onOpenChange={setIsToolsOpen}>
-        <DropdownMenuTrigger asChild>
+    <div className="flex justify-center items-center w-full mb-3">
+      <div className="inline-flex bg-white/90 backdrop-blur-sm p-1 rounded-xl shadow-lg text-xs gap-1">
+        {MAIN_TABS.map((tab) => (
           <button
+            key={tab.value}
+            onClick={() => onTabChange(tab.value)}
             className={`flex items-center flex-shrink-0 rounded-lg px-3 py-2 whitespace-nowrap transition-all ${
-              isToolActive
-                ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
+              activeTab === tab.value
+                ? `bg-gradient-to-r ${tab.gradient} text-white shadow-md`
                 : 'hover:bg-gray-100'
             }`}
           >
-            <Icon name="Wrench" size={14} className="mr-1.5" />
-            <span className="hidden sm:inline">{getCurrentTabLabel()}</span>
-            <Icon name="ChevronDown" size={14} className="ml-1" />
+            <Icon name={tab.icon as any} size={14} className="mr-1.5" />
+            <span className="hidden sm:inline">{tab.label}</span>
           </button>
-        </DropdownMenuTrigger>
+        ))}
+
+        <DropdownMenu open={isToolsOpen} onOpenChange={setIsToolsOpen}>
+          <DropdownMenuTrigger asChild>
+            <button
+              className={`flex items-center flex-shrink-0 rounded-lg px-3 py-2 whitespace-nowrap transition-all ${
+                isToolActive
+                  ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
+                  : 'hover:bg-gray-100'
+              }`}
+            >
+              <Icon name="Wrench" size={14} className="mr-1.5" />
+              <span className="hidden sm:inline">{getCurrentTabLabel()}</span>
+              <Icon name="ChevronDown" size={14} className="ml-1" />
+            </button>
+          </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 max-h-[70vh] overflow-y-auto">
           {TOOL_GROUPS.map((group, groupIndex) => (
             <div key={group.label}>
@@ -133,7 +134,8 @@ export default function TabNavigation({ activeTab, onTabChange }: TabNavigationP
             </div>
           ))}
         </DropdownMenuContent>
-      </DropdownMenu>
+        </DropdownMenu>
+      </div>
     </div>
   );
 }
