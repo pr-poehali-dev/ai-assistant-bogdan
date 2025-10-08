@@ -32,7 +32,7 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredMessages, setFilteredMessages] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
-  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(window.innerWidth < 1024);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -140,7 +140,7 @@ export default function Index() {
         showAdminPanel={showAdminPanel}
       />
 
-      <div className="container mx-auto px-4 py-3 max-w-[1600px]">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 max-w-[1600px]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabNavigation />
 

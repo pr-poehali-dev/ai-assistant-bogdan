@@ -38,7 +38,7 @@ export default function ChatSidebar({
         variant="ghost"
         size="sm"
         onClick={onToggleCollapse}
-        className="col-span-1 h-12 rounded-lg bg-white shadow-md hover:bg-slate-50 self-start"
+        className="hidden lg:flex col-span-1 h-12 rounded-lg bg-white shadow-md hover:bg-slate-50 self-start"
       >
         <Icon name="ChevronRight" size={16} className="text-slate-600" />
       </Button>
@@ -46,10 +46,11 @@ export default function ChatSidebar({
   }
 
   return (
-    <div className="col-span-3 space-y-3 relative">
-      <Card className="p-3 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-        <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-1.5 text-sm">
-          <Icon name="Folder" size={16} className="text-blue-600" />
+    <div className="hidden lg:block col-span-3 space-y-2 sm:space-y-3 relative">
+      <Card className="p-2 sm:p-3 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+        <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-1.5 text-xs sm:text-sm">
+          <Icon name="Folder" size={14} className="text-blue-600 sm:hidden" />
+          <Icon name="Folder" size={16} className="text-blue-600 hidden sm:block" />
           Сессии
         </h3>
         <Button
@@ -78,9 +79,10 @@ export default function ChatSidebar({
         </div>
       </Card>
       
-      <Card className="p-3 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-        <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-1.5 text-sm">
-          <Icon name="TrendingUp" size={16} className="text-green-600" />
+      <Card className="p-2 sm:p-3 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+        <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-1.5 text-xs sm:text-sm">
+          <Icon name="TrendingUp" size={14} className="text-green-600 sm:hidden" />
+          <Icon name="TrendingUp" size={16} className="text-green-600 hidden sm:block" />
           Статистика
         </h3>
         <StatsPanel
@@ -94,7 +96,7 @@ export default function ChatSidebar({
         variant="ghost"
         size="sm"
         onClick={onToggleCollapse}
-        className="absolute -right-3 top-1/2 -translate-y-1/2 h-12 w-6 rounded-r-lg bg-white shadow-md hover:bg-slate-50 p-0"
+        className="hidden lg:flex absolute -right-3 top-1/2 -translate-y-1/2 h-12 w-6 rounded-r-lg bg-white shadow-md hover:bg-slate-50 p-0"
       >
         <Icon name="ChevronLeft" size={16} className="text-slate-600" />
       </Button>

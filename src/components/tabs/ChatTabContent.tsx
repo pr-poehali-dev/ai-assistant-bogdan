@@ -79,7 +79,7 @@ export default function ChatTabContent({
 }: ChatTabContentProps) {
   return (
     <TabsContent value="chat" className="mt-0">
-      <div className="grid grid-cols-12 gap-4">
+      <div className="grid grid-cols-12 gap-2 sm:gap-4">
         <ChatSidebar
           sessions={sessions}
           currentSessionId={currentSessionId}
@@ -92,7 +92,7 @@ export default function ChatTabContent({
           onClearStats={onClearStats}
         />
 
-        <div className={leftPanelCollapsed ? "col-span-9" : "col-span-9"}>
+        <div className={leftPanelCollapsed ? "col-span-11 lg:col-span-9" : "col-span-12 lg:col-span-9"}>
           <EnhancedChatArea
             messages={messages}
             currentModel={currentModel}

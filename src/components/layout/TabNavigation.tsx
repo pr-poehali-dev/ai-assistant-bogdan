@@ -3,70 +3,70 @@ import Icon from '@/components/ui/icon';
 
 export default function TabNavigation() {
   return (
-    <TabsList className="grid w-full grid-cols-8 lg:grid-cols-16 bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-full mx-auto text-xs overflow-x-auto">
-      <TabsTrigger value="chat" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white text-xs">
-        <Icon name="MessageSquare" size={14} className="mr-1.5" />
-        Чат
+    <TabsList className="flex w-full bg-white/80 backdrop-blur-sm p-0.5 sm:p-1 rounded-lg sm:rounded-xl shadow-lg mb-2 sm:mb-3 max-w-full mx-auto text-[10px] sm:text-xs overflow-x-auto gap-0.5 sm:gap-1">
+      <TabsTrigger value="chat" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="MessageSquare" size={12} className="sm:mr-1.5" />
+        <span className="hidden sm:inline">Чат</span>
       </TabsTrigger>
-      <TabsTrigger value="assistants" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-xs">
-        <Icon name="Users" size={14} className="mr-1.5" />
-        Ассистенты
+      <TabsTrigger value="assistants" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Users" size={12} className="sm:mr-1.5" />
+        <span className="hidden sm:inline">Ассистенты</span>
       </TabsTrigger>
-      <TabsTrigger value="knowledge" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white text-xs">
-        <Icon name="BookOpen" size={14} className="mr-1.5" />
-        База знаний
+      <TabsTrigger value="knowledge" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="BookOpen" size={12} className="sm:mr-1.5" />
+        <span className="hidden sm:inline">База знаний</span>
       </TabsTrigger>
-      <TabsTrigger value="translator" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-xs">
-        <Icon name="Languages" size={14} className="mr-1.5" />
-        Переводчик
+      <TabsTrigger value="translator" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Languages" size={12} className="sm:mr-1.5" />
+        <span className="hidden sm:inline">Переводчик</span>
       </TabsTrigger>
-      <TabsTrigger value="weather" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white text-xs">
-        <Icon name="CloudSun" size={14} className="mr-1.5" />
-        Погода
+      <TabsTrigger value="weather" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="CloudSun" size={12} className="sm:mr-1.5" />
+        <span className="hidden sm:inline">Погода</span>
       </TabsTrigger>
-      <TabsTrigger value="ocr" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white">
-        <Icon name="ScanText" size={14} className="mr-1" />
-        OCR
+      <TabsTrigger value="ocr" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="ScanText" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">OCR</span>
       </TabsTrigger>
-      <TabsTrigger value="qr" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-600 data-[state=active]:text-white">
-        <Icon name="QrCode" size={14} className="mr-1" />
-        QR
+      <TabsTrigger value="qr" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="QrCode" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">QR</span>
       </TabsTrigger>
-      <TabsTrigger value="notes" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-600 data-[state=active]:text-white">
-        <Icon name="StickyNote" size={14} className="mr-1" />
-        Заметки
+      <TabsTrigger value="notes" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="StickyNote" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">Заметки</span>
       </TabsTrigger>
-      <TabsTrigger value="password" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white">
-        <Icon name="Lock" size={14} className="mr-1" />
-        Пароль
+      <TabsTrigger value="password" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Lock" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">Пароль</span>
       </TabsTrigger>
-      <TabsTrigger value="calc" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
-        <Icon name="Calculator" size={14} className="mr-1" />
-        Кальк.
+      <TabsTrigger value="calc" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Calculator" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">Кальк.</span>
       </TabsTrigger>
-      <TabsTrigger value="timer" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white">
-        <Icon name="Timer" size={14} className="mr-1" />
-        Таймер
+      <TabsTrigger value="timer" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Timer" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">Таймер</span>
       </TabsTrigger>
-      <TabsTrigger value="converter" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white">
-        <Icon name="Ruler" size={14} className="mr-1" />
-        Конверт.
+      <TabsTrigger value="converter" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Ruler" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">Конверт.</span>
       </TabsTrigger>
-      <TabsTrigger value="color" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-purple-600 data-[state=active]:text-white">
-        <Icon name="Palette" size={14} className="mr-1" />
-        Цвета
+      <TabsTrigger value="color" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-purple-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Palette" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">Цвета</span>
       </TabsTrigger>
-      <TabsTrigger value="counter" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white">
-        <Icon name="Hash" size={14} className="mr-1" />
-        Счёт
+      <TabsTrigger value="counter" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Hash" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">Счёт</span>
       </TabsTrigger>
-      <TabsTrigger value="random" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white">
-        <Icon name="Sparkles" size={14} className="mr-1" />
-        Случай
+      <TabsTrigger value="random" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Sparkles" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">Случай</span>
       </TabsTrigger>
-      <TabsTrigger value="metronome" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-600 data-[state=active]:text-white">
-        <Icon name="Music" size={14} className="mr-1" />
-        Метроном
+      <TabsTrigger value="metronome" className="flex-shrink-0 rounded data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-600 data-[state=active]:text-white px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap">
+        <Icon name="Music" size={12} className="sm:mr-1" />
+        <span className="hidden sm:inline">Метроном</span>
       </TabsTrigger>
     </TabsList>
   );
