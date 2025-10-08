@@ -355,6 +355,7 @@ export default function Index() {
           adminControls.saveSettings(chatLogic.apiConfig);
           setShowAdminPanel(false);
         }}
+        onSetActiveModel={chatLogic.setActiveModel}
       />
     </div>
   );

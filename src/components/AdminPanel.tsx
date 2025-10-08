@@ -13,6 +13,7 @@ interface APIConfig {
   phi: { key: string; enabled: boolean };
   qwen: { key: string; enabled: boolean };
   mistral: { key: string; enabled: boolean };
+  activeModel?: AIModel;
 }
 
 interface AdminPanelProps {
@@ -20,6 +21,7 @@ interface AdminPanelProps {
   onAPIKeyChange: (model: AIModel, key: string) => void;
   onToggleModel: (model: AIModel, enabled: boolean) => void;
   onSaveSettings: () => void;
+  onSetActiveModel?: (model: AIModel) => void;
 }
 
 export default function AdminPanel({
@@ -27,6 +29,7 @@ export default function AdminPanel({
   onAPIKeyChange,
   onToggleModel,
   onSaveSettings,
+  onSetActiveModel,
 }: AdminPanelProps) {
   const {
     testingModel,
@@ -52,6 +55,7 @@ export default function AdminPanel({
           {models.map(model => {
             const config = modelConfigs[model];
             const modelConfig = apiConfig[model] || { key: '', enabled: true };
+            const isActive = (apiConfig as any).activeModel === model;
             return (
               <ModelCard
                 key={model}
@@ -62,6 +66,7 @@ export default function AdminPanel({
                 colorClass={config.colorClass}
                 apiKey={modelConfig.key}
                 enabled={modelConfig.enabled}
+                isActive={isActive}
                 testResult={testResults[model]}
                 keyError={keyErrors[model]}
                 showKey={showKeys[model]}
@@ -73,6 +78,7 @@ export default function AdminPanel({
                 onToggle={(enabled) => onToggleModel(model, enabled)}
                 onTest={() => testModel(model)}
                 onToggleShowKey={() => setShowKeys(prev => ({ ...prev, [model]: !prev[model] }))}
+                onSetActive={onSetActiveModel ? () => onSetActiveModel(model) : undefined}
               />
             );
           })}

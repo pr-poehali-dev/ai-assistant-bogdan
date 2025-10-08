@@ -14,6 +14,7 @@ interface ModelCardProps {
   colorClass: string;
   apiKey: string;
   enabled: boolean;
+  isActive?: boolean;
   testResult: 'success' | 'error' | null;
   keyError: string | null;
   showKey: boolean;
@@ -25,6 +26,7 @@ interface ModelCardProps {
   onToggle: (enabled: boolean) => void;
   onTest: () => void;
   onToggleShowKey: () => void;
+  onSetActive?: () => void;
 }
 
 export default function ModelCard({
@@ -35,6 +37,7 @@ export default function ModelCard({
   colorClass,
   apiKey,
   enabled,
+  isActive = false,
   testResult,
   keyError,
   showKey,
@@ -46,9 +49,16 @@ export default function ModelCard({
   onToggle,
   onTest,
   onToggleShowKey,
+  onSetActive,
 }: ModelCardProps) {
   return (
     <div className={`bg-white rounded-2xl p-8 shadow-lg border-2 transition-all ${
+      isActive ? `${colorClass.includes('blue') ? 'border-blue-400' : 
+                   colorClass.includes('purple') ? 'border-purple-400' : 
+                   colorClass.includes('green') ? 'border-green-400' : 
+                   colorClass.includes('indigo') ? 'border-indigo-400' : 
+                   colorClass.includes('orange') ? 'border-orange-400' : 
+                   'border-rose-400'} bg-gradient-to-br ${colorClass}/10` :
       testResult === 'success' ? 'border-green-400 bg-green-50/30' :
       testResult === 'error' ? 'border-red-400 bg-red-50/30' :
       'border-slate-200'
@@ -133,6 +143,22 @@ export default function ModelCard({
             onCheckedChange={onToggle}
           />
         </div>
+
+        {enabled && onSetActive && (
+          <div 
+            onClick={onSetActive}
+            className={`flex items-center justify-between p-4 rounded-xl cursor-pointer transition-all ${
+              isActive 
+                ? `bg-gradient-to-r ${colorClass} text-white` 
+                : 'bg-white border-2 border-dashed border-slate-300 hover:border-slate-400'
+            }`}
+          >
+            <Label className={`text-sm font-medium cursor-pointer ${isActive ? 'text-white' : 'text-slate-700'}`}>
+              {isActive ? '✅ Используется сейчас' : 'Выбрать как активную модель'}
+            </Label>
+            {isActive && <Icon name="CheckCircle" size={20} className="text-white" />}
+          </div>
+        )}
 
         <Button
           onClick={onTest}

@@ -11,6 +11,7 @@ interface APIConfig {
   phi: { key: string; enabled: boolean };
   qwen: { key: string; enabled: boolean };
   mistral: { key: string; enabled: boolean };
+  activeModel?: AIModel;
 }
 
 interface AdminPanelOverlayProps {
@@ -20,6 +21,7 @@ interface AdminPanelOverlayProps {
   onAPIKeyChange: (model: AIModel, key: string) => void;
   onToggleModel: (model: AIModel, enabled: boolean) => void;
   onSaveSettings: () => void;
+  onSetActiveModel?: (model: AIModel) => void;
 }
 
 export default function AdminPanelOverlay({
@@ -28,7 +30,8 @@ export default function AdminPanelOverlay({
   onClose,
   onAPIKeyChange,
   onToggleModel,
-  onSaveSettings
+  onSaveSettings,
+  onSetActiveModel
 }: AdminPanelOverlayProps) {
   if (!show) return null;
 
@@ -49,6 +52,7 @@ export default function AdminPanelOverlay({
             onAPIKeyChange={onAPIKeyChange}
             onToggleModel={onToggleModel}
             onSaveSettings={onSaveSettings}
+            onSetActiveModel={onSetActiveModel}
           />
         </div>
       </div>

@@ -24,6 +24,7 @@ interface APIConfig {
   phi: { key: string; enabled: boolean };
   qwen: { key: string; enabled: boolean };
   mistral: { key: string; enabled: boolean };
+  activeModel?: AIModel;
 }
 
 interface Settings {
@@ -75,6 +76,7 @@ export function useChatLogic() {
       phi: { key: '', enabled: true },
       qwen: { key: '', enabled: true },
       mistral: { key: '', enabled: true },
+      activeModel: 'gemini',
     };
   });
   const [settings, setSettings] = useState<Settings>(() => {
@@ -123,26 +125,18 @@ export function useChatLogic() {
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
 
-    const enabledModels = Object.entries(apiConfig)
-      .filter(([_, config]) => config.enabled && config.key)
-      .map(([model]) => model as AIModel);
+    const activeModel = apiConfig.activeModel || 'gemini';
     
-    if (enabledModels.length === 0) {
+    if (!apiConfig[activeModel]?.enabled || !apiConfig[activeModel]?.key) {
       toast({
-        title: 'Сервис недоступен',
-        description: 'Настройте хотя бы один режим работы в панели управления',
+        title: 'Модель не настроена',
+        description: `Настройте ${modelInfo[activeModel]?.name} в панели управления`,
         variant: 'destructive',
       });
       return;
     }
 
-    const { model: selectedAIModel, reason } = selectBestModel(inputMessage, enabledModels);
-
-    toast({
-      title: `🤖 ${getModelDisplayName(selectedAIModel)}`,
-      description: reason,
-      duration: 2000,
-    });
+    const selectedAIModel = activeModel;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -582,6 +576,10 @@ export function useChatLogic() {
     }
   };
 
+  const setActiveModel = (model: AIModel) => {
+    setApiConfig(prev => ({ ...prev, activeModel: model }));
+  };
+
   return {
     messages,
     setMessages,
@@ -605,5 +603,6 @@ export function useChatLogic() {
     addReaction,
     handleFileUpload,
     handleVoiceMessageSend,
+    setActiveModel,
   };
 }
