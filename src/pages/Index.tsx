@@ -40,7 +40,7 @@ export default function Index() {
   const [filteredMessages, setFilteredMessages] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
-  const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const chatLogic = useChatLogic();
@@ -185,14 +185,14 @@ export default function Index() {
               size="icon"
               onClick={() => {
                 if (adminControls.isAuthenticated) {
-                  adminControls.handleAdminLogout();
+                  setShowAdminPanel(!showAdminPanel);
                 } else {
                   adminControls.setShowAdminDialog(true);
                 }
               }}
               className="rounded-xl hover:bg-slate-100"
             >
-              <Icon name={adminControls.isAuthenticated ? 'LogOut' : 'Settings'} size={20} className="text-slate-600" />
+              <Icon name={adminControls.isAuthenticated ? 'Menu' : 'Settings'} size={20} className="text-slate-600" />
             </Button>
           </div>
         </div>
@@ -288,7 +288,7 @@ export default function Index() {
                 </Button>
               )}
 
-              <div className={leftPanelCollapsed && rightPanelCollapsed ? "col-span-10" : leftPanelCollapsed || rightPanelCollapsed ? "col-span-7" : "col-span-6"}>
+              <div className={leftPanelCollapsed ? "col-span-9" : "col-span-9"}>
                 <EnhancedChatArea
                   messages={chatLogic.messages}
                   currentModel={chatLogic.currentModel}
@@ -323,69 +323,7 @@ export default function Index() {
                 />
               </div>
 
-              {!rightPanelCollapsed && <div className="col-span-3 space-y-3 relative">
-                {!adminControls.isAuthenticated && Object.values(chatLogic.apiConfig).every(c => !c.key || !c.enabled) && (
-                  <Card className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-lg">
-                    <div className="flex items-start gap-2">
-                      <Icon name="AlertCircle" size={16} className="text-amber-600 mt-0.5" />
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-amber-900 text-xs mb-1">Требуется настройка</h4>
-                        <Button
-                          size="sm"
-                          onClick={() => adminControls.setShowAdminDialog(true)}
-                          className="bg-amber-600 hover:bg-amber-700 text-white text-xs h-7 w-full mt-1"
-                        >
-                          <Icon name="Settings" size={12} className="mr-1" />
-                          Настроить
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                )}
-                <Card className="p-3 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                  <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-1.5 text-sm">
-                    <Icon name="Sparkles" size={16} className="text-purple-600" />
-                    Быстрые действия
-                  </h3>
-                  <QuickPrompts
-                    onSelectPrompt={(prompt) => chatLogic.setInputMessage(prompt)}
-                  />
-                </Card>
-                {adminControls.isAuthenticated && (
-                  <AdminPanel
-                    apiConfig={chatLogic.apiConfig}
-                    stats={chatLogic.stats}
-                    modelInfo={modelInfo}
-                    onAPIKeyChange={(model, key) => 
-                      adminControls.handleAPIKeyChange(model, key, chatLogic.apiConfig, chatLogic.setApiConfig)
-                    }
-                    onToggleModel={(model, enabled) => 
-                      adminControls.handleToggleModel(model, enabled, chatLogic.apiConfig, chatLogic.setApiConfig)
-                    }
-                    onSaveSettings={() => adminControls.saveSettings(chatLogic.apiConfig)}
-                    onClearStats={() => adminControls.clearStats(chatLogic.setStats)}
-                  />
-                )}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setRightPanelCollapsed(true)}
-                  className="absolute -left-3 top-1/2 -translate-y-1/2 h-12 w-6 rounded-l-lg bg-white shadow-md hover:bg-slate-50 p-0"
-                >
-                  <Icon name="ChevronRight" size={16} className="text-slate-600" />
-                </Button>
-              </div>}
 
-              {rightPanelCollapsed && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setRightPanelCollapsed(false)}
-                  className="col-span-1 h-12 rounded-lg bg-white shadow-md hover:bg-slate-50 self-start"
-                >
-                  <Icon name="ChevronLeft" size={16} className="text-slate-600" />
-                </Button>
-              )}
             </div>
           </TabsContent>
 
@@ -454,6 +392,36 @@ export default function Index() {
         onSettingsChange={chatLogic.setSettings}
         onSave={handleSaveSettings}
       />
+
+      {showAdminPanel && adminControls.isAuthenticated && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setShowAdminPanel(false)}>
+          <div className="absolute right-0 top-0 h-full w-full max-w-2xl overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="relative">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowAdminPanel(false)}
+                className="absolute top-4 right-4 z-10 rounded-xl bg-white/80 hover:bg-white"
+              >
+                <Icon name="X" size={20} />
+              </Button>
+              <AdminPanel
+                apiConfig={chatLogic.apiConfig}
+                onAPIKeyChange={(model, key) => 
+                  adminControls.handleAPIKeyChange(model, key, chatLogic.apiConfig, chatLogic.setApiConfig)
+                }
+                onToggleModel={(model, enabled) => 
+                  adminControls.handleToggleModel(model, enabled, chatLogic.apiConfig, chatLogic.setApiConfig)
+                }
+                onSaveSettings={() => {
+                  adminControls.saveSettings(chatLogic.apiConfig);
+                  setShowAdminPanel(false);
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
