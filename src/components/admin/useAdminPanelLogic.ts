@@ -55,10 +55,13 @@ export function useAdminPanelLogic(
         return 'Слишком короткий ключ';
       }
     } else {
-      if (!key.startsWith('sk-or-v1-')) {
-        return 'Ключ должен начинаться с sk-or-v1-';
+      const validPrefixes = ['sk-or-v1-', 'sk-proj-', 'sk-ant-', 'sk-'];
+      const hasValidPrefix = validPrefixes.some(prefix => key.startsWith(prefix));
+      
+      if (!hasValidPrefix) {
+        return 'Ключ должен начинаться с sk- (любой API провайдер)';
       }
-      if (key.length < 40) {
+      if (key.length < 20) {
         return 'Слишком короткий ключ';
       }
     }
@@ -82,13 +85,18 @@ export function useAdminPanelLogic(
       return;
     }
 
-    if (model !== 'gigachat' && !apiConfig[model].key.startsWith('sk-or-v1-')) {
-      toast({
-        title: 'Неверный формат ключа',
-        description: 'OpenRouter ключ должен начинаться с sk-or-v1-',
-        variant: 'destructive',
-      });
-      return;
+    if (model !== 'gigachat') {
+      const validPrefixes = ['sk-or-v1-', 'sk-proj-', 'sk-ant-', 'sk-'];
+      const hasValidPrefix = validPrefixes.some(prefix => apiConfig[model].key.startsWith(prefix));
+      
+      if (!hasValidPrefix) {
+        toast({
+          title: 'Неверный формат ключа',
+          description: 'API ключ должен начинаться с sk-',
+          variant: 'destructive',
+        });
+        return;
+      }
     }
 
     setTestingModel(model);
