@@ -14,29 +14,22 @@ export default function StatsPanel({ stats, modelInfo }: StatsPanelProps) {
   const totalRequests = Object.values(stats).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="space-y-3">
-      <div className="p-4 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-        <p className="text-sm opacity-90 mb-1">Всего запросов</p>
-        <p className="text-3xl font-bold">{totalRequests}</p>
+    <div className="space-y-2">
+      <div className="p-2.5 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 text-white text-center">
+        <p className="text-xs opacity-90">Запросов</p>
+        <p className="text-2xl font-bold">{totalRequests}</p>
       </div>
 
-      <div className="space-y-2">
+      <div className="grid grid-cols-3 gap-1.5">
         {Object.entries(modelInfo).map(([key, info]) => {
           const count = stats[key as AIModel];
-          
           return (
-            <div key={key} className="p-3 rounded-xl bg-white border border-slate-200">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${info.color} flex items-center justify-center`}>
-                    <Icon name={info.icon as any} size={16} className="text-white" />
-                  </div>
-                  <span className="text-sm font-semibold text-slate-700">{info.name}</span>
-                </div>
-                <Badge className={`bg-gradient-to-r ${info.color} text-white border-0`}>
-                  {count}
-                </Badge>
+            <div key={key} className="p-1.5 rounded-lg bg-slate-50 text-center">
+              <div className={`w-6 h-6 rounded-md bg-gradient-to-br ${info.color} flex items-center justify-center mx-auto mb-1`}>
+                <Icon name={info.icon as any} size={12} className="text-white" />
               </div>
+              <p className="text-xs font-bold text-slate-700">{count}</p>
+              <p className="text-[10px] text-slate-500 truncate">{info.name.replace('Режим ', '')}</p>
             </div>
           );
         })}

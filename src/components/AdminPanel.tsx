@@ -95,57 +95,35 @@ export default function AdminPanel({
   };
 
   return (
-    <div className="lg:col-span-1">
-      <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm">
-        <div className="p-6 border-b border-slate-200/60 bg-gradient-to-r from-blue-50 to-purple-50">
-          <div className="flex items-center gap-3 mb-2">
-            <Icon name="Shield" size={22} className="text-blue-600" />
-            <h2 className="font-bold text-slate-800 text-lg">Управление</h2>
+    <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+      <div className="p-4 border-b border-slate-200/60 bg-gradient-to-r from-blue-50 to-purple-50">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Icon name="Shield" size={18} className="text-blue-600" />
+            <h2 className="font-bold text-slate-800">Управление</h2>
           </div>
-          <p className="text-sm text-slate-600">Конфигурация системы</p>
+          <APISetupGuide />
         </div>
+      </div>
 
-        <ScrollArea className="flex-1 p-5">
-          <div className="mb-4">
-            <APISetupGuide />
-          </div>
-          
-          <div className="space-y-4 mb-6">
-            <h3 className="text-sm font-semibold text-slate-700 flex items-center gap-2">
-              <Icon name="BarChart3" size={16} />
-              Статистика использования
-            </h3>
-            <div className="space-y-2">
-              {Object.entries(modelInfo).map(([key, info]) => (
-                <div key={key} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="flex items-center gap-2">
-                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${info.color} flex items-center justify-center relative`}>
-                      <Icon name={info.icon as any} size={14} className="text-white" />
-                      {testResults[key as AIModel] === 'success' && (
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
-                      )}
-                      {testResults[key as AIModel] === 'error' && (
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white" />
-                      )}
-                    </div>
-                    <div>
-                      <span className="text-sm font-medium text-slate-700">{info.name}</span>
-                      {testResults[key as AIModel] === 'success' && (
-                        <p className="text-xs text-green-600">Тест пройден</p>
-                      )}
-                      {testResults[key as AIModel] === 'error' && (
-                        <p className="text-xs text-red-600">Требует проверки</p>
-                      )}
-                    </div>
-                  </div>
-                  <Badge variant="secondary">{stats[key as AIModel]} запросов</Badge>
+      <ScrollArea className="max-h-[calc(100vh-200px)]">
+        <div className="p-4 space-y-4">
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {Object.entries(modelInfo).map(([key, info]) => (
+              <div key={key} className="p-2 rounded-lg bg-slate-50 border border-slate-100 text-center relative">
+                <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${info.color} flex items-center justify-center mx-auto mb-1 relative`}>
+                  <Icon name={info.icon as any} size={14} className="text-white" />
+                  {testResults[key as AIModel] === 'success' && (
+                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full border border-white" />
+                  )}
+                  {testResults[key as AIModel] === 'error' && (
+                    <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full border border-white" />
+                  )}
                 </div>
-              ))}
-            </div>
-            <Button variant="outline" size="sm" onClick={onClearStats} className="w-full gap-2">
-              <Icon name="RotateCcw" size={14} />
-              Сбросить статистику
-            </Button>
+                <p className="text-xs font-semibold text-slate-700 truncate">{info.name.replace('Режим ', '')}</p>
+                <p className="text-xs text-slate-500">{stats[key as AIModel]}</p>
+              </div>
+            ))}
           </div>
 
           <Tabs defaultValue="gemini" className="w-full">
@@ -162,20 +140,10 @@ export default function AdminPanel({
             </TabsList>
 
             {Object.entries(modelInfo).map(([key, info]) => (
-              <TabsContent key={key} value={key} className="space-y-5 mt-5">
-                <div className="space-y-4">
-                  <div
-                    className={`p-5 rounded-2xl bg-gradient-to-br ${info.color} text-white flex items-center gap-3 shadow-lg`}
-                  >
-                    <Icon name={info.icon as any} size={28} />
-                    <div>
-                      <h3 className="font-bold text-base">{info.fullName}</h3>
-                      <p className="text-sm opacity-90">Free API</p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor={`${key}-key`} className="text-sm font-semibold text-slate-700">
+              <TabsContent key={key} value={key} className="space-y-3 mt-3">
+                <div className="space-y-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor={`${key}-key`} className="text-xs font-semibold text-slate-700">
                       API Ключ
                     </Label>
                     <Input
@@ -184,19 +152,14 @@ export default function AdminPanel({
                       placeholder="Введите ключ..."
                       value={apiConfig[key as AIModel].key}
                       onChange={(e) => onAPIKeyChange(key as AIModel, e.target.value)}
-                      className="rounded-xl border-slate-200"
+                      className="rounded-lg border-slate-200 text-sm h-9"
                     />
                   </div>
 
-                  <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50 border border-slate-100">
-                    <div className="flex items-center gap-2">
-                      <Label htmlFor={`${key}-toggle`} className="text-sm font-medium text-slate-700">
-                        Активна
-                      </Label>
-                      {apiConfig[key as AIModel].enabled && (
-                        <Badge className="text-xs bg-green-500 hover:bg-green-600">Вкл</Badge>
-                      )}
-                    </div>
+                  <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-50">
+                    <Label htmlFor={`${key}-toggle`} className="text-xs font-medium text-slate-700">
+                      Режим активен
+                    </Label>
                     <Switch
                       id={`${key}-toggle`}
                       checked={apiConfig[key as AIModel].enabled}
@@ -204,86 +167,60 @@ export default function AdminPanel({
                     />
                   </div>
 
-                  <div className="space-y-3 pt-2">
-                    <h4 className="text-sm font-semibold text-slate-700">Статус</h4>
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                        <p className="text-xs text-slate-500 mb-1">Ключ</p>
-                        <p className="text-sm font-bold text-slate-700">
-                          {apiConfig[key as AIModel].key ? '✓ Есть' : '✗ Нет'}
-                        </p>
-                      </div>
-                      <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 text-center">
-                        <p className="text-xs text-slate-500 mb-1">Режим</p>
-                        <p className="text-sm font-bold text-slate-700">
-                          {apiConfig[key as AIModel].enabled ? '✓ Вкл' : '✗ Выкл'}
-                        </p>
-                      </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button
+                      onClick={() => testModel(key as AIModel)}
+                      disabled={!apiConfig[key as AIModel].key || testingModel === key}
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5 rounded-lg h-8"
+                    >
+                      {testingModel === key ? (
+                        <>
+                          <Icon name="Loader2" size={14} className="animate-spin" />
+                          <span className="text-xs">Тест...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Icon name="Play" size={14} />
+                          <span className="text-xs">Тест</span>
+                        </>
+                      )}
+                    </Button>
+                    <div className={`flex items-center justify-center gap-1 text-xs font-medium rounded-lg px-2 ${
+                      apiConfig[key as AIModel].key && apiConfig[key as AIModel].enabled
+                        ? 'bg-green-50 text-green-700'
+                        : 'bg-slate-100 text-slate-500'
+                    }`}>
+                      {apiConfig[key as AIModel].key && apiConfig[key as AIModel].enabled ? (
+                        <><Icon name="Check" size={12} /> Готов</>
+                      ) : (
+                        <><Icon name="AlertCircle" size={12} /> Настроить</>
+                      )}
                     </div>
                   </div>
 
-                  <Button
-                    onClick={() => testModel(key as AIModel)}
-                    disabled={!apiConfig[key as AIModel].key || testingModel === key}
-                    variant="outline"
-                    className="w-full gap-2 rounded-xl border-2"
-                  >
-                    {testingModel === key ? (
-                      <>
-                        <Icon name="Loader2" size={16} className="animate-spin" />
-                        Тестирование...
-                      </>
-                    ) : (
-                      <>
-                        <Icon name="Play" size={16} />
-                        Протестировать
-                      </>
-                    )}
-                  </Button>
-
-                  <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
-                    <h5 className="text-xs font-semibold text-blue-900 mb-2 flex items-center gap-1">
-                      <Icon name="Info" size={12} />
-                      Как получить ключ?
-                    </h5>
-                    {key === 'gemini' && (
-                      <div className="text-xs text-blue-800 space-y-1">
-                        <p>1. Перейдите на <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" className="underline font-semibold">Google AI Studio</a></p>
-                        <p>2. Нажмите "Get API key"</p>
-                        <p>3. Скопируйте ключ и вставьте выше</p>
-                      </div>
-                    )}
-                    {key === 'llama' && (
-                      <div className="text-xs text-blue-800 space-y-1">
-                        <p>1. Зарегистрируйтесь на <a href="https://api.together.xyz" target="_blank" rel="noopener" className="underline font-semibold">Together AI</a></p>
-                        <p>2. Перейдите в Settings → API Keys</p>
-                        <p>3. Создайте новый ключ и скопируйте</p>
-                      </div>
-                    )}
-                    {key === 'gigachat' && (
-                      <div className="text-xs text-blue-800 space-y-1">
-                        <p>1. Авторизуйтесь на <a href="https://developers.sber.ru/studio/workspaces" target="_blank" rel="noopener" className="underline font-semibold">Sber AI</a></p>
-                        <p>2. Создайте проект GigaChat API</p>
-                        <p>3. Получите Client Secret (Base64)</p>
-                      </div>
-                    )}
+                  <div className="p-2 rounded-lg bg-blue-50 border border-blue-200">
+                    <p className="text-xs text-blue-800 mb-1">
+                      {key === 'gemini' && <><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" className="underline font-semibold">Google AI Studio</a> → Get API key</>}
+                      {key === 'llama' && <><a href="https://api.together.xyz" target="_blank" rel="noopener" className="underline font-semibold">Together AI</a> → Settings → API Keys</>}
+                      {key === 'gigachat' && <><a href="https://developers.sber.ru/studio/workspaces" target="_blank" rel="noopener" className="underline font-semibold">Sber AI</a> → GigaChat API</>}
+                    </p>
                   </div>
                 </div>
               </TabsContent>
             ))}
           </Tabs>
-        </ScrollArea>
 
-        <div className="p-5 border-t border-slate-200/60 bg-gradient-to-r from-slate-50/50 to-blue-50/50">
           <Button
             onClick={onSaveSettings}
-            className="w-full gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl shadow-lg h-12"
+            className="w-full gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-lg h-9 mt-4"
           >
-            <Icon name="Save" size={18} />
-            <span className="font-medium">Сохранить</span>
+            <Icon name="Save" size={16} />
+            <span className="text-sm font-medium">Сохранить</span>
           </Button>
         </div>
-      </Card>
-    </div>
+      </ScrollArea>
+    </Card>
   );
 }
