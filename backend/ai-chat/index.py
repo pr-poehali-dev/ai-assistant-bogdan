@@ -147,7 +147,7 @@ def call_gemini_2_flash(message: str, api_key: str, history: List[Dict[str, str]
     })
     
     payload = {
-        'model': 'google/gemini-flash-1.5-8b',
+        'model': 'google/gemini-flash-1.5-8b:free',
         'messages': messages,
         'temperature': settings.get('temperature', 0.7),
         'max_tokens': settings.get('max_tokens', 2048),
