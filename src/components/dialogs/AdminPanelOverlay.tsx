@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import SimplifiedAdminPanel from '@/components/SimplifiedAdminPanel';
+import AdminPanel from '@/components/AdminPanel';
 
 type AIModel = 'gemini' | 'llama' | 'gigachat' | 'phi' | 'qwen' | 'mistral';
 
@@ -44,7 +44,7 @@ export default function AdminPanelOverlay({
           >
             <Icon name="X" size={20} />
           </Button>
-          <SimplifiedAdminPanel
+          <AdminPanel
             apiConfig={apiConfig}
             onAPIKeyChange={onAPIKeyChange}
             onToggleModel={onToggleModel}
