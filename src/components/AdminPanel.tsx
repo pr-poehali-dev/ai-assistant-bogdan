@@ -369,13 +369,15 @@ export default function AdminPanel({
             </div>
           </div>
 
-          <Button
-            onClick={onSaveSettings}
-            className="w-full h-14 text-base gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl shadow-lg"
-          >
-            <Icon name="Save" size={20} />
-            <span className="font-semibold">Сохранить настройки</span>
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              onClick={onSaveSettings}
+              className="flex-1 h-14 text-base gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl shadow-lg"
+            >
+              <Icon name="Save" size={20} />
+              <span className="font-semibold">Сохранить настройки</span>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

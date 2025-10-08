@@ -17,8 +17,8 @@ import StatsPanel from '@/components/StatsPanel';
 import QuickPrompts from '@/components/QuickPrompts';
 import AIAssistants from '@/components/AIAssistants';
 import KnowledgeBase from '@/components/KnowledgeBase';
-import Marketplace from '@/components/Marketplace';
-import APITester from '@/components/APITester';
+import Translator from '@/components/Translator';
+import Weather from '@/components/Weather';
 import { useChatLogic } from '@/hooks/useChatLogic';
 import { useVoiceControl } from '@/hooks/useVoiceControl';
 import { useSessionManager } from '@/hooks/useSessionManager';
@@ -213,13 +213,13 @@ export default function Index() {
               <Icon name="BookOpen" size={14} className="mr-1.5" />
               База знаний
             </TabsTrigger>
-            <TabsTrigger value="marketplace" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white text-xs">
-              <Icon name="ShoppingBag" size={14} className="mr-1.5" />
-              Маркетплейс
+            <TabsTrigger value="translator" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-purple-600 data-[state=active]:text-white text-xs">
+              <Icon name="Languages" size={14} className="mr-1.5" />
+              Переводчик
             </TabsTrigger>
-            <TabsTrigger value="test" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-xs">
-              <Icon name="Zap" size={14} className="mr-1.5" />
-              Тест API
+            <TabsTrigger value="weather" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white text-xs">
+              <Icon name="CloudSun" size={14} className="mr-1.5" />
+              Погода
             </TabsTrigger>
           </TabsList>
 
@@ -335,12 +335,12 @@ export default function Index() {
             <KnowledgeBase />
           </TabsContent>
 
-          <TabsContent value="marketplace" className="mt-0">
-            <Marketplace />
+          <TabsContent value="translator" className="mt-0">
+            <Translator />
           </TabsContent>
 
-          <TabsContent value="test" className="mt-0">
-            <APITester />
+          <TabsContent value="weather" className="mt-0">
+            <Weather />
           </TabsContent>
 
           <TabsContent value="analytics" className="mt-0">
