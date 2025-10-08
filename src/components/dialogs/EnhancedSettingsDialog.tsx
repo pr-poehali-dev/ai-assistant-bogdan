@@ -39,6 +39,21 @@ export default function EnhancedSettingsDialog({
   onSettingsChange,
   onSave,
 }: EnhancedSettingsDialogProps) {
+  const safeSettings = {
+    temperature: settings.temperature ?? 0.7,
+    max_tokens: settings.max_tokens ?? 2048,
+    system_prompt: settings.system_prompt ?? '',
+    context_length: settings.context_length ?? 10,
+    auto_save: settings.auto_save ?? true,
+    streaming: settings.streaming ?? false,
+    language: settings.language ?? 'ru',
+    top_p: settings.top_p ?? 0.9,
+    top_k: settings.top_k ?? 40,
+    frequency_penalty: settings.frequency_penalty ?? 0.0,
+    presence_penalty: settings.presence_penalty ?? 0.0,
+    repetition_penalty: settings.repetition_penalty ?? 1.0,
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl rounded-3xl border-0 shadow-2xl max-h-[90vh] overflow-y-auto">
@@ -77,7 +92,7 @@ export default function EnhancedSettingsDialog({
                   size="sm"
                   className="text-xs"
                   onClick={() => onSettingsChange({
-                    ...settings,
+                    ...safeSettings,
                     temperature: 0.3,
                     top_p: 0.8,
                     top_k: 20,
@@ -94,7 +109,7 @@ export default function EnhancedSettingsDialog({
                   size="sm"
                   className="text-xs"
                   onClick={() => onSettingsChange({
-                    ...settings,
+                    ...safeSettings,
                     temperature: 0.7,
                     top_p: 0.9,
                     top_k: 40,
@@ -111,7 +126,7 @@ export default function EnhancedSettingsDialog({
                   size="sm"
                   className="text-xs"
                   onClick={() => onSettingsChange({
-                    ...settings,
+                    ...safeSettings,
                     temperature: 1.2,
                     top_p: 0.95,
                     top_k: 80,
@@ -130,11 +145,11 @@ export default function EnhancedSettingsDialog({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-semibold">Temperature</Label>
-                  <Badge variant="outline">{settings.temperature.toFixed(1)}</Badge>
+                  <Badge variant="outline">{safeSettings.temperature.toFixed(1)}</Badge>
                 </div>
                 <Slider
-                  value={[settings.temperature]}
-                  onValueChange={(v) => onSettingsChange({ ...settings, temperature: v[0] })}
+                  value={[safeSettings.temperature]}
+                  onValueChange={(v) => onSettingsChange({ ...safeSettings, temperature: v[0] })}
                   min={0}
                   max={2}
                   step={0.1}
@@ -148,11 +163,11 @@ export default function EnhancedSettingsDialog({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-semibold">Top P</Label>
-                  <Badge variant="outline">{settings.top_p.toFixed(2)}</Badge>
+                  <Badge variant="outline">{safeSettings.top_p.toFixed(2)}</Badge>
                 </div>
                 <Slider
-                  value={[settings.top_p]}
-                  onValueChange={(v) => onSettingsChange({ ...settings, top_p: v[0] })}
+                  value={[safeSettings.top_p]}
+                  onValueChange={(v) => onSettingsChange({ ...safeSettings, top_p: v[0] })}
                   min={0}
                   max={1}
                   step={0.05}
@@ -166,11 +181,11 @@ export default function EnhancedSettingsDialog({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-semibold">Top K</Label>
-                  <Badge variant="outline">{settings.top_k}</Badge>
+                  <Badge variant="outline">{safeSettings.top_k}</Badge>
                 </div>
                 <Slider
-                  value={[settings.top_k]}
-                  onValueChange={(v) => onSettingsChange({ ...settings, top_k: v[0] })}
+                  value={[safeSettings.top_k]}
+                  onValueChange={(v) => onSettingsChange({ ...safeSettings, top_k: v[0] })}
                   min={1}
                   max={100}
                   step={1}
@@ -184,11 +199,11 @@ export default function EnhancedSettingsDialog({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-semibold">Max Tokens</Label>
-                  <Badge variant="outline">{settings.max_tokens}</Badge>
+                  <Badge variant="outline">{safeSettings.max_tokens}</Badge>
                 </div>
                 <Slider
-                  value={[settings.max_tokens]}
-                  onValueChange={(v) => onSettingsChange({ ...settings, max_tokens: v[0] })}
+                  value={[safeSettings.max_tokens]}
+                  onValueChange={(v) => onSettingsChange({ ...safeSettings, max_tokens: v[0] })}
                   min={256}
                   max={4096}
                   step={256}
@@ -202,11 +217,11 @@ export default function EnhancedSettingsDialog({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-semibold">Frequency Penalty</Label>
-                  <Badge variant="outline">{settings.frequency_penalty.toFixed(1)}</Badge>
+                  <Badge variant="outline">{safeSettings.frequency_penalty.toFixed(1)}</Badge>
                 </div>
                 <Slider
-                  value={[settings.frequency_penalty]}
-                  onValueChange={(v) => onSettingsChange({ ...settings, frequency_penalty: v[0] })}
+                  value={[safeSettings.frequency_penalty]}
+                  onValueChange={(v) => onSettingsChange({ ...safeSettings, frequency_penalty: v[0] })}
                   min={0}
                   max={2}
                   step={0.1}
@@ -220,11 +235,11 @@ export default function EnhancedSettingsDialog({
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-semibold">Presence Penalty</Label>
-                  <Badge variant="outline">{settings.presence_penalty.toFixed(1)}</Badge>
+                  <Badge variant="outline">{safeSettings.presence_penalty.toFixed(1)}</Badge>
                 </div>
                 <Slider
-                  value={[settings.presence_penalty]}
-                  onValueChange={(v) => onSettingsChange({ ...settings, presence_penalty: v[0] })}
+                  value={[safeSettings.presence_penalty]}
+                  onValueChange={(v) => onSettingsChange({ ...safeSettings, presence_penalty: v[0] })}
                   min={0}
                   max={2}
                   step={0.1}
@@ -238,11 +253,11 @@ export default function EnhancedSettingsDialog({
               <div className="space-y-3 col-span-2">
                 <div className="flex items-center justify-between">
                   <Label className="text-sm font-semibold">Repetition Penalty</Label>
-                  <Badge variant="outline">{settings.repetition_penalty.toFixed(2)}</Badge>
+                  <Badge variant="outline">{safeSettings.repetition_penalty.toFixed(2)}</Badge>
                 </div>
                 <Slider
-                  value={[settings.repetition_penalty]}
-                  onValueChange={(v) => onSettingsChange({ ...settings, repetition_penalty: v[0] })}
+                  value={[safeSettings.repetition_penalty]}
+                  onValueChange={(v) => onSettingsChange({ ...safeSettings, repetition_penalty: v[0] })}
                   min={0.5}
                   max={2}
                   step={0.05}
@@ -261,8 +276,8 @@ export default function EnhancedSettingsDialog({
               <Textarea
                 id="system-prompt"
                 placeholder="Например: Ты — профессиональный программист..."
-                value={settings.system_prompt}
-                onChange={(e) => onSettingsChange({ ...settings, system_prompt: e.target.value })}
+                value={safeSettings.system_prompt}
+                onChange={(e) => onSettingsChange({ ...safeSettings, system_prompt: e.target.value })}
                 className="rounded-xl border-slate-200 min-h-[120px]"
               />
               <p className="text-xs text-slate-500">
@@ -275,11 +290,11 @@ export default function EnhancedSettingsDialog({
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-semibold">Длина контекста</Label>
-                <Badge variant="outline">{settings.context_length} сообщений</Badge>
+                <Badge variant="outline">{safeSettings.context_length} сообщений</Badge>
               </div>
               <Slider
-                value={[settings.context_length]}
-                onValueChange={(v) => onSettingsChange({ ...settings, context_length: v[0] })}
+                value={[safeSettings.context_length]}
+                onValueChange={(v) => onSettingsChange({ ...safeSettings, context_length: v[0] })}
                 min={5}
                 max={50}
                 step={5}
@@ -298,8 +313,8 @@ export default function EnhancedSettingsDialog({
                 </p>
               </div>
               <Switch
-                checked={settings.auto_save}
-                onCheckedChange={(checked) => onSettingsChange({ ...settings, auto_save: checked })}
+                checked={safeSettings.auto_save}
+                onCheckedChange={(checked) => onSettingsChange({ ...safeSettings, auto_save: checked })}
               />
             </div>
 
@@ -311,8 +326,8 @@ export default function EnhancedSettingsDialog({
                 </p>
               </div>
               <Switch
-                checked={settings.streaming}
-                onCheckedChange={(checked) => onSettingsChange({ ...settings, streaming: checked })}
+                checked={safeSettings.streaming}
+                onCheckedChange={(checked) => onSettingsChange({ ...safeSettings, streaming: checked })}
               />
             </div>
           </TabsContent>
@@ -321,8 +336,8 @@ export default function EnhancedSettingsDialog({
             <div className="space-y-2">
               <Label className="text-sm font-semibold">Язык интерфейса</Label>
               <Select
-                value={settings.language}
-                onValueChange={(value) => onSettingsChange({ ...settings, language: value })}
+                value={safeSettings.language}
+                onValueChange={(value) => onSettingsChange({ ...safeSettings, language: value })}
               >
                 <SelectTrigger className="w-full rounded-xl">
                   <SelectValue />
