@@ -8,6 +8,7 @@ import Icon from '@/components/ui/icon';
 import EnhancedChatMessage from '@/components/EnhancedChatMessage';
 import ChatInput from '@/components/ChatInput';
 import SearchBar from '@/components/SearchBar';
+import VoiceHistoryPanel from '@/components/VoiceHistoryPanel';
 
 type AIModel = 'gemini' | 'llama' | 'gigachat';
 
@@ -95,6 +96,9 @@ export default function EnhancedChatArea({
   onVoiceMessageSend,
 }: EnhancedChatAreaProps) {
   const [isDragging, setIsDragging] = useState(false);
+  const [showVoiceHistory, setShowVoiceHistory] = useState(false);
+
+  const voiceMessagesCount = messages.filter(m => m.attachments?.some(a => a.type === 'audio')).length;
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -191,6 +195,20 @@ export default function EnhancedChatArea({
           </Badge>
         </div>
         <div className="flex gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setShowVoiceHistory(!showVoiceHistory)} 
+            className="gap-1 relative"
+          >
+            <Icon name="Mic" size={16} />
+            Голосовые
+            {voiceMessagesCount > 0 && (
+              <Badge className="ml-1 h-5 px-1.5 text-xs bg-purple-500">
+                {voiceMessagesCount}
+              </Badge>
+            )}
+          </Button>
           <Button variant="ghost" size="sm" onClick={onToggleSearch} className="gap-1">
             <Icon name="Search" size={16} />
             Поиск
@@ -210,8 +228,18 @@ export default function EnhancedChatArea({
         </div>
       </div>
 
-      <ScrollArea className="flex-1 p-8">
-        <div className="space-y-6 max-w-4xl mx-auto">
+      <div className="flex-1 flex overflow-hidden">
+        {showVoiceHistory && (
+          <div className="w-80 border-r border-slate-200">
+            <VoiceHistoryPanel 
+              messages={messages}
+              onClose={() => setShowVoiceHistory(false)}
+            />
+          </div>
+        )}
+        
+        <ScrollArea className="flex-1 p-8">
+          <div className="space-y-6 max-w-4xl mx-auto">
           {messages.map((message) => (
             <EnhancedChatMessage
               key={message.id}
@@ -247,8 +275,9 @@ export default function EnhancedChatArea({
               </div>
             </div>
           )}
-        </div>
-      </ScrollArea>
+          </div>
+        </ScrollArea>
+      </div>
 
       <input
         ref={fileInputRef}
