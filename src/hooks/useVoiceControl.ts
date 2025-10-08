@@ -53,7 +53,7 @@ export function useVoiceControl() {
     }
   };
 
-  const speakText = (text: string) => {
+  const speakText = (text: string, lang: string = 'ru-RU') => {
     if (!('speechSynthesis' in window)) {
       toast({
         title: 'Не поддерживается',
@@ -70,7 +70,7 @@ export function useVoiceControl() {
     }
 
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ru-RU';
+    utterance.lang = lang;
     utterance.rate = 1.0;
     utterance.pitch = 1.0;
 

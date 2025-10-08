@@ -1,6 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type AIModel = 'gemini' | 'llama' | 'gigachat';
 
@@ -16,10 +17,25 @@ interface ChatMessageProps {
   message: Message;
   modelInfo: Record<AIModel, { name: string; fullName: string; color: string; icon: string }>;
   isSpeaking: boolean;
-  onSpeak: (text: string) => void;
+  onSpeak: (text: string, lang?: string) => void;
+  voiceLang?: string;
+  onVoiceLangChange?: (lang: string) => void;
 }
 
-export default function ChatMessage({ message, modelInfo, isSpeaking, onSpeak }: ChatMessageProps) {
+const VOICE_LANGUAGES = [
+  { code: 'ru-RU', name: '🇷🇺 Русский' },
+  { code: 'en-US', name: '🇺🇸 Английский' },
+  { code: 'es-ES', name: '🇪🇸 Испанский' },
+  { code: 'fr-FR', name: '🇫🇷 Французский' },
+  { code: 'de-DE', name: '🇩🇪 Немецкий' },
+  { code: 'it-IT', name: '🇮🇹 Итальянский' },
+  { code: 'pt-PT', name: '🇵🇹 Португальский' },
+  { code: 'zh-CN', name: '🇨🇳 Китайский' },
+  { code: 'ja-JP', name: '🇯🇵 Японский' },
+  { code: 'ko-KR', name: '🇰🇷 Корейский' },
+];
+
+export default function ChatMessage({ message, modelInfo, isSpeaking, onSpeak, voiceLang = 'ru-RU', onVoiceLangChange }: ChatMessageProps) {
   return (
     <div
       className={`flex gap-4 animate-fade-in ${
@@ -59,14 +75,30 @@ export default function ChatMessage({ message, modelInfo, isSpeaking, onSpeak }:
             </Badge>
           )}
           {message.role === 'assistant' && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 px-2"
-              onClick={() => onSpeak(message.content)}
-            >
-              <Icon name={isSpeaking ? 'VolumeX' : 'Volume2'} size={14} />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2"
+                onClick={() => onSpeak(message.content, voiceLang)}
+              >
+                <Icon name={isSpeaking ? 'VolumeX' : 'Volume2'} size={14} />
+              </Button>
+              {onVoiceLangChange && (
+                <Select value={voiceLang} onValueChange={onVoiceLangChange}>
+                  <SelectTrigger className="h-6 w-[110px] text-xs">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VOICE_LANGUAGES.map(lang => (
+                      <SelectItem key={lang.code} value={lang.code} className="text-xs">
+                        {lang.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           )}
         </div>
       </div>

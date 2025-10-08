@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,13 +26,28 @@ interface EnhancedChatMessageProps {
   message: Message;
   modelInfo: Record<AIModel, { name: string; fullName: string; color: string; icon: string }>;
   isSpeaking: boolean;
-  onSpeak: (text: string) => void;
+  onSpeak: (text: string, lang?: string) => void;
   onCopy: (content: string) => void;
   onRegenerate?: (messageId: string) => void;
   onAddReaction: (messageId: string, emoji: string) => void;
+  voiceLang?: string;
+  onVoiceLangChange?: (lang: string) => void;
 }
 
 const REACTIONS = ['👍', '❤️', '😊', '🎉', '🤔', '👎'];
+
+const VOICE_LANGUAGES = [
+  { code: 'ru-RU', name: '🇷🇺 Русский' },
+  { code: 'en-US', name: '🇺🇸 Английский' },
+  { code: 'es-ES', name: '🇪🇸 Испанский' },
+  { code: 'fr-FR', name: '🇫🇷 Французский' },
+  { code: 'de-DE', name: '🇩🇪 Немецкий' },
+  { code: 'it-IT', name: '🇮🇹 Итальянский' },
+  { code: 'pt-PT', name: '🇵🇹 Португальский' },
+  { code: 'zh-CN', name: '🇨🇳 Китайский' },
+  { code: 'ja-JP', name: '🇯🇵 Японский' },
+  { code: 'ko-KR', name: '🇰🇷 Корейский' },
+];
 
 export default function EnhancedChatMessage({
   message,
@@ -41,6 +57,8 @@ export default function EnhancedChatMessage({
   onCopy,
   onRegenerate,
   onAddReaction,
+  voiceLang = 'ru-RU',
+  onVoiceLangChange,
 }: EnhancedChatMessageProps) {
   const [showReactions, setShowReactions] = useState(false);
 
@@ -109,10 +127,24 @@ export default function EnhancedChatMessage({
                     variant="ghost"
                     size="sm"
                     className="h-6 px-2"
-                    onClick={() => onSpeak(message.content)}
+                    onClick={() => onSpeak(message.content, voiceLang)}
                   >
                     <Icon name={isSpeaking ? 'VolumeX' : 'Volume2'} size={14} />
                   </Button>
+                  {onVoiceLangChange && (
+                    <Select value={voiceLang} onValueChange={onVoiceLangChange}>
+                      <SelectTrigger className="h-6 w-[110px] text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {VOICE_LANGUAGES.map(lang => (
+                          <SelectItem key={lang.code} value={lang.code} className="text-xs">
+                            {lang.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
                   <Button
                     variant="ghost"
                     size="sm"

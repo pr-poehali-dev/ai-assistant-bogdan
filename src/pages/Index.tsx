@@ -35,6 +35,7 @@ export default function Index() {
   const [showSearch, setShowSearch] = useState(false);
   const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(window.innerWidth < 1024);
   const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [voiceLang, setVoiceLang] = useState('ru-RU');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const chatLogic = useChatLogic();
@@ -180,7 +181,9 @@ export default function Index() {
             onClearHistory={chatLogic.clearHistory}
             onStartListening={() => voiceControl.startListening(chatLogic.setInputMessage)}
             onStopListening={voiceControl.stopListening}
-            onSpeak={voiceControl.speakText}
+            onSpeak={(text, lang) => voiceControl.speakText(text, lang || voiceLang)}
+            voiceLang={voiceLang}
+            onVoiceLangChange={setVoiceLang}
             onCopyMessage={chatLogic.copyMessageToClipboard}
             onRegenerateResponse={chatLogic.regenerateResponse}
             onAddReaction={chatLogic.addReaction}

@@ -29,7 +29,9 @@ interface ChatTabContentProps {
   onClearHistory: () => void;
   onStartListening: () => void;
   onStopListening: () => void;
-  onSpeak: (text: string) => void;
+  onSpeak: (text: string, lang?: string) => void;
+  voiceLang?: string;
+  onVoiceLangChange?: (lang: string) => void;
   onCopyMessage: (content: string) => void;
   onRegenerateResponse: (messageId: string) => void;
   onAddReaction: (messageId: string, reaction: string) => void;
@@ -75,7 +77,9 @@ export default function ChatTabContent({
   onSearchChange,
   onSelectSearchResult,
   onModelSelect,
-  onFileUpload
+  onFileUpload,
+  voiceLang,
+  onVoiceLangChange
 }: ChatTabContentProps) {
   return (
     <TabsContent value="chat" className="mt-0">
@@ -121,6 +125,8 @@ export default function ChatTabContent({
             onModelSelect={onModelSelect}
             onFileUpload={onFileUpload}
             fileInputRef={fileInputRef}
+            voiceLang={voiceLang}
+            onVoiceLangChange={onVoiceLangChange}
           />
         </div>
       </div>

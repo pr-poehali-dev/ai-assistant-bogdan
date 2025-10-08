@@ -6,6 +6,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
+const VOICE_LANGUAGES = [
+  { code: 'ru-RU', name: '🇷🇺 Русский' },
+  { code: 'en-US', name: '🇺🇸 Английский' },
+  { code: 'es-ES', name: '🇪🇸 Испанский' },
+  { code: 'fr-FR', name: '🇫🇷 Французский' },
+  { code: 'de-DE', name: '🇩🇪 Немецкий' },
+  { code: 'it-IT', name: '🇮🇹 Итальянский' },
+  { code: 'pt-PT', name: '🇵🇹 Португальский' },
+  { code: 'zh-CN', name: '🇨🇳 Китайский' },
+  { code: 'ja-JP', name: '🇯🇵 Японский' },
+  { code: 'ko-KR', name: '🇰🇷 Корейский' },
+];
+
 const LANGUAGES = [
   { code: 'en', name: 'Английский', flag: '🇬🇧' },
   { code: 'ru', name: 'Русский', flag: '🇷🇺' },
@@ -83,6 +96,8 @@ export default function Translator() {
   const [targetLang, setTargetLang] = useState('ru');
   const [isTranslating, setIsTranslating] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [sourceVoiceLang, setSourceVoiceLang] = useState('en-US');
+  const [targetVoiceLang, setTargetVoiceLang] = useState('ru-RU');
 
   const handleTranslate = async () => {
     if (!sourceText.trim()) {
@@ -205,15 +220,29 @@ export default function Translator() {
                   </>
                 )}
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleSpeak(sourceText, sourceLang)}
-                disabled={!sourceText.trim() || isSpeaking}
-                className="h-12 w-12"
-              >
-                <Icon name="Volume2" size={20} />
-              </Button>
+              <div className="flex gap-2 items-center">
+                <Select value={sourceVoiceLang} onValueChange={setSourceVoiceLang}>
+                  <SelectTrigger className="h-12 w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VOICE_LANGUAGES.map(lang => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSpeak(sourceText, sourceVoiceLang)}
+                  disabled={!sourceText.trim() || isSpeaking}
+                  className="h-12 w-12"
+                >
+                  <Icon name="Volume2" size={20} />
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -251,15 +280,29 @@ export default function Translator() {
                 <Icon name="Copy" size={20} />
                 Скопировать
               </Button>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => handleSpeak(translatedText, targetLang)}
-                disabled={!translatedText.trim() || isSpeaking}
-                className="h-12 w-12"
-              >
-                <Icon name="Volume2" size={20} />
-              </Button>
+              <div className="flex gap-2 items-center">
+                <Select value={targetVoiceLang} onValueChange={setTargetVoiceLang}>
+                  <SelectTrigger className="h-12 w-[140px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VOICE_LANGUAGES.map(lang => (
+                      <SelectItem key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => handleSpeak(translatedText, targetVoiceLang)}
+                  disabled={!translatedText.trim() || isSpeaking}
+                  className="h-12 w-12"
+                >
+                  <Icon name="Volume2" size={20} />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

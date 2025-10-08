@@ -38,7 +38,9 @@ interface EnhancedChatAreaProps {
   onClearHistory: () => void;
   onStartListening: () => void;
   onStopListening: () => void;
-  onSpeak: (text: string) => void;
+  onSpeak: (text: string, lang?: string) => void;
+  voiceLang?: string;
+  onVoiceLangChange?: (lang: string) => void;
   onCopyMessage: (content: string) => void;
   onRegenerateResponse: (messageId: string) => void;
   onAddReaction: (messageId: string, emoji: string) => void;
@@ -78,6 +80,8 @@ export default function EnhancedChatArea({
   onModelSelect,
   onFileUpload,
   fileInputRef,
+  voiceLang,
+  onVoiceLangChange,
 }: EnhancedChatAreaProps) {
   return (
     <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm relative">
@@ -158,6 +162,8 @@ export default function EnhancedChatArea({
               onCopy={onCopyMessage}
               onRegenerate={message.role === 'assistant' ? onRegenerateResponse : undefined}
               onAddReaction={onAddReaction}
+              voiceLang={voiceLang}
+              onVoiceLangChange={onVoiceLangChange}
             />
           ))}
           {isLoading && (
