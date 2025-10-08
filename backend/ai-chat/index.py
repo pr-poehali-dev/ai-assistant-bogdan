@@ -4,10 +4,10 @@ from typing import Dict, Any, List, Optional
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     '''
-    Business: AI chat with Gemini 2.0 Flash, Llama 3.3 70B, GigaChat - stream, history, settings
+    Business: AI chat with 6 models (Gemini, Llama, GigaChat, Phi, Qwen, Mistral) via OpenRouter
     Args: event with httpMethod, body (message, models, history, settings)
           context with request_id
-    Returns: AI response with model info and fallback
+    Returns: AI response with model info and fallback support
     '''
     method: str = event.get('httpMethod', 'POST')
     
@@ -72,6 +72,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                     response = call_llama_33_70b(message, api_key, history, settings)
                 elif model_name == 'gigachat':
                     response = call_gigachat(message, api_key, history, settings)
+                elif model_name == 'phi':
+                    response = call_phi_35(message, api_key, history, settings)
+                elif model_name == 'qwen':
+                    response = call_qwen_25(message, api_key, history, settings)
+                elif model_name == 'mistral':
+                    response = call_mistral_nemo(message, api_key, history, settings)
                 else:
                     continue
                 
@@ -301,3 +307,138 @@ def call_gigachat(message: str, api_key: str, history: List[Dict[str, str]], set
         return data['choices'][0]['message']['content']
     
     raise Exception('Invalid GigaChat response format')
+
+
+def call_phi_35(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
+    '''Call Microsoft Phi-3.5 Mini 128K Instruct via OpenRouter'''
+    import requests
+    
+    url = 'https://openrouter.ai/api/v1/chat/completions'
+    
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    
+    messages = []
+    
+    if settings.get('system_prompt'):
+        messages.append({'role': 'system', 'content': settings['system_prompt']})
+    
+    for msg in history[-10:]:
+        messages.append({'role': msg['role'], 'content': msg['content']})
+    
+    messages.append({'role': 'user', 'content': message})
+    
+    payload = {
+        'model': 'microsoft/phi-3.5-mini-128k-instruct',
+        'messages': messages,
+        'temperature': settings.get('temperature', 0.7),
+        'max_tokens': settings.get('max_tokens', 2048),
+        'stream': False
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=25)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise Exception('Phi timeout - try again')
+    except requests.exceptions.RequestException as e:
+        raise Exception(f'Phi API error: {str(e)}')
+    
+    data = response.json()
+    
+    if 'choices' in data and len(data['choices']) > 0:
+        return data['choices'][0]['message']['content']
+    
+    raise Exception('Invalid Phi response format')
+
+
+def call_qwen_25(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
+    '''Call Qwen 2.5 7B Instruct via OpenRouter'''
+    import requests
+    
+    url = 'https://openrouter.ai/api/v1/chat/completions'
+    
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    
+    messages = []
+    
+    if settings.get('system_prompt'):
+        messages.append({'role': 'system', 'content': settings['system_prompt']})
+    
+    for msg in history[-10:]:
+        messages.append({'role': msg['role'], 'content': msg['content']})
+    
+    messages.append({'role': 'user', 'content': message})
+    
+    payload = {
+        'model': 'qwen/qwen-2.5-7b-instruct',
+        'messages': messages,
+        'temperature': settings.get('temperature', 0.7),
+        'max_tokens': settings.get('max_tokens', 2048),
+        'stream': False
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=25)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise Exception('Qwen timeout - try again')
+    except requests.exceptions.RequestException as e:
+        raise Exception(f'Qwen API error: {str(e)}')
+    
+    data = response.json()
+    
+    if 'choices' in data and len(data['choices']) > 0:
+        return data['choices'][0]['message']['content']
+    
+    raise Exception('Invalid Qwen response format')
+
+
+def call_mistral_nemo(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
+    '''Call Mistral Nemo 12B Instruct via OpenRouter'''
+    import requests
+    
+    url = 'https://openrouter.ai/api/v1/chat/completions'
+    
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    
+    messages = []
+    
+    if settings.get('system_prompt'):
+        messages.append({'role': 'system', 'content': settings['system_prompt']})
+    
+    for msg in history[-10:]:
+        messages.append({'role': msg['role'], 'content': msg['content']})
+    
+    messages.append({'role': 'user', 'content': message})
+    
+    payload = {
+        'model': 'mistralai/mistral-nemo',
+        'messages': messages,
+        'temperature': settings.get('temperature', 0.7),
+        'max_tokens': settings.get('max_tokens', 2048),
+        'stream': False
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=25)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise Exception('Mistral timeout - try again')
+    except requests.exceptions.RequestException as e:
+        raise Exception(f'Mistral API error: {str(e)}')
+    
+    data = response.json()
+    
+    if 'choices' in data and len(data['choices']) > 0:
+        return data['choices'][0]['message']['content']
+    
+    raise Exception('Invalid Mistral response format')
