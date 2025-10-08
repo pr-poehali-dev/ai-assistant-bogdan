@@ -34,11 +34,14 @@ export default function ChatInput({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileClick = () => {
+    console.log('File button clicked');
     fileInputRef.current?.click();
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log('File input changed', e.target.files);
     if (e.target.files && e.target.files.length > 0 && onFileUpload) {
+      console.log('Calling onFileUpload with files:', e.target.files.length);
       onFileUpload(e.target.files);
       e.target.value = '';
     }

@@ -298,8 +298,10 @@ export default function EnhancedChatArea({
         onStopListening={onStopListening}
         onVoiceMessageSend={onVoiceMessageSend}
         onFileUpload={(files) => {
-          const event = { target: { files } } as unknown as React.ChangeEvent<HTMLInputElement>;
-          onFileUpload(event);
+          const fakeEvent = {
+            target: { files, value: '' }
+          } as React.ChangeEvent<HTMLInputElement>;
+          onFileUpload(fakeEvent);
         }}
       />
     </Card>
