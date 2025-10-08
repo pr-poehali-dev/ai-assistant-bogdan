@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import * as pdfjsLib from 'pdfjs-dist';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
 type AIModel = 'gemini' | 'llama' | 'gigachat';
 
@@ -285,43 +288,162 @@ export function useChatLogic() {
     }));
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item: any) => item.str).join(' ');
+        fullText += pageText + '\n';
+      }
+
+      return fullText.trim();
+    } catch (error) {
+      console.error('PDF extraction error:', error);
+      return '';
+    }
+  };
+
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
     const fileArray = Array.from(files);
     const totalFiles = fileArray.length;
     const newAttachments: Array<{ type: 'image' | 'file'; url: string; name: string }> = [];
+    const extractedTexts: string[] = [];
 
-    fileArray.forEach((file) => {
+    for (const file of fileArray) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const attachment = {
-          type: file.type.startsWith('image/') ? 'image' as const : 'file' as const,
-          url: e.target?.result as string,
-          name: file.name,
-        };
-        newAttachments.push(attachment);
-        
-        if (newAttachments.length === totalFiles) {
-          const userMessage: Message = {
-            id: Date.now().toString(),
-            role: 'user',
-            content: inputMessage.trim() || 'Прикрепленные файлы',
-            timestamp: new Date(),
-            attachments: newAttachments,
-          };
-          setMessages(prev => [...prev, userMessage]);
-          setInputMessage('');
+      
+      const fileData = await new Promise<{ url: string; text?: string }>((resolve) => {
+        reader.onload = async (e) => {
+          const url = e.target?.result as string;
+          let extractedText = '';
           
-          toast({
-            title: `Файлы загружены`,
-            description: `Добавлено: ${totalFiles} файл(ов)`,
-          });
-        }
+          if (file.type === 'application/pdf') {
+            toast({
+              title: '📄 Анализирую PDF...',
+              description: `Извлекаю текст из ${file.name}`,
+            });
+            extractedText = await extractTextFromPDF(file);
+          }
+          
+          resolve({ url, text: extractedText });
+        };
+        reader.readAsDataURL(file);
+      });
+
+      const attachment = {
+        type: file.type.startsWith('image/') ? 'image' as const : 'file' as const,
+        url: fileData.url,
+        name: file.name,
       };
-      reader.readAsDataURL(file);
+      newAttachments.push(attachment);
+      
+      if (fileData.text) {
+        extractedTexts.push(`📄 Содержимое файла "${file.name}":\n${fileData.text}`);
+      }
+    }
+
+    const userContent = inputMessage.trim() || 'Прикрепленные файлы';
+    const displayContent = userContent;
+    let fullContentForAI = userContent;
+    
+    if (extractedTexts.length > 0) {
+      fullContentForAI = `${userContent}\n\n${extractedTexts.join('\n\n---\n\n')}`;
+    }
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: 'user',
+      content: displayContent,
+      timestamp: new Date(),
+      attachments: newAttachments,
+    };
+    
+    setMessages(prev => [...prev, userMessage]);
+    const savedInput = fullContentForAI;
+    setInputMessage('');
+    setIsLoading(true);
+    
+    toast({
+      title: `Файлы загружены`,
+      description: extractedTexts.length > 0 
+        ? `PDF обработан, отправляю ИИ...` 
+        : `Добавлено: ${totalFiles} файл(ов)`,
     });
+
+    if (extractedTexts.length > 0) {
+      const enabledModels = Object.entries(apiConfig).filter(([_, config]) => config.enabled && config.key);
+      
+      if (enabledModels.length === 0) {
+        toast({
+          title: 'Сервис недоступен',
+          description: 'Настройте хотя бы один режим работы в панели управления',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        event.target.value = '';
+        return;
+      }
+
+      try {
+        const history = messages.map(m => ({
+          role: m.role,
+          content: m.content
+        }));
+
+        const response = await fetch('https://functions.poehali.dev/81fdec08-160f-4043-a2da-cefa0ffbdf22', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: savedInput,
+            models: apiConfig,
+            history: history,
+            settings: settings,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Ошибка запроса');
+        }
+
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: 'assistant',
+          content: data.response,
+          timestamp: new Date(),
+          model: data.model,
+        };
+
+        setMessages(prev => [...prev, assistantMessage]);
+        setCurrentModel(data.model);
+
+        setStats(prev => ({
+          ...prev,
+          [data.model]: (prev[data.model] || 0) + 1
+        }));
+      } catch (error: any) {
+        toast({
+          title: 'Ошибка анализа',
+          description: error.message || 'Не удалось проанализировать PDF',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setIsLoading(false);
+    }
     
     event.target.value = '';
   };
