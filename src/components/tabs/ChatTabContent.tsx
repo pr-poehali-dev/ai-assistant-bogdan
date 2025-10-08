@@ -32,6 +32,10 @@ interface ChatTabContentProps {
   onSpeak: (text: string, lang?: string) => void;
   voiceLang?: string;
   onVoiceLangChange?: (lang: string) => void;
+  voiceRate?: number;
+  voicePitch?: number;
+  onVoiceRateChange?: (rate: number) => void;
+  onVoicePitchChange?: (pitch: number) => void;
   onCopyMessage: (content: string) => void;
   onRegenerateResponse: (messageId: string) => void;
   onAddReaction: (messageId: string, reaction: string) => void;
@@ -79,7 +83,11 @@ export default function ChatTabContent({
   onModelSelect,
   onFileUpload,
   voiceLang,
-  onVoiceLangChange
+  onVoiceLangChange,
+  voiceRate,
+  voicePitch,
+  onVoiceRateChange,
+  onVoicePitchChange
 }: ChatTabContentProps) {
   return (
     <TabsContent value="chat" className="mt-0">
@@ -127,6 +135,10 @@ export default function ChatTabContent({
             fileInputRef={fileInputRef}
             voiceLang={voiceLang}
             onVoiceLangChange={onVoiceLangChange}
+            voiceRate={voiceRate}
+            voicePitch={voicePitch}
+            onVoiceRateChange={onVoiceRateChange}
+            onVoicePitchChange={onVoicePitchChange}
           />
         </div>
       </div>

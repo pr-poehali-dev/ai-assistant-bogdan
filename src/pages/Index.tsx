@@ -184,6 +184,10 @@ export default function Index() {
             onSpeak={(text, lang) => voiceControl.speakText(text, lang || voiceLang)}
             voiceLang={voiceLang}
             onVoiceLangChange={setVoiceLang}
+            voiceRate={voiceControl.voiceRate}
+            voicePitch={voiceControl.voicePitch}
+            onVoiceRateChange={voiceControl.setVoiceRate}
+            onVoicePitchChange={voiceControl.setVoicePitch}
             onCopyMessage={chatLogic.copyMessageToClipboard}
             onRegenerateResponse={chatLogic.regenerateResponse}
             onAddReaction={chatLogic.addReaction}

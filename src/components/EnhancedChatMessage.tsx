@@ -3,6 +3,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +34,10 @@ interface EnhancedChatMessageProps {
   onAddReaction: (messageId: string, emoji: string) => void;
   voiceLang?: string;
   onVoiceLangChange?: (lang: string) => void;
+  voiceRate?: number;
+  voicePitch?: number;
+  onVoiceRateChange?: (rate: number) => void;
+  onVoicePitchChange?: (pitch: number) => void;
 }
 
 const REACTIONS = ['👍', '❤️', '😊', '🎉', '🤔', '👎'];
@@ -59,8 +65,13 @@ export default function EnhancedChatMessage({
   onAddReaction,
   voiceLang = 'ru-RU',
   onVoiceLangChange,
+  voiceRate = 1.0,
+  voicePitch = 1.0,
+  onVoiceRateChange,
+  onVoicePitchChange,
 }: EnhancedChatMessageProps) {
   const [showReactions, setShowReactions] = useState(false);
+  const [showVoiceSettings, setShowVoiceSettings] = useState(false);
 
   return (
     <div
@@ -131,19 +142,67 @@ export default function EnhancedChatMessage({
                   >
                     <Icon name={isSpeaking ? 'VolumeX' : 'Volume2'} size={14} />
                   </Button>
-                  {onVoiceLangChange && (
-                    <Select value={voiceLang} onValueChange={onVoiceLangChange}>
-                      <SelectTrigger className="h-6 w-[110px] text-xs">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {VOICE_LANGUAGES.map(lang => (
-                          <SelectItem key={lang.code} value={lang.code} className="text-xs">
-                            {lang.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  {onVoiceLangChange && onVoiceRateChange && onVoicePitchChange && (
+                    <Popover open={showVoiceSettings} onOpenChange={setShowVoiceSettings}>
+                      <PopoverTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-6 px-2">
+                          <Icon name="Settings2" size={14} />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80" align="start">
+                        <div className="space-y-4">
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Язык озвучки</label>
+                            <Select value={voiceLang} onValueChange={onVoiceLangChange}>
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {VOICE_LANGUAGES.map(lang => (
+                                  <SelectItem key={lang.code} value={lang.code} className="text-xs">
+                                    {lang.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">
+                              Скорость: {voiceRate.toFixed(1)}x
+                            </label>
+                            <Slider
+                              value={[voiceRate]}
+                              onValueChange={(vals) => onVoiceRateChange(vals[0])}
+                              min={0.5}
+                              max={2.0}
+                              step={0.1}
+                              className="w-full"
+                            />
+                            <div className="flex justify-between text-xs text-slate-500">
+                              <span>0.5x</span>
+                              <span>2.0x</span>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">
+                              Тон: {voicePitch.toFixed(1)}
+                            </label>
+                            <Slider
+                              value={[voicePitch]}
+                              onValueChange={(vals) => onVoicePitchChange(vals[0])}
+                              min={0.5}
+                              max={2.0}
+                              step={0.1}
+                              className="w-full"
+                            />
+                            <div className="flex justify-between text-xs text-slate-500">
+                              <span>Низкий</span>
+                              <span>Высокий</span>
+                            </div>
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   )}
                   <Button
                     variant="ghost"

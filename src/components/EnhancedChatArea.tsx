@@ -41,6 +41,10 @@ interface EnhancedChatAreaProps {
   onSpeak: (text: string, lang?: string) => void;
   voiceLang?: string;
   onVoiceLangChange?: (lang: string) => void;
+  voiceRate?: number;
+  voicePitch?: number;
+  onVoiceRateChange?: (rate: number) => void;
+  onVoicePitchChange?: (pitch: number) => void;
   onCopyMessage: (content: string) => void;
   onRegenerateResponse: (messageId: string) => void;
   onAddReaction: (messageId: string, emoji: string) => void;
@@ -82,6 +86,10 @@ export default function EnhancedChatArea({
   fileInputRef,
   voiceLang,
   onVoiceLangChange,
+  voiceRate,
+  voicePitch,
+  onVoiceRateChange,
+  onVoicePitchChange,
 }: EnhancedChatAreaProps) {
   return (
     <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm relative">
@@ -164,6 +172,10 @@ export default function EnhancedChatArea({
               onAddReaction={onAddReaction}
               voiceLang={voiceLang}
               onVoiceLangChange={onVoiceLangChange}
+              voiceRate={voiceRate}
+              voicePitch={voicePitch}
+              onVoiceRateChange={onVoiceRateChange}
+              onVoicePitchChange={onVoicePitchChange}
             />
           ))}
           {isLoading && (

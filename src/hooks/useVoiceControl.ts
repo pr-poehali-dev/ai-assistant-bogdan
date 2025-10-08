@@ -5,6 +5,8 @@ export function useVoiceControl() {
   const { toast } = useToast();
   const [isListening, setIsListening] = useState(false);
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [voiceRate, setVoiceRate] = useState(1.0);
+  const [voicePitch, setVoicePitch] = useState(1.0);
   const recognitionRef = useRef<any>(null);
   const synthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -71,8 +73,8 @@ export function useVoiceControl() {
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = lang;
-    utterance.rate = 1.0;
-    utterance.pitch = 1.0;
+    utterance.rate = voiceRate;
+    utterance.pitch = voicePitch;
 
     utterance.onend = () => {
       setIsSpeaking(false);
@@ -93,5 +95,9 @@ export function useVoiceControl() {
     startListening,
     stopListening,
     speakText,
+    voiceRate,
+    setVoiceRate,
+    voicePitch,
+    setVoicePitch,
   };
 }

@@ -289,6 +289,8 @@ export function useChatLogic() {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
+    const newAttachments: Array<{ type: 'image' | 'file'; url: string; name: string }> = [];
+
     Array.from(files).forEach(file => {
       const reader = new FileReader();
       reader.onload = (e) => {
@@ -297,14 +299,29 @@ export function useChatLogic() {
           url: e.target?.result as string,
           name: file.name,
         };
+        newAttachments.push(attachment);
         
-        toast({
-          title: 'Файл загружен',
-          description: `${file.name} готов к отправке`,
-        });
+        if (newAttachments.length === files.length) {
+          const userMessage: Message = {
+            id: Date.now().toString(),
+            role: 'user',
+            content: inputMessage.trim() || 'Прикрепленные файлы',
+            timestamp: new Date(),
+            attachments: newAttachments,
+          };
+          setMessages(prev => [...prev, userMessage]);
+          setInputMessage('');
+          
+          toast({
+            title: `Файлы загружены`,
+            description: `Добавлено: ${files.length} файл(ов)`,
+          });
+        }
       };
       reader.readAsDataURL(file);
     });
+    
+    event.target.value = '';
   };
 
   return {
