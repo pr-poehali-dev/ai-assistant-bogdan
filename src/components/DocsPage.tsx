@@ -158,12 +158,20 @@ export default function DocsPage() {
               <div className="p-4 rounded-lg bg-slate-50">
                 <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-2">
                   <Icon name="Sliders" size={18} className="text-blue-600" />
-                  Настройки AI
+                  Расширенные настройки AI
                 </h3>
-                <p className="text-slate-600">
-                  Регулируйте температуру (креативность), максимальное количество токенов
-                  (длина ответа) и задавайте системные промпты для более точного поведения AI.
+                <p className="text-slate-600 mb-3">
+                  Полный контроль над генерацией через OpenRouter API:
                 </p>
+                <ul className="text-sm text-slate-600 space-y-1 list-disc list-inside">
+                  <li><strong>Temperature</strong> - креативность (0 = точность, 2 = креатив)</li>
+                  <li><strong>Top P</strong> - ограничение вероятности токенов (0-1)</li>
+                  <li><strong>Top K</strong> - количество топ токенов для выбора (1-100)</li>
+                  <li><strong>Frequency Penalty</strong> - штраф за частые слова (0-2)</li>
+                  <li><strong>Presence Penalty</strong> - штраф за повторы тем (0-2)</li>
+                  <li><strong>Repetition Penalty</strong> - общий штраф за повторения (0.5-2)</li>
+                  <li><strong>Max Tokens</strong> - максимальная длина ответа (256-4096)</li>
+                </ul>
               </div>
             </div>
           </Card>

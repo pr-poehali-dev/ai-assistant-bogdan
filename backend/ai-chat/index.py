@@ -143,6 +143,12 @@ def call_gemini_2_flash(message: str, api_key: str, history: List[Dict[str, str]
         'messages': messages,
         'temperature': settings.get('temperature', 0.7),
         'max_tokens': settings.get('max_tokens', 2048),
+        'top_p': settings.get('top_p', 0.9),
+        'top_k': settings.get('top_k', 40),
+        'frequency_penalty': settings.get('frequency_penalty', 0.0),
+        'presence_penalty': settings.get('presence_penalty', 0.0),
+        'repetition_penalty': settings.get('repetition_penalty', 1.0),
+        'stream': False
     }
     
     try:
@@ -196,6 +202,12 @@ def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]],
         'messages': messages,
         'temperature': settings.get('temperature', 0.7),
         'max_tokens': settings.get('max_tokens', 2048),
+        'top_p': settings.get('top_p', 0.9),
+        'top_k': settings.get('top_k', 40),
+        'frequency_penalty': settings.get('frequency_penalty', 0.0),
+        'presence_penalty': settings.get('presence_penalty', 0.0),
+        'repetition_penalty': settings.get('repetition_penalty', 1.0),
+        'stream': False
     }
     
     try:

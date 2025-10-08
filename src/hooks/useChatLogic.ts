@@ -27,6 +27,11 @@ interface Settings {
   auto_save: boolean;
   streaming: boolean;
   language: string;
+  top_p: number;
+  top_k: number;
+  frequency_penalty: number;
+  presence_penalty: number;
+  repetition_penalty: number;
 }
 
 const modelInfo = {
@@ -69,6 +74,11 @@ export function useChatLogic() {
       auto_save: true,
       streaming: false,
       language: 'ru',
+      top_p: 0.9,
+      top_k: 40,
+      frequency_penalty: 0.0,
+      presence_penalty: 0.0,
+      repetition_penalty: 1.0,
     };
   });
   const [stats, setStats] = useState(() => {

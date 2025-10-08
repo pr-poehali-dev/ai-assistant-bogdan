@@ -17,6 +17,11 @@ interface Settings {
   auto_save: boolean;
   streaming: boolean;
   language: string;
+  top_p: number;
+  top_k: number;
+  frequency_penalty: number;
+  presence_penalty: number;
+  repetition_penalty: number;
 }
 
 interface EnhancedSettingsDialogProps {
@@ -64,40 +69,189 @@ export default function EnhancedSettingsDialog({
           </TabsList>
 
           <TabsContent value="generation" className="space-y-6 pt-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">Температура</Label>
-                <Badge variant="outline">{settings.temperature.toFixed(1)}</Badge>
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-200">
+              <h3 className="text-sm font-semibold text-slate-800 mb-3">Быстрые пресеты</h3>
+              <div className="grid grid-cols-3 gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => onSettingsChange({
+                    ...settings,
+                    temperature: 0.3,
+                    top_p: 0.8,
+                    top_k: 20,
+                    frequency_penalty: 0.2,
+                    presence_penalty: 0.0,
+                    repetition_penalty: 1.1,
+                  })}
+                >
+                  <Icon name="Target" size={14} className="mr-1" />
+                  Точность
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => onSettingsChange({
+                    ...settings,
+                    temperature: 0.7,
+                    top_p: 0.9,
+                    top_k: 40,
+                    frequency_penalty: 0.0,
+                    presence_penalty: 0.0,
+                    repetition_penalty: 1.0,
+                  })}
+                >
+                  <Icon name="Settings" size={14} className="mr-1" />
+                  Баланс
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-xs"
+                  onClick={() => onSettingsChange({
+                    ...settings,
+                    temperature: 1.2,
+                    top_p: 0.95,
+                    top_k: 80,
+                    frequency_penalty: 0.5,
+                    presence_penalty: 0.3,
+                    repetition_penalty: 1.2,
+                  })}
+                >
+                  <Icon name="Sparkles" size={14} className="mr-1" />
+                  Креатив
+                </Button>
               </div>
-              <Slider
-                value={[settings.temperature]}
-                onValueChange={(v) => onSettingsChange({ ...settings, temperature: v[0] })}
-                min={0}
-                max={2}
-                step={0.1}
-                className="w-full"
-              />
-              <p className="text-xs text-slate-500">
-                Креативность ответов (0 = точность, 2 = креативность)
-              </p>
             </div>
 
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-semibold">Макс. токенов</Label>
-                <Badge variant="outline">{settings.max_tokens}</Badge>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Temperature</Label>
+                  <Badge variant="outline">{settings.temperature.toFixed(1)}</Badge>
+                </div>
+                <Slider
+                  value={[settings.temperature]}
+                  onValueChange={(v) => onSettingsChange({ ...settings, temperature: v[0] })}
+                  min={0}
+                  max={2}
+                  step={0.1}
+                  className="w-full"
+                />
+                <p className="text-xs text-slate-500">
+                  Креативность (0 = точность, 2 = креатив)
+                </p>
               </div>
-              <Slider
-                value={[settings.max_tokens]}
-                onValueChange={(v) => onSettingsChange({ ...settings, max_tokens: v[0] })}
-                min={256}
-                max={4096}
-                step={256}
-                className="w-full"
-              />
-              <p className="text-xs text-slate-500">
-                Максимальная длина ответа
-              </p>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Top P</Label>
+                  <Badge variant="outline">{settings.top_p.toFixed(2)}</Badge>
+                </div>
+                <Slider
+                  value={[settings.top_p]}
+                  onValueChange={(v) => onSettingsChange({ ...settings, top_p: v[0] })}
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  className="w-full"
+                />
+                <p className="text-xs text-slate-500">
+                  Ограничение вероятности токенов
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Top K</Label>
+                  <Badge variant="outline">{settings.top_k}</Badge>
+                </div>
+                <Slider
+                  value={[settings.top_k]}
+                  onValueChange={(v) => onSettingsChange({ ...settings, top_k: v[0] })}
+                  min={1}
+                  max={100}
+                  step={1}
+                  className="w-full"
+                />
+                <p className="text-xs text-slate-500">
+                  Количество топ токенов
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Max Tokens</Label>
+                  <Badge variant="outline">{settings.max_tokens}</Badge>
+                </div>
+                <Slider
+                  value={[settings.max_tokens]}
+                  onValueChange={(v) => onSettingsChange({ ...settings, max_tokens: v[0] })}
+                  min={256}
+                  max={4096}
+                  step={256}
+                  className="w-full"
+                />
+                <p className="text-xs text-slate-500">
+                  Максимальная длина ответа
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Frequency Penalty</Label>
+                  <Badge variant="outline">{settings.frequency_penalty.toFixed(1)}</Badge>
+                </div>
+                <Slider
+                  value={[settings.frequency_penalty]}
+                  onValueChange={(v) => onSettingsChange({ ...settings, frequency_penalty: v[0] })}
+                  min={0}
+                  max={2}
+                  step={0.1}
+                  className="w-full"
+                />
+                <p className="text-xs text-slate-500">
+                  Штраф за частые слова
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Presence Penalty</Label>
+                  <Badge variant="outline">{settings.presence_penalty.toFixed(1)}</Badge>
+                </div>
+                <Slider
+                  value={[settings.presence_penalty]}
+                  onValueChange={(v) => onSettingsChange({ ...settings, presence_penalty: v[0] })}
+                  min={0}
+                  max={2}
+                  step={0.1}
+                  className="w-full"
+                />
+                <p className="text-xs text-slate-500">
+                  Штраф за повторы тем
+                </p>
+              </div>
+
+              <div className="space-y-3 col-span-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Repetition Penalty</Label>
+                  <Badge variant="outline">{settings.repetition_penalty.toFixed(2)}</Badge>
+                </div>
+                <Slider
+                  value={[settings.repetition_penalty]}
+                  onValueChange={(v) => onSettingsChange({ ...settings, repetition_penalty: v[0] })}
+                  min={0.5}
+                  max={2}
+                  step={0.05}
+                  className="w-full"
+                />
+                <p className="text-xs text-slate-500">
+                  Общий штраф за повторения (1.0 = отключен)
+                </p>
+              </div>
             </div>
 
             <div className="space-y-2">

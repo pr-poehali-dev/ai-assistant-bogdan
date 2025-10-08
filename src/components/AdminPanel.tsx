@@ -202,8 +202,8 @@ export default function AdminPanel({
 
                   <div className="p-2 rounded-lg bg-blue-50 border border-blue-200">
                     <p className="text-xs text-blue-800 mb-1">
-                      {key === 'gemini' && <><a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener" className="underline font-semibold">Google AI Studio</a> → Get API key</>}
-                      {key === 'llama' && <><a href="https://api.together.xyz" target="_blank" rel="noopener" className="underline font-semibold">Together AI</a> → Settings → API Keys</>}
+                      {key === 'gemini' && <><a href="https://openrouter.ai/keys" target="_blank" rel="noopener" className="underline font-semibold">OpenRouter</a> → Create Key</>}
+                      {key === 'llama' && <><a href="https://openrouter.ai/keys" target="_blank" rel="noopener" className="underline font-semibold">OpenRouter</a> → Create Key (тот же ключ)</>}
                       {key === 'gigachat' && <><a href="https://developers.sber.ru/studio/workspaces" target="_blank" rel="noopener" className="underline font-semibold">Sber AI</a> → GigaChat API</>}
                     </p>
                   </div>
