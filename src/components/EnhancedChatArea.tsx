@@ -298,11 +298,9 @@ export default function EnhancedChatArea({
         onStopListening={onStopListening}
         onVoiceMessageSend={onVoiceMessageSend}
         onFileUpload={(files) => {
-          console.log('EnhancedChatArea: onFileUpload called with', files);
           const fakeEvent = {
             target: { files, value: '' }
           } as React.ChangeEvent<HTMLInputElement>;
-          console.log('EnhancedChatArea: calling parent onFileUpload');
           onFileUpload(fakeEvent);
         }}
       />

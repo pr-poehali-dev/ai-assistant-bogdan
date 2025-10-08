@@ -287,16 +287,11 @@ export function useChatLogic() {
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files || files.length === 0) {
-      console.log('No files selected');
-      return;
-    }
+    if (!files || files.length === 0) return;
 
-    console.log(`Files selected: ${files.length}`);
     const newAttachments: Array<{ type: 'image' | 'file'; url: string; name: string }> = [];
 
-    Array.from(files).forEach((file, index) => {
-      console.log(`Processing file ${index + 1}: ${file.name}`);
+    Array.from(files).forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const attachment = {
@@ -305,7 +300,6 @@ export function useChatLogic() {
           name: file.name,
         };
         newAttachments.push(attachment);
-        console.log(`Loaded file ${newAttachments.length}/${files.length}`);
         
         if (newAttachments.length === files.length) {
           const userMessage: Message = {

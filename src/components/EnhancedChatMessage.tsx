@@ -125,9 +125,22 @@ export default function EnhancedChatMessage({
                       <audio controls src={attachment.url} className="w-full" style={{height: '40px'}} />
                     </div>
                   ) : (
-                    <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-100">
-                      <Icon name="File" size={16} />
-                      <span className="text-sm">{attachment.name}</span>
+                    <div className={`flex items-center gap-3 p-3 rounded-xl border-2 shadow-sm ${
+                      message.role === 'user' 
+                        ? 'bg-white/20 border-white/30 text-white backdrop-blur-sm' 
+                        : 'bg-slate-50 border-slate-200 text-slate-700'
+                    }`}>
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                        message.role === 'user' ? 'bg-white/30' : 'bg-blue-100'
+                      }`}>
+                        <Icon name="Paperclip" size={20} className={message.role === 'user' ? 'text-white' : 'text-blue-600'} />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-medium truncate">{attachment.name}</div>
+                        <div className={`text-xs ${message.role === 'user' ? 'text-white/70' : 'text-slate-500'}`}>
+                          Файл прикреплен
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
