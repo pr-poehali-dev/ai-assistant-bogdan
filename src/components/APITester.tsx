@@ -14,7 +14,18 @@ export default function APITester() {
   const [result, setResult] = useState<string | null>(null);
 
   const testAPI = async () => {
-    if (!openRouterKey.trim() && !gigaChatKey.trim()) {
+    const models: any = {};
+    
+    if (openRouterKey.trim()) {
+      models.gemini = { key: openRouterKey, enabled: true };
+      models.llama = { key: openRouterKey, enabled: true };
+    }
+    
+    if (gigaChatKey.trim()) {
+      models.gigachat = { key: gigaChatKey, enabled: true };
+    }
+
+    if (Object.keys(models).length === 0) {
       toast({
         title: 'Ошибка',
         description: 'Введите хотя бы один API ключ',
@@ -27,16 +38,6 @@ export default function APITester() {
     setResult(null);
 
     try {
-      const models: any = {};
-      
-      if (openRouterKey.trim()) {
-        models.gemini = { key: openRouterKey, enabled: true };
-        models.llama = { key: openRouterKey, enabled: true };
-      }
-      
-      if (gigaChatKey.trim()) {
-        models.gigachat = { key: gigaChatKey, enabled: true };
-      }
 
       const response = await fetch('https://functions.poehali.dev/81fdec08-160f-4043-a2da-cefa0ffbdf22', {
         method: 'POST',
