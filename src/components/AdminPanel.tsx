@@ -68,6 +68,11 @@ export default function AdminPanel({
     llama: null,
     gigachat: null,
   });
+  const [showKeys, setShowKeys] = useState<Record<AIModel, boolean>>({
+    gemini: false,
+    llama: false,
+    gigachat: false,
+  });
 
   const testModel = async (model: AIModel) => {
     if (!apiConfig[model].key) {
@@ -177,14 +182,25 @@ export default function AdminPanel({
                 <Label htmlFor="gemini-key" className="text-sm font-semibold text-slate-700 mb-2 block">
                   OpenRouter API Key
                 </Label>
-                <Input
-                  id="gemini-key"
-                  type="password"
-                  placeholder="sk-or-v1-..."
-                  value={apiConfig.gemini.key}
-                  onChange={(e) => handleKeyChange('gemini', e.target.value)}
-                  className={`h-12 text-base ${keyErrors.gemini ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                />
+                <div className="relative">
+                  <Input
+                    id="gemini-key"
+                    type={showKeys.gemini ? 'text' : 'password'}
+                    placeholder="sk-or-v1-..."
+                    value={apiConfig.gemini.key}
+                    onChange={(e) => handleKeyChange('gemini', e.target.value)}
+                    className={`h-12 text-base pr-12 ${keyErrors.gemini ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowKeys(prev => ({ ...prev, gemini: !prev.gemini }))}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 p-0 hover:bg-slate-100"
+                  >
+                    <Icon name={showKeys.gemini ? 'EyeOff' : 'Eye'} size={18} className="text-slate-500" />
+                  </Button>
+                </div>
                 {keyErrors.gemini ? (
                   <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
                     <Icon name="AlertCircle" size={12} />
@@ -282,14 +298,25 @@ export default function AdminPanel({
                 <Label htmlFor="llama-key" className="text-sm font-semibold text-slate-700 mb-2 block">
                   OpenRouter API Key
                 </Label>
-                <Input
-                  id="llama-key"
-                  type="password"
-                  placeholder="sk-or-v1-..."
-                  value={apiConfig.llama.key}
-                  onChange={(e) => handleKeyChange('llama', e.target.value)}
-                  className={`h-12 text-base ${keyErrors.llama ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                />
+                <div className="relative">
+                  <Input
+                    id="llama-key"
+                    type={showKeys.llama ? 'text' : 'password'}
+                    placeholder="sk-or-v1-..."
+                    value={apiConfig.llama.key}
+                    onChange={(e) => handleKeyChange('llama', e.target.value)}
+                    className={`h-12 text-base pr-12 ${keyErrors.llama ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowKeys(prev => ({ ...prev, llama: !prev.llama }))}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 p-0 hover:bg-slate-100"
+                  >
+                    <Icon name={showKeys.llama ? 'EyeOff' : 'Eye'} size={18} className="text-slate-500" />
+                  </Button>
+                </div>
                 {keyErrors.llama && (
                   <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
                     <Icon name="AlertCircle" size={12} />
@@ -378,14 +405,25 @@ export default function AdminPanel({
                 <Label htmlFor="gigachat-key" className="text-sm font-semibold text-slate-700 mb-2 block">
                   GigaChat Client Secret (Base64)
                 </Label>
-                <Input
-                  id="gigachat-key"
-                  type="password"
-                  placeholder="MDE5OWMwNmEt..."
-                  value={apiConfig.gigachat.key}
-                  onChange={(e) => handleKeyChange('gigachat', e.target.value)}
-                  className={`h-12 text-base ${keyErrors.gigachat ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
-                />
+                <div className="relative">
+                  <Input
+                    id="gigachat-key"
+                    type={showKeys.gigachat ? 'text' : 'password'}
+                    placeholder="MDE5OWMwNmEt..."
+                    value={apiConfig.gigachat.key}
+                    onChange={(e) => handleKeyChange('gigachat', e.target.value)}
+                    className={`h-12 text-base pr-12 ${keyErrors.gigachat ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowKeys(prev => ({ ...prev, gigachat: !prev.gigachat }))}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 p-0 hover:bg-slate-100"
+                  >
+                    <Icon name={showKeys.gigachat ? 'EyeOff' : 'Eye'} size={18} className="text-slate-500" />
+                  </Button>
+                </div>
                 {keyErrors.gigachat && (
                   <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
                     <Icon name="AlertCircle" size={12} />
