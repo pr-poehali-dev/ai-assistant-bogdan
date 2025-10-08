@@ -324,29 +324,110 @@ export function useChatLogic() {
     event.target.value = '';
   };
 
-  const handleVoiceMessageSend = (audioBlob: Blob, duration: number) => {
+  const handleVoiceMessageSend = async (audioBlob: Blob, duration: number) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
-      const voiceMessage: Message = {
-        id: Date.now().toString(),
-        role: 'user',
-        content: '🎤 Голосовое сообщение',
-        timestamp: new Date(),
-        attachments: [{
-          type: 'audio',
-          url: e.target?.result as string,
-          name: `voice-${Date.now()}.webm`,
-          duration: duration,
-        }],
-      };
-      setMessages(prev => [...prev, voiceMessage]);
+    reader.onload = async (e) => {
+      const audioUrl = e.target?.result as string;
       
       toast({
-        title: 'Голосовое сообщение отправлено',
-        description: `Продолжительность: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
+        title: 'Распознаю речь...',
+        description: 'Анализирую голосовое сообщение',
       });
+
+      try {
+        const recognizedText = await transcribeAudio(audioBlob);
+        
+        const voiceMessage: Message = {
+          id: Date.now().toString(),
+          role: 'user',
+          content: recognizedText || '🎤 Голосовое сообщение',
+          timestamp: new Date(),
+          attachments: [{
+            type: 'audio',
+            url: audioUrl,
+            name: `voice-${Date.now()}.webm`,
+            duration: duration,
+          }],
+        };
+        setMessages(prev => [...prev, voiceMessage]);
+        
+        if (recognizedText) {
+          toast({
+            title: 'Речь распознана',
+            description: 'Отправляю сообщение ИИ...',
+          });
+          
+          setTimeout(() => {
+            setInputMessage(recognizedText);
+            handleSendMessage();
+          }, 500);
+        } else {
+          toast({
+            title: 'Голосовое сообщение отправлено',
+            description: `Продолжительность: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
+          });
+        }
+      } catch (error) {
+        console.error('Transcription error:', error);
+        
+        const voiceMessage: Message = {
+          id: Date.now().toString(),
+          role: 'user',
+          content: '🎤 Голосовое сообщение',
+          timestamp: new Date(),
+          attachments: [{
+            type: 'audio',
+            url: audioUrl,
+            name: `voice-${Date.now()}.webm`,
+            duration: duration,
+          }],
+        };
+        setMessages(prev => [...prev, voiceMessage]);
+        
+        toast({
+          title: 'Не удалось распознать речь',
+          description: 'Голосовое сообщение сохранено',
+          variant: 'destructive',
+        });
+      }
     };
     reader.readAsDataURL(audioBlob);
+  };
+
+  const transcribeAudio = async (audioBlob: Blob): Promise<string | null> => {
+    try {
+      const recognition = new (window.SpeechRecognition || (window as any).webkitSpeechRecognition)();
+      recognition.lang = settings.language === 'ru' ? 'ru-RU' : 'en-US';
+      recognition.continuous = false;
+      recognition.interimResults = false;
+
+      return new Promise((resolve, reject) => {
+        const audioUrl = URL.createObjectURL(audioBlob);
+        const audio = new Audio(audioUrl);
+        
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          resolve(transcript);
+        };
+
+        recognition.onerror = (event: any) => {
+          reject(event.error);
+        };
+
+        recognition.onend = () => {
+          URL.revokeObjectURL(audioUrl);
+        };
+
+        audio.onplay = () => {
+          recognition.start();
+        };
+
+        audio.play();
+      });
+    } catch (error) {
+      console.error('Speech recognition not supported:', error);
+      return null;
+    }
   };
 
   return {

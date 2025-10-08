@@ -95,7 +95,7 @@ export default function EnhancedChatMessage({
               : 'bg-white border border-slate-200'
           }`}
         >
-          <p className="text-[15px] leading-relaxed whitespace-pre-wrap">{message.content}</p>
+          <p className="text-[15px] leading-relaxed whitespace-pre-wrap break-words">{message.content}</p>
           
           {message.attachments && message.attachments.length > 0 && (
             <div className="mt-3 space-y-2">
@@ -108,18 +108,21 @@ export default function EnhancedChatMessage({
                       className="rounded-xl max-w-full h-auto"
                     />
                   ) : attachment.type === 'audio' ? (
-                    <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200">
-                      <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center">
-                        <Icon name="Mic" size={20} className="text-white" />
+                    <div className="p-4 rounded-xl bg-gradient-to-r from-blue-50 via-purple-50 to-pink-50 border-2 border-blue-200 shadow-sm">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center shadow-md">
+                          <Icon name="Mic" size={22} className="text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-semibold text-slate-700">Голосовое сообщение</div>
+                          {attachment.duration && (
+                            <div className="text-xs text-slate-500 font-medium">
+                              Продолжительность: {Math.floor(attachment.duration / 60)}:{(attachment.duration % 60).toString().padStart(2, '0')}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <audio controls src={attachment.url} className="w-full h-8" />
-                      </div>
-                      {attachment.duration && (
-                        <span className="text-xs text-slate-600 font-medium">
-                          {Math.floor(attachment.duration / 60)}:{(attachment.duration % 60).toString().padStart(2, '0')}
-                        </span>
-                      )}
+                      <audio controls src={attachment.url} className="w-full" style={{height: '40px'}} />
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 p-2 rounded-lg bg-slate-100">
