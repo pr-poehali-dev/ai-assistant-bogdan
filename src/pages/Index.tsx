@@ -18,6 +18,7 @@ import QuickPrompts from '@/components/QuickPrompts';
 import AIAssistants from '@/components/AIAssistants';
 import KnowledgeBase from '@/components/KnowledgeBase';
 import Marketplace from '@/components/Marketplace';
+import APITester from '@/components/APITester';
 import { useChatLogic } from '@/hooks/useChatLogic';
 import { useVoiceControl } from '@/hooks/useVoiceControl';
 import { useSessionManager } from '@/hooks/useSessionManager';
@@ -38,6 +39,8 @@ export default function Index() {
   const [searchQuery, setSearchQuery] = useState('');
   const [filteredMessages, setFilteredMessages] = useState<any[]>([]);
   const [showSearch, setShowSearch] = useState(false);
+  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
+  const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const chatLogic = useChatLogic();
@@ -214,15 +217,15 @@ export default function Index() {
               <Icon name="ShoppingBag" size={14} className="mr-1.5" />
               Маркетплейс
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-xs">
-              <Icon name="BarChart3" size={14} className="mr-1.5" />
-              Аналитика
+            <TabsTrigger value="test" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-xs">
+              <Icon name="Zap" size={14} className="mr-1.5" />
+              Тест API
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="chat" className="mt-0">
             <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-3 space-y-3">
+              {!leftPanelCollapsed && <div className="col-span-3 space-y-3 relative">
                 <Card className="p-3 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
                   <h3 className="font-semibold text-slate-800 mb-2 flex items-center gap-1.5 text-sm">
                     <Icon name="Folder" size={16} className="text-blue-600" />
@@ -264,9 +267,28 @@ export default function Index() {
                     onClearStats={() => adminControls.clearStats(chatLogic.setStats)}
                   />
                 </Card>
-              </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLeftPanelCollapsed(true)}
+                  className="absolute -right-3 top-1/2 -translate-y-1/2 h-12 w-6 rounded-r-lg bg-white shadow-md hover:bg-slate-50 p-0"
+                >
+                  <Icon name="ChevronLeft" size={16} className="text-slate-600" />
+                </Button>
+              </div>}
 
-              <div className="col-span-6">
+              {leftPanelCollapsed && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setLeftPanelCollapsed(false)}
+                  className="col-span-1 h-12 rounded-lg bg-white shadow-md hover:bg-slate-50 self-start"
+                >
+                  <Icon name="ChevronRight" size={16} className="text-slate-600" />
+                </Button>
+              )}
+
+              <div className={leftPanelCollapsed && rightPanelCollapsed ? "col-span-10" : leftPanelCollapsed || rightPanelCollapsed ? "col-span-7" : "col-span-6"}>
                 <EnhancedChatArea
                   messages={chatLogic.messages}
                   currentModel={chatLogic.currentModel}
@@ -301,7 +323,7 @@ export default function Index() {
                 />
               </div>
 
-              <div className="col-span-3 space-y-3">
+              {!rightPanelCollapsed && <div className="col-span-3 space-y-3 relative">
                 {!adminControls.isAuthenticated && Object.values(chatLogic.apiConfig).every(c => !c.key || !c.enabled) && (
                   <Card className="p-3 bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200 shadow-lg">
                     <div className="flex items-start gap-2">
@@ -344,7 +366,26 @@ export default function Index() {
                     onClearStats={() => adminControls.clearStats(chatLogic.setStats)}
                   />
                 )}
-              </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setRightPanelCollapsed(true)}
+                  className="absolute -left-3 top-1/2 -translate-y-1/2 h-12 w-6 rounded-l-lg bg-white shadow-md hover:bg-slate-50 p-0"
+                >
+                  <Icon name="ChevronRight" size={16} className="text-slate-600" />
+                </Button>
+              </div>}
+
+              {rightPanelCollapsed && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setRightPanelCollapsed(false)}
+                  className="col-span-1 h-12 rounded-lg bg-white shadow-md hover:bg-slate-50 self-start"
+                >
+                  <Icon name="ChevronLeft" size={16} className="text-slate-600" />
+                </Button>
+              )}
             </div>
           </TabsContent>
 
@@ -358,6 +399,10 @@ export default function Index() {
 
           <TabsContent value="marketplace" className="mt-0">
             <Marketplace />
+          </TabsContent>
+
+          <TabsContent value="test" className="mt-0">
+            <APITester />
           </TabsContent>
 
           <TabsContent value="analytics" className="mt-0">
