@@ -147,7 +147,7 @@ def call_gemini_2_flash(message: str, api_key: str, history: List[Dict[str, str]
     })
     
     payload = {
-        'model': 'google/gemini-2.0-flash-exp:free',
+        'model': 'google/gemini-flash-1.5-8b',
         'messages': messages,
         'temperature': settings.get('temperature', 0.7),
         'max_tokens': settings.get('max_tokens', 2048),
@@ -206,7 +206,7 @@ def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]],
     })
     
     payload = {
-        'model': 'meta-llama/llama-3.3-70b-instruct',
+        'model': 'meta-llama/llama-3.1-8b-instruct:free',
         'messages': messages,
         'temperature': settings.get('temperature', 0.7),
         'max_tokens': settings.get('max_tokens', 2048),
