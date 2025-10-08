@@ -8,15 +8,16 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function APITester() {
   const { toast } = useToast();
-  const [apiKey, setApiKey] = useState('');
+  const [openRouterKey, setOpenRouterKey] = useState('');
+  const [gigaChatKey, setGigaChatKey] = useState('');
   const [testing, setTesting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 
   const testAPI = async () => {
-    if (!apiKey.trim()) {
+    if (!openRouterKey.trim() && !gigaChatKey.trim()) {
       toast({
         title: 'Ошибка',
-        description: 'Введите API ключ OpenRouter',
+        description: 'Введите хотя бы один API ключ',
         variant: 'destructive',
       });
       return;
@@ -26,6 +27,17 @@ export default function APITester() {
     setResult(null);
 
     try {
+      const models: any = {};
+      
+      if (openRouterKey.trim()) {
+        models.gemini = { key: openRouterKey, enabled: true };
+        models.llama = { key: openRouterKey, enabled: true };
+      }
+      
+      if (gigaChatKey.trim()) {
+        models.gigachat = { key: gigaChatKey, enabled: true };
+      }
+
       const response = await fetch('https://functions.poehali.dev/81fdec08-160f-4043-a2da-cefa0ffbdf22', {
         method: 'POST',
         headers: {
@@ -33,16 +45,7 @@ export default function APITester() {
         },
         body: JSON.stringify({
           message: 'Привет! Ответь одним словом: работаю',
-          models: {
-            gemini: {
-              key: apiKey,
-              enabled: true,
-            },
-            llama: {
-              key: apiKey,
-              enabled: true,
-            },
-          },
+          models,
           history: [],
           settings: {
             temperature: 0.7,
@@ -88,15 +91,15 @@ export default function APITester() {
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="api-key" className="text-sm font-semibold">
-            OpenRouter API Key
+          <Label htmlFor="openrouter-key" className="text-sm font-semibold">
+            OpenRouter API Key (для Gemini и Llama)
           </Label>
           <Input
-            id="api-key"
+            id="openrouter-key"
             type="password"
             placeholder="sk-or-v1-..."
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
+            value={openRouterKey}
+            onChange={(e) => setOpenRouterKey(e.target.value)}
             className="mt-1"
           />
           <p className="text-xs text-slate-500 mt-1">
@@ -112,9 +115,34 @@ export default function APITester() {
           </p>
         </div>
 
+        <div>
+          <Label htmlFor="gigachat-key" className="text-sm font-semibold">
+            GigaChat API Key (опционально)
+          </Label>
+          <Input
+            id="gigachat-key"
+            type="password"
+            placeholder="Client Secret в Base64"
+            value={gigaChatKey}
+            onChange={(e) => setGigaChatKey(e.target.value)}
+            className="mt-1"
+          />
+          <p className="text-xs text-slate-500 mt-1">
+            Получить на{' '}
+            <a
+              href="https://developers.sber.ru/studio/workspaces"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 underline"
+            >
+              Sber AI Developers
+            </a>
+          </p>
+        </div>
+
         <Button
           onClick={testAPI}
-          disabled={testing || !apiKey.trim()}
+          disabled={testing || (!openRouterKey.trim() && !gigaChatKey.trim())}
           className="w-full gap-2"
         >
           {testing ? (
@@ -139,11 +167,12 @@ export default function APITester() {
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
           <h3 className="text-sm font-semibold text-blue-900 mb-2">Что тестируется:</h3>
           <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
-            <li>Подключение к backend функции через OpenRouter</li>
-            <li>Проверка API ключа (работает для Gemini и Llama)</li>
+            <li>Подключение к backend функции</li>
+            <li>OpenRouter: Gemini 2.0 Flash и Llama 3.3 70B</li>
+            <li>GigaChat: прямое подключение к Sber AI</li>
             <li>Обработка таймаутов (25 сек)</li>
-            <li>Fallback между моделями (Gemini → Llama)</li>
-            <li>Обработка ошибок</li>
+            <li>Fallback между моделями (приоритет: Gemini → Llama → GigaChat)</li>
+            <li>Обработка ошибок и вывод деталей</li>
           </ul>
         </div>
       </div>
