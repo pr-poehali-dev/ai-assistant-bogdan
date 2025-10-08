@@ -80,24 +80,26 @@ export default function TabNavigation({ activeTab, onTabChange }: TabNavigationP
   const isToolActive = !MAIN_TABS.some((t) => t.value === activeTab);
 
   return (
-    <TabsList className="flex w-full bg-white/90 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-full mx-auto text-xs gap-1">
+    <div className="flex w-full bg-white/90 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-full mx-auto text-xs gap-1">
       {MAIN_TABS.map((tab) => (
-        <TabsTrigger
+        <button
           key={tab.value}
-          value={tab.value}
           onClick={() => onTabChange(tab.value)}
-          className={`flex-shrink-0 rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:${tab.gradient} data-[state=active]:text-white data-[state=active]:shadow-md px-3 py-2 whitespace-nowrap transition-all`}
+          className={`flex items-center flex-shrink-0 rounded-lg px-3 py-2 whitespace-nowrap transition-all ${
+            activeTab === tab.value
+              ? `bg-gradient-to-r ${tab.gradient} text-white shadow-md`
+              : 'hover:bg-gray-100'
+          }`}
         >
           <Icon name={tab.icon as any} size={14} className="mr-1.5" />
           <span className="hidden sm:inline">{tab.label}</span>
-        </TabsTrigger>
+        </button>
       ))}
 
       <DropdownMenu open={isToolsOpen} onOpenChange={setIsToolsOpen}>
         <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            className={`flex-shrink-0 rounded-lg px-3 py-2 whitespace-nowrap transition-all ${
+          <button
+            className={`flex items-center flex-shrink-0 rounded-lg px-3 py-2 whitespace-nowrap transition-all ${
               isToolActive
                 ? 'bg-gradient-to-r from-indigo-500 to-purple-600 text-white shadow-md'
                 : 'hover:bg-gray-100'
@@ -106,7 +108,7 @@ export default function TabNavigation({ activeTab, onTabChange }: TabNavigationP
             <Icon name="Wrench" size={14} className="mr-1.5" />
             <span className="hidden sm:inline">{getCurrentTabLabel()}</span>
             <Icon name="ChevronDown" size={14} className="ml-1" />
-          </Button>
+          </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56 max-h-[70vh] overflow-y-auto">
           {TOOL_GROUPS.map((group, groupIndex) => (
@@ -132,6 +134,6 @@ export default function TabNavigation({ activeTab, onTabChange }: TabNavigationP
           ))}
         </DropdownMenuContent>
       </DropdownMenu>
-    </TabsList>
+    </div>
   );
 }

@@ -148,11 +148,11 @@ export default function Index() {
       />
 
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 max-w-[1600px]">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="hidden sm:block">
-            <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-          </div>
+        <div className="hidden sm:block">
+          <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
 
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <ChatTabContent
             leftPanelCollapsed={leftPanelCollapsed}
             sessions={sessionManager.chatSessions}
