@@ -24,6 +24,12 @@ import QRGenerator from '@/components/QRGenerator';
 import NotesApp from '@/components/NotesApp';
 import PasswordGenerator from '@/components/PasswordGenerator';
 import Calculator from '@/components/Calculator';
+import TimerApp from '@/components/TimerApp';
+import UnitConverter from '@/components/UnitConverter';
+import ColorPicker from '@/components/ColorPicker';
+import Counter from '@/components/Counter';
+import RandomGenerator from '@/components/RandomGenerator';
+import Metronome from '@/components/Metronome';
 import { useChatLogic } from '@/hooks/useChatLogic';
 import { useVoiceControl } from '@/hooks/useVoiceControl';
 import { useSessionManager } from '@/hooks/useSessionManager';
@@ -205,7 +211,7 @@ export default function Index() {
 
       <div className="container mx-auto px-4 py-3 max-w-[1600px]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-10 bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-7xl mx-auto text-xs">
+          <TabsList className="grid w-full grid-cols-8 lg:grid-cols-16 bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-full mx-auto text-xs overflow-x-auto">
             <TabsTrigger value="chat" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white text-xs">
               <Icon name="MessageSquare" size={14} className="mr-1.5" />
               Чат
@@ -245,6 +251,30 @@ export default function Index() {
             <TabsTrigger value="calc" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
               <Icon name="Calculator" size={14} className="mr-1" />
               Кальк.
+            </TabsTrigger>
+            <TabsTrigger value="timer" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white">
+              <Icon name="Timer" size={14} className="mr-1" />
+              Таймер
+            </TabsTrigger>
+            <TabsTrigger value="converter" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white">
+              <Icon name="Ruler" size={14} className="mr-1" />
+              Конверт.
+            </TabsTrigger>
+            <TabsTrigger value="color" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-purple-600 data-[state=active]:text-white">
+              <Icon name="Palette" size={14} className="mr-1" />
+              Цвета
+            </TabsTrigger>
+            <TabsTrigger value="counter" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-600 data-[state=active]:text-white">
+              <Icon name="Hash" size={14} className="mr-1" />
+              Счёт
+            </TabsTrigger>
+            <TabsTrigger value="random" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white">
+              <Icon name="Sparkles" size={14} className="mr-1" />
+              Случай
+            </TabsTrigger>
+            <TabsTrigger value="metronome" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-indigo-500 data-[state=active]:to-purple-600 data-[state=active]:text-white">
+              <Icon name="Music" size={14} className="mr-1" />
+              Метроном
             </TabsTrigger>
           </TabsList>
 
@@ -386,6 +416,30 @@ export default function Index() {
 
           <TabsContent value="calc" className="mt-0">
             <Calculator />
+          </TabsContent>
+
+          <TabsContent value="timer" className="mt-0">
+            <TimerApp />
+          </TabsContent>
+
+          <TabsContent value="converter" className="mt-0">
+            <UnitConverter />
+          </TabsContent>
+
+          <TabsContent value="color" className="mt-0">
+            <ColorPicker />
+          </TabsContent>
+
+          <TabsContent value="counter" className="mt-0">
+            <Counter />
+          </TabsContent>
+
+          <TabsContent value="random" className="mt-0">
+            <RandomGenerator />
+          </TabsContent>
+
+          <TabsContent value="metronome" className="mt-0">
+            <Metronome />
           </TabsContent>
 
           <TabsContent value="analytics" className="mt-0">
