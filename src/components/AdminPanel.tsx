@@ -29,6 +29,11 @@ export default function AdminPanel({
 }: AdminPanelProps) {
   const { toast } = useToast();
   const [testingModel, setTestingModel] = useState<AIModel | null>(null);
+  const [testResults, setTestResults] = useState<Record<AIModel, 'success' | 'error' | null>>({
+    gemini: null,
+    llama: null,
+    gigachat: null,
+  });
 
   const testModel = async (model: AIModel) => {
     if (!apiConfig[model].key) {
@@ -57,14 +62,17 @@ export default function AdminPanel({
       const data = await response.json();
 
       if (response.ok) {
+        setTestResults(prev => ({ ...prev, [model]: 'success' }));
         toast({
           title: '✅ Тест пройден',
           description: `Ответ: ${data.response}`,
         });
       } else {
+        setTestResults(prev => ({ ...prev, [model]: 'error' }));
         throw new Error(data.error || 'Ошибка теста');
       }
     } catch (error: any) {
+      setTestResults(prev => ({ ...prev, [model]: 'error' }));
       toast({
         title: '❌ Тест не пройден',
         description: error.message || 'Проверьте API ключ',
@@ -84,15 +92,41 @@ export default function AdminPanel({
         </div>
 
         <div className="space-y-6">
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                <Icon name="Zap" size={24} className="text-white" />
+          <div className={`bg-white rounded-2xl p-8 shadow-lg border-2 transition-all ${
+            testResults.gemini === 'success' ? 'border-green-400 bg-green-50/30' :
+            testResults.gemini === 'error' ? 'border-red-400 bg-red-50/30' :
+            'border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center relative">
+                  <Icon name="Zap" size={24} className="text-white" />
+                  {testResults.gemini === 'success' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <Icon name="Check" size={12} className="text-white" />
+                    </div>
+                  )}
+                  {testResults.gemini === 'error' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <Icon name="X" size={12} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Gemini Flash (Скорость)</h2>
+                  <p className="text-sm text-slate-500">google/gemini-flash-1.5-8b</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">Gemini Flash (Скорость)</h2>
-                <p className="text-sm text-slate-500">google/gemini-flash-1.5-8b</p>
-              </div>
+              {testResults.gemini === 'success' && (
+                <div className="px-3 py-1.5 rounded-lg bg-green-100 border border-green-300">
+                  <p className="text-xs font-semibold text-green-700">✓ Тест пройден</p>
+                </div>
+              )}
+              {testResults.gemini === 'error' && (
+                <div className="px-3 py-1.5 rounded-lg bg-red-100 border border-red-300">
+                  <p className="text-xs font-semibold text-red-700">✗ Ошибка</p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -150,15 +184,41 @@ export default function AdminPanel({
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
-                <Icon name="Target" size={24} className="text-white" />
+          <div className={`bg-white rounded-2xl p-8 shadow-lg border-2 transition-all ${
+            testResults.llama === 'success' ? 'border-green-400 bg-green-50/30' :
+            testResults.llama === 'error' ? 'border-red-400 bg-red-50/30' :
+            'border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center relative">
+                  <Icon name="Target" size={24} className="text-white" />
+                  {testResults.llama === 'success' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <Icon name="Check" size={12} className="text-white" />
+                    </div>
+                  )}
+                  {testResults.llama === 'error' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <Icon name="X" size={12} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Llama 3.1 (Точность)</h2>
+                  <p className="text-sm text-slate-500">meta-llama/llama-3.1-8b-instruct</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">Llama 3.1 (Точность)</h2>
-                <p className="text-sm text-slate-500">meta-llama/llama-3.1-8b-instruct</p>
-              </div>
+              {testResults.llama === 'success' && (
+                <div className="px-3 py-1.5 rounded-lg bg-green-100 border border-green-300">
+                  <p className="text-xs font-semibold text-green-700">✓ Тест пройден</p>
+                </div>
+              )}
+              {testResults.llama === 'error' && (
+                <div className="px-3 py-1.5 rounded-lg bg-red-100 border border-red-300">
+                  <p className="text-xs font-semibold text-red-700">✗ Ошибка</p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
@@ -214,15 +274,41 @@ export default function AdminPanel({
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl p-8 shadow-lg border border-slate-200">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
-                <Icon name="Sparkles" size={24} className="text-white" />
+          <div className={`bg-white rounded-2xl p-8 shadow-lg border-2 transition-all ${
+            testResults.gigachat === 'success' ? 'border-green-400 bg-green-50/30' :
+            testResults.gigachat === 'error' ? 'border-red-400 bg-red-50/30' :
+            'border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center relative">
+                  <Icon name="Sparkles" size={24} className="text-white" />
+                  {testResults.gigachat === 'success' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <Icon name="Check" size={12} className="text-white" />
+                    </div>
+                  )}
+                  {testResults.gigachat === 'error' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <Icon name="X" size={12} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">GigaChat (Креатив)</h2>
+                  <p className="text-sm text-slate-500">GigaChat от Сбера</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-xl font-bold text-slate-800">GigaChat (Креатив)</h2>
-                <p className="text-sm text-slate-500">GigaChat от Сбера</p>
-              </div>
+              {testResults.gigachat === 'success' && (
+                <div className="px-3 py-1.5 rounded-lg bg-green-100 border border-green-300">
+                  <p className="text-xs font-semibold text-green-700">✓ Тест пройден</p>
+                </div>
+              )}
+              {testResults.gigachat === 'error' && (
+                <div className="px-3 py-1.5 rounded-lg bg-red-100 border border-red-300">
+                  <p className="text-xs font-semibold text-red-700">✗ Ошибка</p>
+                </div>
+              )}
             </div>
 
             <div className="space-y-4">
