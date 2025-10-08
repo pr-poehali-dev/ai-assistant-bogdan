@@ -117,13 +117,33 @@ export default function AdminPanel({
         });
       } else {
         setTestResults(prev => ({ ...prev, [model]: 'error' }));
-        throw new Error(data.error || 'Ошибка теста');
+        
+        let errorMsg = data.error || 'Ошибка теста';
+        if (data.details && data.details.length > 0) {
+          const modelError = data.details.find((d: any) => d.model === model);
+          if (modelError) {
+            errorMsg = modelError.error;
+          }
+        }
+        
+        throw new Error(errorMsg);
       }
     } catch (error: any) {
       setTestResults(prev => ({ ...prev, [model]: 'error' }));
+      
+      let errorDescription = error.message || 'Проверьте API ключ';
+      
+      if (errorDescription.includes('401') || errorDescription.includes('Unauthorized')) {
+        errorDescription = '🔑 Неверный API ключ - проверьте правильность';
+      } else if (errorDescription.includes('timeout')) {
+        errorDescription = '⏱️ Превышено время ожидания - попробуйте ещё раз';
+      } else if (errorDescription.includes('API error')) {
+        errorDescription = '🌐 ' + errorDescription;
+      }
+      
       toast({
         title: '❌ Тест не пройден',
-        description: error.message || 'Проверьте API ключ',
+        description: errorDescription,
         variant: 'destructive',
       });
     } finally {
