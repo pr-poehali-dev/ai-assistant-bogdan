@@ -42,7 +42,7 @@ export default function APISetupGuide() {
             <Card className="p-4 bg-gradient-to-br from-blue-50 to-blue-100">
               <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
                 <Icon name="Zap" size={20} className="text-blue-600" />
-                Google Gemini 2.0 Flash
+                Google Gemini 2.0 Flash через OpenRouter
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex gap-3">
@@ -50,14 +50,14 @@ export default function APISetupGuide() {
                     1
                   </div>
                   <div>
-                    <p className="font-semibold">Перейдите на сайт</p>
+                    <p className="font-semibold">Зарегистрируйтесь на OpenRouter</p>
                     <a
-                      href="https://aistudio.google.com/apikey"
+                      href="https://openrouter.ai/signup"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 underline flex items-center gap-1 mt-1"
                     >
-                      Google AI Studio
+                      OpenRouter.ai
                       <Icon name="ExternalLink" size={12} />
                     </a>
                   </div>
@@ -67,8 +67,8 @@ export default function APISetupGuide() {
                     2
                   </div>
                   <div>
-                    <p className="font-semibold">Войдите через Google аккаунт</p>
-                    <p className="text-slate-600 mt-1">Используйте любой Gmail</p>
+                    <p className="font-semibold">Войдите в аккаунт</p>
+                    <p className="text-slate-600 mt-1">Через Google, Discord или email</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -76,8 +76,8 @@ export default function APISetupGuide() {
                     3
                   </div>
                   <div>
-                    <p className="font-semibold">Нажмите "Get API key"</p>
-                    <p className="text-slate-600 mt-1">Или "Create API key in new project"</p>
+                    <p className="font-semibold">Перейдите в раздел Keys</p>
+                    <p className="text-slate-600 mt-1">В верхнем меню нажмите "Keys"</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -85,8 +85,8 @@ export default function APISetupGuide() {
                     4
                   </div>
                   <div>
-                    <p className="font-semibold">Скопируйте API ключ</p>
-                    <p className="text-slate-600 mt-1">Формат: AIzaSy... (39 символов)</p>
+                    <p className="font-semibold">Создайте API ключ</p>
+                    <p className="text-slate-600 mt-1">Нажмите "Create Key" и скопируйте</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -102,7 +102,7 @@ export default function APISetupGuide() {
               <div className="mt-4 p-3 bg-white/50 rounded-lg">
                 <p className="text-xs text-slate-700">
                   <Icon name="Gift" size={12} className="inline mr-1" />
-                  <strong>Бесплатно:</strong> 1500 запросов в день
+                  <strong>Бесплатно:</strong> Gemini 2.0 Flash бесплатная модель через OpenRouter
                 </p>
               </div>
             </Card>
@@ -112,7 +112,7 @@ export default function APISetupGuide() {
             <Card className="p-4 bg-gradient-to-br from-purple-50 to-purple-100">
               <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
                 <Icon name="Target" size={20} className="text-purple-600" />
-                Meta Llama 3.3 70B
+                Meta Llama 3.3 70B через OpenRouter
               </h3>
               <div className="space-y-3 text-sm">
                 <div className="flex gap-3">
@@ -120,14 +120,14 @@ export default function APISetupGuide() {
                     1
                   </div>
                   <div>
-                    <p className="font-semibold">Зарегистрируйтесь</p>
+                    <p className="font-semibold">Зарегистрируйтесь на OpenRouter</p>
                     <a
-                      href="https://api.together.xyz/signup"
+                      href="https://openrouter.ai/signup"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-purple-600 underline flex items-center gap-1 mt-1"
                     >
-                      Together AI
+                      OpenRouter.ai
                       <Icon name="ExternalLink" size={12} />
                     </a>
                   </div>
@@ -137,8 +137,8 @@ export default function APISetupGuide() {
                     2
                   </div>
                   <div>
-                    <p className="font-semibold">Подтвердите email</p>
-                    <p className="text-slate-600 mt-1">Проверьте почту и кликните на ссылку</p>
+                    <p className="font-semibold">Войдите в аккаунт</p>
+                    <p className="text-slate-600 mt-1">Через Google, Discord или email</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -146,8 +146,8 @@ export default function APISetupGuide() {
                     3
                   </div>
                   <div>
-                    <p className="font-semibold">Перейдите в Settings → API Keys</p>
-                    <p className="text-slate-600 mt-1">Левое меню в личном кабинете</p>
+                    <p className="font-semibold">Перейдите в раздел Keys</p>
+                    <p className="text-slate-600 mt-1">В верхнем меню нажмите "Keys"</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -155,8 +155,8 @@ export default function APISetupGuide() {
                     4
                   </div>
                   <div>
-                    <p className="font-semibold">Создайте новый ключ</p>
-                    <p className="text-slate-600 mt-1">Нажмите "+ Add API Key"</p>
+                    <p className="font-semibold">Создайте API ключ</p>
+                    <p className="text-slate-600 mt-1">Нажмите "Create Key" и скопируйте</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
@@ -164,8 +164,8 @@ export default function APISetupGuide() {
                     5
                   </div>
                   <div>
-                    <p className="font-semibold">Скопируйте ключ</p>
-                    <p className="text-slate-600 mt-1">Формат начинается с цифр и букв (64+ символов)</p>
+                    <p className="font-semibold">Вставьте ключ в панель управления</p>
+                    <p className="text-slate-600 mt-1">Один ключ работает для обеих моделей!</p>
                   </div>
                 </div>
               </div>
@@ -255,8 +255,9 @@ export default function APISetupGuide() {
             Рекомендации
           </h4>
           <ul className="text-xs text-slate-600 space-y-1 list-disc list-inside">
-            <li>Начните с Gemini — проще всего получить ключ</li>
-            <li>Настройте 2-3 режима для резервирования</li>
+            <li>Один ключ OpenRouter работает для Gemini и Llama одновременно</li>
+            <li>Начните с OpenRouter — проще всего получить доступ к обеим моделям</li>
+            <li>Настройте 2-3 режима для резервирования (добавьте GigaChat)</li>
             <li>Используйте кнопку "Протестировать" после настройки</li>
             <li>Храните ключи в безопасности, не делитесь ими</li>
           </ul>

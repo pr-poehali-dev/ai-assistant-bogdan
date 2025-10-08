@@ -8,15 +8,15 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function APITester() {
   const { toast } = useToast();
-  const [geminiKey, setGeminiKey] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const [testing, setTesting] = useState(false);
   const [result, setResult] = useState<string | null>(null);
 
   const testAPI = async () => {
-    if (!geminiKey.trim()) {
+    if (!apiKey.trim()) {
       toast({
         title: 'Ошибка',
-        description: 'Введите API ключ Gemini',
+        description: 'Введите API ключ OpenRouter',
         variant: 'destructive',
       });
       return;
@@ -35,7 +35,11 @@ export default function APITester() {
           message: 'Привет! Ответь одним словом: работаю',
           models: {
             gemini: {
-              key: geminiKey,
+              key: apiKey,
+              enabled: true,
+            },
+            llama: {
+              key: apiKey,
               enabled: true,
             },
           },
@@ -50,10 +54,10 @@ export default function APITester() {
       const data = await response.json();
 
       if (response.ok) {
-        setResult(`✅ Успех! Ответ: ${data.response}`);
+        setResult(`✅ Успех! Модель: ${data.model}\nОтвет: ${data.response}`);
         toast({
           title: '✅ API работает!',
-          description: `Gemini ответил: ${data.response.substring(0, 50)}...`,
+          description: `${data.model} ответил: ${data.response.substring(0, 50)}...`,
         });
       } else {
         setResult(`❌ Ошибка: ${data.error}`);
@@ -84,33 +88,33 @@ export default function APITester() {
 
       <div className="space-y-4">
         <div>
-          <Label htmlFor="gemini-key" className="text-sm font-semibold">
-            Google Gemini API Key
+          <Label htmlFor="api-key" className="text-sm font-semibold">
+            OpenRouter API Key
           </Label>
           <Input
-            id="gemini-key"
+            id="api-key"
             type="password"
-            placeholder="AIzaSy..."
-            value={geminiKey}
-            onChange={(e) => setGeminiKey(e.target.value)}
+            placeholder="sk-or-v1-..."
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
             className="mt-1"
           />
           <p className="text-xs text-slate-500 mt-1">
             Получить на{' '}
             <a
-              href="https://aistudio.google.com/apikey"
+              href="https://openrouter.ai/keys"
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 underline"
             >
-              Google AI Studio
+              OpenRouter.ai
             </a>
           </p>
         </div>
 
         <Button
           onClick={testAPI}
-          disabled={testing || !geminiKey.trim()}
+          disabled={testing || !apiKey.trim()}
           className="w-full gap-2"
         >
           {testing ? (
@@ -135,10 +139,10 @@ export default function APITester() {
         <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
           <h3 className="text-sm font-semibold text-blue-900 mb-2">Что тестируется:</h3>
           <ul className="text-xs text-blue-800 space-y-1 list-disc list-inside">
-            <li>Подключение к backend функции</li>
-            <li>Проверка API ключа Gemini</li>
+            <li>Подключение к backend функции через OpenRouter</li>
+            <li>Проверка API ключа (работает для Gemini и Llama)</li>
             <li>Обработка таймаутов (25 сек)</li>
-            <li>Fallback на другие модели (если настроены)</li>
+            <li>Fallback между моделями (Gemini → Llama)</li>
             <li>Обработка ошибок</li>
           </ul>
         </div>

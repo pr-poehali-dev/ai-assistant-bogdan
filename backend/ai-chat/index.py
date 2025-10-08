@@ -109,59 +109,10 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
 
 
 def call_gemini_2_flash(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
-    '''Call Google Gemini 2.0 Flash Experimental with timeout protection'''
+    '''Call Google Gemini 2.0 Flash via OpenRouter with timeout protection'''
     import requests
     
-    url = f'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key={api_key}'
-    
-    contents = []
-    
-    for msg in history[-10:]:
-        role = 'user' if msg['role'] == 'user' else 'model'
-        contents.append({
-            'role': role,
-            'parts': [{'text': msg['content']}]
-        })
-    
-    contents.append({
-        'role': 'user',
-        'parts': [{'text': message}]
-    })
-    
-    payload = {
-        'contents': contents,
-        'generationConfig': {
-            'temperature': settings.get('temperature', 0.7),
-            'maxOutputTokens': settings.get('max_tokens', 2048),
-        }
-    }
-    
-    if settings.get('system_prompt'):
-        payload['systemInstruction'] = {
-            'parts': [{'text': settings['system_prompt']}]
-        }
-    
-    try:
-        response = requests.post(url, json=payload, timeout=25)
-        response.raise_for_status()
-    except requests.exceptions.Timeout:
-        raise Exception('Gemini timeout - try again')
-    except requests.exceptions.RequestException as e:
-        raise Exception(f'Gemini API error: {str(e)}')
-    
-    data = response.json()
-    
-    if 'candidates' in data and len(data['candidates']) > 0:
-        return data['candidates'][0]['content']['parts'][0]['text']
-    
-    raise Exception('Invalid Gemini response format')
-
-
-def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
-    '''Call Meta Llama 3.3 70B Instruct with timeout protection'''
-    import requests
-    
-    url = 'https://api.together.xyz/v1/chat/completions'
+    url = 'https://openrouter.ai/api/v1/chat/completions'
     
     headers = {
         'Authorization': f'Bearer {api_key}',
@@ -188,7 +139,60 @@ def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]],
     })
     
     payload = {
-        'model': 'meta-llama/Llama-3.3-70B-Instruct-Turbo',
+        'model': 'google/gemini-2.0-flash-exp:free',
+        'messages': messages,
+        'temperature': settings.get('temperature', 0.7),
+        'max_tokens': settings.get('max_tokens', 2048),
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload, timeout=25)
+        response.raise_for_status()
+    except requests.exceptions.Timeout:
+        raise Exception('Gemini timeout - try again')
+    except requests.exceptions.RequestException as e:
+        raise Exception(f'Gemini API error: {str(e)}')
+    
+    data = response.json()
+    
+    if 'choices' in data and len(data['choices']) > 0:
+        return data['choices'][0]['message']['content']
+    
+    raise Exception('Invalid Gemini response format')
+
+
+def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
+    '''Call Meta Llama 3.3 70B Instruct via OpenRouter with timeout protection'''
+    import requests
+    
+    url = 'https://openrouter.ai/api/v1/chat/completions'
+    
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    
+    messages = []
+    
+    if settings.get('system_prompt'):
+        messages.append({
+            'role': 'system',
+            'content': settings['system_prompt']
+        })
+    
+    for msg in history[-10:]:
+        messages.append({
+            'role': msg['role'],
+            'content': msg['content']
+        })
+    
+    messages.append({
+        'role': 'user',
+        'content': message
+    })
+    
+    payload = {
+        'model': 'meta-llama/llama-3.3-70b-instruct',
         'messages': messages,
         'temperature': settings.get('temperature', 0.7),
         'max_tokens': settings.get('max_tokens', 2048),

@@ -89,12 +89,12 @@ export default function DocsPage() {
               <div className="border-l-4 border-blue-500 pl-4">
                 <h3 className="font-bold text-lg text-slate-800 mb-2 flex items-center gap-2">
                   <Badge className="bg-blue-500">Режим Скорость</Badge>
-                  Быстрые ответы
+                  Быстрые ответы (Gemini через OpenRouter)
                 </h3>
                 <ol className="list-decimal list-inside space-y-2 text-slate-600">
-                  <li>Перейдите на aistudio.google.com</li>
-                  <li>Войдите через Google аккаунт</li>
-                  <li>Нажмите "Get API Key"</li>
+                  <li>Зарегистрируйтесь на openrouter.ai</li>
+                  <li>Войдите через Google, Discord или email</li>
+                  <li>Перейдите в раздел Keys → Create Key</li>
                   <li>Скопируйте ключ и вставьте в настройки Богдана</li>
                 </ol>
               </div>
@@ -102,13 +102,13 @@ export default function DocsPage() {
               <div className="border-l-4 border-purple-500 pl-4">
                 <h3 className="font-bold text-lg text-slate-800 mb-2 flex items-center gap-2">
                   <Badge className="bg-purple-500">Режим Точность</Badge>
-                  Детальный анализ
+                  Детальный анализ (Llama через OpenRouter)
                 </h3>
                 <ol className="list-decimal list-inside space-y-2 text-slate-600">
-                  <li>Зарегистрируйтесь на api.together.xyz</li>
-                  <li>Подтвердите email</li>
-                  <li>В разделе API Keys создайте новый ключ</li>
-                  <li>Скопируйте и добавьте в настройки</li>
+                  <li>Используйте тот же ключ OpenRouter</li>
+                  <li>Один ключ работает для обеих моделей!</li>
+                  <li>Вставьте в оба поля (Gemini и Llama)</li>
+                  <li>Система автоматически выберет нужную модель</li>
                 </ol>
               </div>
 
