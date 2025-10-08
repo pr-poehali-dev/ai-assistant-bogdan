@@ -289,9 +289,11 @@ export function useChatLogic() {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
+    const fileArray = Array.from(files);
+    const totalFiles = fileArray.length;
     const newAttachments: Array<{ type: 'image' | 'file'; url: string; name: string }> = [];
 
-    Array.from(files).forEach((file) => {
+    fileArray.forEach((file) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const attachment = {
@@ -301,7 +303,7 @@ export function useChatLogic() {
         };
         newAttachments.push(attachment);
         
-        if (newAttachments.length === files.length) {
+        if (newAttachments.length === totalFiles) {
           const userMessage: Message = {
             id: Date.now().toString(),
             role: 'user',
@@ -314,7 +316,7 @@ export function useChatLogic() {
           
           toast({
             title: `Файлы загружены`,
-            description: `Добавлено: ${files.length} файл(ов)`,
+            description: `Добавлено: ${totalFiles} файл(ов)`,
           });
         }
       };
