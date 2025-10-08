@@ -51,6 +51,7 @@ export default function AdminPanel({
         <div className="space-y-6">
           {models.map(model => {
             const config = modelConfigs[model];
+            const modelConfig = apiConfig[model] || { key: '', enabled: true };
             return (
               <ModelCard
                 key={model}
@@ -59,8 +60,8 @@ export default function AdminPanel({
                 subtitle={config.subtitle}
                 iconName={config.iconName}
                 colorClass={config.colorClass}
-                apiKey={apiConfig[model].key}
-                enabled={apiConfig[model].enabled}
+                apiKey={modelConfig.key}
+                enabled={modelConfig.enabled}
                 testResult={testResults[model]}
                 keyError={keyErrors[model]}
                 showKey={showKeys[model]}
