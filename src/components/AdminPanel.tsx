@@ -6,12 +6,15 @@ import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useToast } from '@/hooks/use-toast';
 
-type AIModel = 'gemini' | 'llama' | 'gigachat';
+type AIModel = 'gemini' | 'llama' | 'gigachat' | 'phi' | 'qwen' | 'mistral';
 
 interface APIConfig {
   gemini: { key: string; enabled: boolean };
   llama: { key: string; enabled: boolean };
   gigachat: { key: string; enabled: boolean };
+  phi: { key: string; enabled: boolean };
+  qwen: { key: string; enabled: boolean };
+  mistral: { key: string; enabled: boolean };
 }
 
 interface AdminPanelProps {
@@ -62,16 +65,25 @@ export default function AdminPanel({
     gemini: null,
     llama: null,
     gigachat: null,
+    phi: null,
+    qwen: null,
+    mistral: null,
   });
   const [keyErrors, setKeyErrors] = useState<Record<AIModel, string | null>>({
     gemini: null,
     llama: null,
     gigachat: null,
+    phi: null,
+    qwen: null,
+    mistral: null,
   });
   const [showKeys, setShowKeys] = useState<Record<AIModel, boolean>>({
     gemini: false,
     llama: false,
     gigachat: false,
+    phi: false,
+    qwen: false,
+    mistral: false,
   });
 
   const testModel = async (model: AIModel) => {
@@ -490,6 +502,327 @@ export default function AdminPanel({
                   <a href="https://developers.sber.ru/studio/workspaces" target="_blank" rel="noopener" className="underline font-semibold">
                     Получить ключ на Sber AI Studio →
                   </a>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className={`bg-white rounded-2xl p-8 shadow-lg border-2 transition-all ${
+            testResults.phi === 'success' ? 'border-green-400 bg-green-50/30' :
+            testResults.phi === 'error' ? 'border-red-400 bg-red-50/30' :
+            'border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600 flex items-center justify-center relative">
+                  <Icon name="Brain" size={24} className="text-white" />
+                  {testResults.phi === 'success' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <Icon name="Check" size={12} className="text-white" />
+                    </div>
+                  )}
+                  {testResults.phi === 'error' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <Icon name="X" size={12} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Phi-3.5 (Компактность)</h2>
+                  <p className="text-sm text-slate-500">microsoft/phi-3.5-mini-128k-instruct</p>
+                </div>
+              </div>
+              {testResults.phi === 'success' && (
+                <div className="px-3 py-1.5 rounded-lg bg-green-100 border border-green-300">
+                  <p className="text-xs font-semibold text-green-700">✓ Тест пройден</p>
+                </div>
+              )}
+              {testResults.phi === 'error' && (
+                <div className="px-3 py-1.5 rounded-lg bg-red-100 border border-red-300">
+                  <p className="text-xs font-semibold text-red-700">✗ Ошибка</p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="phi-key" className="text-sm font-semibold text-slate-700 mb-2 block">
+                  OpenRouter API Key
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="phi-key"
+                    type={showKeys.phi ? 'text' : 'password'}
+                    placeholder="sk-or-v1-..."
+                    value={apiConfig.phi.key}
+                    onChange={(e) => handleKeyChange('phi', e.target.value)}
+                    className={`h-12 text-base pr-12 ${keyErrors.phi ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowKeys(prev => ({ ...prev, phi: !prev.phi }))}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 p-0 hover:bg-slate-100"
+                  >
+                    <Icon name={showKeys.phi ? 'EyeOff' : 'Eye'} size={18} className="text-slate-500" />
+                  </Button>
+                </div>
+                {keyErrors.phi && (
+                  <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                    <Icon name="AlertCircle" size={12} />
+                    {keyErrors.phi}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
+                <Label htmlFor="phi-toggle" className="text-sm font-medium text-slate-700">
+                  Модель активна
+                </Label>
+                <Switch
+                  id="phi-toggle"
+                  checked={apiConfig.phi.enabled}
+                  onCheckedChange={(checked) => onToggleModel('phi', checked)}
+                />
+              </div>
+
+              <Button
+                onClick={() => testModel('phi')}
+                disabled={!apiConfig.phi.key || testingModel === 'phi' || !!keyErrors.phi}
+                variant="outline"
+                className="w-full h-12 gap-2"
+              >
+                {testingModel === 'phi' ? (
+                  <>
+                    <Icon name="Loader2" size={18} className="animate-spin" />
+                    <span>Тестирование...</span>
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Play" size={18} />
+                    <span>Протестировать API</span>
+                  </>
+                )}
+              </Button>
+
+              <div className="p-4 rounded-xl bg-indigo-50 border border-indigo-200">
+                <p className="text-sm text-indigo-800">
+                  🔑 Используйте тот же OpenRouter ключ
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className={`bg-white rounded-2xl p-8 shadow-lg border-2 transition-all ${
+            testResults.qwen === 'success' ? 'border-green-400 bg-green-50/30' :
+            testResults.qwen === 'error' ? 'border-red-400 bg-red-50/30' :
+            'border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center relative">
+                  <Icon name="Cpu" size={24} className="text-white" />
+                  {testResults.qwen === 'success' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <Icon name="Check" size={12} className="text-white" />
+                    </div>
+                  )}
+                  {testResults.qwen === 'error' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <Icon name="X" size={12} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Qwen 2.5 (Баланс)</h2>
+                  <p className="text-sm text-slate-500">qwen/qwen-2.5-7b-instruct</p>
+                </div>
+              </div>
+              {testResults.qwen === 'success' && (
+                <div className="px-3 py-1.5 rounded-lg bg-green-100 border border-green-300">
+                  <p className="text-xs font-semibold text-green-700">✓ Тест пройден</p>
+                </div>
+              )}
+              {testResults.qwen === 'error' && (
+                <div className="px-3 py-1.5 rounded-lg bg-red-100 border border-red-300">
+                  <p className="text-xs font-semibold text-red-700">✗ Ошибка</p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="qwen-key" className="text-sm font-semibold text-slate-700 mb-2 block">
+                  OpenRouter API Key
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="qwen-key"
+                    type={showKeys.qwen ? 'text' : 'password'}
+                    placeholder="sk-or-v1-..."
+                    value={apiConfig.qwen.key}
+                    onChange={(e) => handleKeyChange('qwen', e.target.value)}
+                    className={`h-12 text-base pr-12 ${keyErrors.qwen ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowKeys(prev => ({ ...prev, qwen: !prev.qwen }))}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 p-0 hover:bg-slate-100"
+                  >
+                    <Icon name={showKeys.qwen ? 'EyeOff' : 'Eye'} size={18} className="text-slate-500" />
+                  </Button>
+                </div>
+                {keyErrors.qwen && (
+                  <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                    <Icon name="AlertCircle" size={12} />
+                    {keyErrors.qwen}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
+                <Label htmlFor="qwen-toggle" className="text-sm font-medium text-slate-700">
+                  Модель активна
+                </Label>
+                <Switch
+                  id="qwen-toggle"
+                  checked={apiConfig.qwen.enabled}
+                  onCheckedChange={(checked) => onToggleModel('qwen', checked)}
+                />
+              </div>
+
+              <Button
+                onClick={() => testModel('qwen')}
+                disabled={!apiConfig.qwen.key || testingModel === 'qwen' || !!keyErrors.qwen}
+                variant="outline"
+                className="w-full h-12 gap-2"
+              >
+                {testingModel === 'qwen' ? (
+                  <>
+                    <Icon name="Loader2" size={18} className="animate-spin" />
+                    <span>Тестирование...</span>
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Play" size={18} />
+                    <span>Протестировать API</span>
+                  </>
+                )}
+              </Button>
+
+              <div className="p-4 rounded-xl bg-orange-50 border border-orange-200">
+                <p className="text-sm text-orange-800">
+                  🔑 Используйте тот же OpenRouter ключ
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className={`bg-white rounded-2xl p-8 shadow-lg border-2 transition-all ${
+            testResults.mistral === 'success' ? 'border-green-400 bg-green-50/30' :
+            testResults.mistral === 'error' ? 'border-red-400 bg-red-50/30' :
+            'border-slate-200'
+          }`}>
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center relative">
+                  <Icon name="Rocket" size={24} className="text-white" />
+                  {testResults.mistral === 'success' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                      <Icon name="Check" size={12} className="text-white" />
+                    </div>
+                  )}
+                  {testResults.mistral === 'error' && (
+                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center">
+                      <Icon name="X" size={12} className="text-white" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Mistral Nemo (Эффективность)</h2>
+                  <p className="text-sm text-slate-500">mistralai/mistral-nemo</p>
+                </div>
+              </div>
+              {testResults.mistral === 'success' && (
+                <div className="px-3 py-1.5 rounded-lg bg-green-100 border border-green-300">
+                  <p className="text-xs font-semibold text-green-700">✓ Тест пройден</p>
+                </div>
+              )}
+              {testResults.mistral === 'error' && (
+                <div className="px-3 py-1.5 rounded-lg bg-red-100 border border-red-300">
+                  <p className="text-xs font-semibold text-red-700">✗ Ошибка</p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="mistral-key" className="text-sm font-semibold text-slate-700 mb-2 block">
+                  OpenRouter API Key
+                </Label>
+                <div className="relative">
+                  <Input
+                    id="mistral-key"
+                    type={showKeys.mistral ? 'text' : 'password'}
+                    placeholder="sk-or-v1-..."
+                    value={apiConfig.mistral.key}
+                    onChange={(e) => handleKeyChange('mistral', e.target.value)}
+                    className={`h-12 text-base pr-12 ${keyErrors.mistral ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowKeys(prev => ({ ...prev, mistral: !prev.mistral }))}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 p-0 hover:bg-slate-100"
+                  >
+                    <Icon name={showKeys.mistral ? 'EyeOff' : 'Eye'} size={18} className="text-slate-500" />
+                  </Button>
+                </div>
+                {keyErrors.mistral && (
+                  <p className="text-xs text-red-600 mt-2 flex items-center gap-1">
+                    <Icon name="AlertCircle" size={12} />
+                    {keyErrors.mistral}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between p-4 rounded-xl bg-slate-50">
+                <Label htmlFor="mistral-toggle" className="text-sm font-medium text-slate-700">
+                  Модель активна
+                </Label>
+                <Switch
+                  id="mistral-toggle"
+                  checked={apiConfig.mistral.enabled}
+                  onCheckedChange={(checked) => onToggleModel('mistral', checked)}
+                />
+              </div>
+
+              <Button
+                onClick={() => testModel('mistral')}
+                disabled={!apiConfig.mistral.key || testingModel === 'mistral' || !!keyErrors.mistral}
+                variant="outline"
+                className="w-full h-12 gap-2"
+              >
+                {testingModel === 'mistral' ? (
+                  <>
+                    <Icon name="Loader2" size={18} className="animate-spin" />
+                    <span>Тестирование...</span>
+                  </>
+                ) : (
+                  <>
+                    <Icon name="Play" size={18} />
+                    <span>Протестировать API</span>
+                  </>
+                )}
+              </Button>
+
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200">
+                <p className="text-sm text-rose-800">
+                  🔑 Используйте тот же OpenRouter ключ
                 </p>
               </div>
             </div>

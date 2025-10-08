@@ -24,6 +24,9 @@ const modelInfo = {
   gemini: { name: 'Режим Скорость', fullName: 'Быстрые ответы для повседневных задач', color: 'from-blue-500 to-blue-600', icon: 'Zap' },
   llama: { name: 'Режим Точность', fullName: 'Детальный анализ сложных вопросов', color: 'from-purple-500 to-purple-600', icon: 'Target' },
   gigachat: { name: 'Режим Креатив', fullName: 'Творческие и нестандартные решения', color: 'from-green-500 to-green-600', icon: 'Lightbulb' },
+  phi: { name: 'Режим Компактность', fullName: 'Эффективные компактные ответы', color: 'from-indigo-500 to-indigo-600', icon: 'Brain' },
+  qwen: { name: 'Режим Баланс', fullName: 'Оптимальное соотношение скорости и качества', color: 'from-orange-500 to-orange-600', icon: 'Cpu' },
+  mistral: { name: 'Режим Эффективность', fullName: 'Быстро и качественно', color: 'from-rose-500 to-rose-600', icon: 'Rocket' },
 };
 
 export default function Index() {
