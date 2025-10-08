@@ -64,7 +64,7 @@ export default function AdminPanel({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           message: 'Привет! Это тест.',
-          models: { [model]: apiConfig[model] },
+          models: { [model]: { key: apiConfig[model].key, enabled: true } },
           history: [],
           settings: { temperature: 0.7, max_tokens: 50 },
         }),
