@@ -20,6 +20,10 @@ import KnowledgeBase from '@/components/KnowledgeBase';
 import Translator from '@/components/Translator';
 import Weather from '@/components/Weather';
 import OCRScanner from '@/components/OCRScanner';
+import QRGenerator from '@/components/QRGenerator';
+import NotesApp from '@/components/NotesApp';
+import PasswordGenerator from '@/components/PasswordGenerator';
+import Calculator from '@/components/Calculator';
 import { useChatLogic } from '@/hooks/useChatLogic';
 import { useVoiceControl } from '@/hooks/useVoiceControl';
 import { useSessionManager } from '@/hooks/useSessionManager';
@@ -201,7 +205,7 @@ export default function Index() {
 
       <div className="container mx-auto px-4 py-3 max-w-[1600px]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-6 bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-4xl mx-auto">
+          <TabsList className="grid w-full grid-cols-10 bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-7xl mx-auto text-xs">
             <TabsTrigger value="chat" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white text-xs">
               <Icon name="MessageSquare" size={14} className="mr-1.5" />
               Чат
@@ -222,9 +226,25 @@ export default function Index() {
               <Icon name="CloudSun" size={14} className="mr-1.5" />
               Погода
             </TabsTrigger>
-            <TabsTrigger value="ocr" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white text-xs">
-              <Icon name="ScanText" size={14} className="mr-1.5" />
-              OCR Сканер
+            <TabsTrigger value="ocr" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white">
+              <Icon name="ScanText" size={14} className="mr-1" />
+              OCR
+            </TabsTrigger>
+            <TabsTrigger value="qr" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-600 data-[state=active]:text-white">
+              <Icon name="QrCode" size={14} className="mr-1" />
+              QR
+            </TabsTrigger>
+            <TabsTrigger value="notes" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-yellow-500 data-[state=active]:to-orange-600 data-[state=active]:text-white">
+              <Icon name="StickyNote" size={14} className="mr-1" />
+              Заметки
+            </TabsTrigger>
+            <TabsTrigger value="password" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-emerald-500 data-[state=active]:to-teal-600 data-[state=active]:text-white">
+              <Icon name="Lock" size={14} className="mr-1" />
+              Пароль
+            </TabsTrigger>
+            <TabsTrigger value="calc" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-indigo-600 data-[state=active]:text-white">
+              <Icon name="Calculator" size={14} className="mr-1" />
+              Кальк.
             </TabsTrigger>
           </TabsList>
 
@@ -350,6 +370,22 @@ export default function Index() {
 
           <TabsContent value="ocr" className="mt-0">
             <OCRScanner />
+          </TabsContent>
+
+          <TabsContent value="qr" className="mt-0">
+            <QRGenerator />
+          </TabsContent>
+
+          <TabsContent value="notes" className="mt-0">
+            <NotesApp />
+          </TabsContent>
+
+          <TabsContent value="password" className="mt-0">
+            <PasswordGenerator />
+          </TabsContent>
+
+          <TabsContent value="calc" className="mt-0">
+            <Calculator />
           </TabsContent>
 
           <TabsContent value="analytics" className="mt-0">
