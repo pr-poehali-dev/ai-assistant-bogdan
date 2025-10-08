@@ -88,7 +88,8 @@ export default function ChatTabContent({
   voiceRate,
   voicePitch,
   onVoiceRateChange,
-  onVoicePitchChange
+  onVoicePitchChange,
+  onVoiceMessageSend
 }: ChatTabContentProps) {
   return (
     <TabsContent value="chat" className="mt-0">
