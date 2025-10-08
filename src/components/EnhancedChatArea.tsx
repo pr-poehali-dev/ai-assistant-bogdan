@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -91,8 +92,57 @@ export default function EnhancedChatArea({
   onVoiceRateChange,
   onVoicePitchChange,
 }: EnhancedChatAreaProps) {
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0 && fileInputRef.current) {
+      const dataTransfer = new DataTransfer();
+      Array.from(files).forEach(file => dataTransfer.items.add(file));
+      fileInputRef.current.files = dataTransfer.files;
+      
+      const event = new Event('change', { bubbles: true });
+      fileInputRef.current.dispatchEvent(event);
+      
+      onFileUpload({ target: fileInputRef.current } as any);
+    }
+  };
   return (
-    <Card className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm relative">
+    <Card 
+      className="h-[calc(100vh-160px)] flex flex-col shadow-2xl border-0 overflow-hidden bg-white/80 backdrop-blur-sm relative"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
+      {isDragging && (
+        <div className="absolute inset-0 z-50 bg-blue-500/10 backdrop-blur-sm border-4 border-dashed border-blue-500 rounded-lg flex items-center justify-center">
+          <div className="bg-white rounded-2xl px-8 py-6 shadow-2xl">
+            <div className="flex flex-col items-center gap-3">
+              <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center">
+                <Icon name="Upload" size={32} className="text-blue-600" />
+              </div>
+              <p className="text-xl font-semibold text-slate-800">Отпустите файлы здесь</p>
+              <p className="text-sm text-slate-500">Поддерживаются: изображения, PDF, DOC, TXT</p>
+            </div>
+          </div>
+        </div>
+      )}
       {showSearch && (
         <SearchBar
           searchQuery={searchQuery}
