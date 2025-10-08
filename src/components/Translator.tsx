@@ -96,14 +96,28 @@ export default function Translator() {
 
     setIsTranslating(true);
     try {
-      const response = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sourceLang + '&tl=' + targetLang + '&dt=t&q=' + encodeURIComponent(sourceText));
-      const data = await response.json();
-      const translated = data[0].map((item: any) => item[0]).join('');
+      let translated = '';
+      
+      try {
+        const googleResponse = await fetch('https://translate.googleapis.com/translate_a/single?client=gtx&sl=' + sourceLang + '&tl=' + targetLang + '&dt=t&q=' + encodeURIComponent(sourceText));
+        const googleData = await googleResponse.json();
+        translated = googleData[0].map((item: any) => item[0]).join('');
+      } catch (googleError) {
+        const myMemoryResponse = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(sourceText)}&langpair=${sourceLang}|${targetLang}`);
+        const myMemoryData = await myMemoryResponse.json();
+        
+        if (myMemoryData.responseStatus === 200) {
+          translated = myMemoryData.responseData.translatedText;
+        } else {
+          throw new Error('Все сервисы перевода недоступны');
+        }
+      }
+      
       setTranslatedText(translated);
     } catch (error) {
       toast({
         title: 'Ошибка перевода',
-        description: 'Попробуйте еще раз',
+        description: 'Попробуйте еще раз или проверьте соединение',
         variant: 'destructive',
       });
     } finally {
