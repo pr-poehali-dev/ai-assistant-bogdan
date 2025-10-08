@@ -18,6 +18,7 @@ import { useVoiceControl } from '@/hooks/useVoiceControl';
 import { useSessionManager } from '@/hooks/useSessionManager';
 import { useAdminControls } from '@/hooks/useAdminControls';
 import { useToast } from '@/hooks/use-toast';
+import ThemeModeIndicator from '@/components/ThemeModeIndicator';
 
 const modelInfo = {
   gemini: { name: 'Режим Скорость', fullName: 'Быстрые ответы для повседневных задач', color: 'from-blue-500 to-blue-600', icon: 'Zap' },
@@ -38,18 +39,74 @@ export default function Index() {
   const [voiceLang, setVoiceLang] = useState('ru-RU');
   const [isDarkMode, setIsDarkMode] = useState(() => {
     const saved = localStorage.getItem('dark-mode');
+    const autoMode = localStorage.getItem('auto-dark-mode');
+    
+    if (autoMode === 'true') {
+      const hour = new Date().getHours();
+      return hour >= 19 || hour < 7;
+    }
+    
     return saved ? JSON.parse(saved) : false;
+  });
+  const [autoMode, setAutoMode] = useState(() => {
+    const saved = localStorage.getItem('auto-dark-mode');
+    return saved === 'true';
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     localStorage.setItem('dark-mode', JSON.stringify(isDarkMode));
+    localStorage.setItem('auto-dark-mode', JSON.stringify(autoMode));
+    
     if (isDarkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
-  }, [isDarkMode]);
+  }, [isDarkMode, autoMode]);
+
+  useEffect(() => {
+    if (!autoMode) return;
+
+    const checkTime = () => {
+      const hour = new Date().getHours();
+      const shouldBeDark = hour >= 19 || hour < 7;
+      
+      if (shouldBeDark !== isDarkMode) {
+        setIsDarkMode(shouldBeDark);
+        toast({
+          title: shouldBeDark ? '🌙 Тёмная тема включена' : '☀️ Светлая тема включена',
+          description: 'Автоматическое переключение по времени суток',
+        });
+      }
+    };
+
+    checkTime();
+    const interval = setInterval(checkTime, 60000);
+
+    return () => clearInterval(interval);
+  }, [autoMode, isDarkMode, toast]);
+
+  const toggleAutoMode = () => {
+    const newAutoMode = !autoMode;
+    setAutoMode(newAutoMode);
+    
+    if (newAutoMode) {
+      const hour = new Date().getHours();
+      const shouldBeDark = hour >= 19 || hour < 7;
+      setIsDarkMode(shouldBeDark);
+      
+      toast({
+        title: '🌟 Авторежим включён',
+        description: `Тема будет меняться: 🌙 19:00-7:00 (тёмная), ☀️ 7:00-19:00 (светлая)`,
+      });
+    } else {
+      toast({
+        title: '🔒 Авторежим выключён',
+        description: 'Теперь тема переключается вручную',
+      });
+    }
+  };
 
   const chatLogic = useChatLogic();
   const voiceControl = useVoiceControl();
@@ -144,7 +201,19 @@ export default function Index() {
           onAdminClick={handleAdminClick}
           isAdminAuthenticated={adminControls.isAuthenticated}
           isDarkMode={isDarkMode}
-          onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+          autoMode={autoMode}
+          onToggleDarkMode={() => {
+            if (autoMode) {
+              toast({
+                title: '⚠️ Авторежим включён',
+                description: 'Выключите авторежим для ручного управления',
+                variant: 'destructive',
+              });
+            } else {
+              setIsDarkMode(!isDarkMode);
+            }
+          }}
+          onToggleAutoMode={toggleAutoMode}
         />
         <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-8 max-w-7xl">
           {currentPage === 'about' && <AboutPage />}
@@ -166,12 +235,25 @@ export default function Index() {
         isAdminAuthenticated={adminControls.isAuthenticated}
         showAdminPanel={showAdminPanel}
         isDarkMode={isDarkMode}
-        onToggleDarkMode={() => setIsDarkMode(!isDarkMode)}
+        autoMode={autoMode}
+        onToggleDarkMode={() => {
+          if (autoMode) {
+            toast({
+              title: '⚠️ Авторежим включён',
+              description: 'Выключите авторежим для ручного управления',
+              variant: 'destructive',
+            });
+          } else {
+            setIsDarkMode(!isDarkMode);
+          }
+        }}
+        onToggleAutoMode={toggleAutoMode}
       />
 
       <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3 max-w-[1600px]">
-        <div className="hidden sm:block">
+        <div className="hidden sm:flex items-center justify-center gap-3 mb-2">
           <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+          <ThemeModeIndicator autoMode={autoMode} isDarkMode={isDarkMode} />
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

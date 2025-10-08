@@ -15,7 +15,9 @@ interface CompactMenuProps {
   onSettingsClick: () => void;
   onAdminClick: () => void;
   isDarkMode?: boolean;
+  autoMode?: boolean;
   onToggleDarkMode?: () => void;
+  onToggleAutoMode?: () => void;
 }
 
 export default function CompactMenu({
@@ -24,7 +26,9 @@ export default function CompactMenu({
   onSettingsClick,
   onAdminClick,
   isDarkMode,
+  autoMode,
   onToggleDarkMode,
+  onToggleAutoMode,
 }: CompactMenuProps) {
   const [open, setOpen] = useState(false);
 
@@ -85,11 +89,19 @@ export default function CompactMenu({
         {onToggleDarkMode && (
           <>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => { onToggleDarkMode(); }} className="gap-2 cursor-pointer">
+            <DropdownMenuItem onClick={() => { onToggleDarkMode(); }} className="gap-2 cursor-pointer" disabled={autoMode}>
               <Icon name={isDarkMode ? 'Sun' : 'Moon'} size={18} className="text-amber-500" />
               <span>{isDarkMode ? 'Светлая тема' : 'Тёмная тема'}</span>
-              <kbd className="ml-auto text-xs opacity-60">Ctrl+D</kbd>
+              {!autoMode && <kbd className="ml-auto text-xs opacity-60">Ctrl+D</kbd>}
+              {autoMode && <span className="ml-auto text-xs text-green-600">• Авто</span>}
             </DropdownMenuItem>
+            {onToggleAutoMode && (
+              <DropdownMenuItem onClick={() => { onToggleAutoMode(); setOpen(false); }} className="gap-2 cursor-pointer">
+                <Icon name="Clock" size={18} className={autoMode ? 'text-green-600' : 'text-slate-500'} />
+                <span>Авторежим</span>
+                {autoMode && <Icon name="Check" size={16} className="ml-auto text-green-600" />}
+              </DropdownMenuItem>
+            )}
           </>
         )}
       </DropdownMenuContent>

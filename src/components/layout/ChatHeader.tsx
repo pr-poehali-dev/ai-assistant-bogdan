@@ -9,7 +9,9 @@ interface ChatHeaderProps {
   isAdminAuthenticated: boolean;
   showAdminPanel: boolean;
   isDarkMode?: boolean;
+  autoMode?: boolean;
   onToggleDarkMode?: () => void;
+  onToggleAutoMode?: () => void;
 }
 
 export default function ChatHeader({ 
@@ -20,7 +22,9 @@ export default function ChatHeader({
   isAdminAuthenticated,
   showAdminPanel,
   isDarkMode,
-  onToggleDarkMode
+  autoMode,
+  onToggleDarkMode,
+  onToggleAutoMode
 }: ChatHeaderProps) {
   return (
     <header className={`border-b transition-colors sticky top-0 z-50 shadow-sm ${
@@ -53,7 +57,9 @@ export default function ChatHeader({
           onSettingsClick={onSettingsClick}
           onAdminClick={onAdminClick}
           isDarkMode={isDarkMode}
+          autoMode={autoMode}
           onToggleDarkMode={onToggleDarkMode}
+          onToggleAutoMode={onToggleAutoMode}
         />
       </div>
     </header>

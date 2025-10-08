@@ -80,8 +80,8 @@ export default function TabNavigation({ activeTab, onTabChange }: TabNavigationP
   const isToolActive = !MAIN_TABS.some((t) => t.value === activeTab);
 
   return (
-    <div className="flex justify-center items-center w-full mb-3">
-      <div className="inline-flex bg-white/90 backdrop-blur-sm p-1 rounded-xl shadow-lg text-xs gap-1">
+    <div className="flex justify-center items-center w-full">
+      <div className="inline-flex bg-white/90 dark:bg-slate-800/90 backdrop-blur-sm p-1 rounded-xl shadow-lg text-xs gap-1">
         {MAIN_TABS.map((tab) => (
           <button
             key={tab.value}

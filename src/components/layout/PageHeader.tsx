@@ -10,7 +10,9 @@ interface PageHeaderProps {
   title?: string;
   subtitle?: string;
   isDarkMode?: boolean;
+  autoMode?: boolean;
   onToggleDarkMode?: () => void;
+  onToggleAutoMode?: () => void;
 }
 
 export default function PageHeader({ 
@@ -22,7 +24,9 @@ export default function PageHeader({
   title = 'Богдан', 
   subtitle = 'Экосистема ИИ',
   isDarkMode,
-  onToggleDarkMode
+  autoMode,
+  onToggleDarkMode,
+  onToggleAutoMode
 }: PageHeaderProps) {
   return (
     <header className={`border-b transition-colors sticky top-0 z-50 shadow-sm ${
@@ -56,7 +60,9 @@ export default function PageHeader({
           onSettingsClick={onSettingsClick}
           onAdminClick={onAdminClick}
           isDarkMode={isDarkMode}
+          autoMode={autoMode}
           onToggleDarkMode={onToggleDarkMode}
+          onToggleAutoMode={onToggleAutoMode}
         />
       </div>
     </header>
