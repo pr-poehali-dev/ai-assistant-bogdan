@@ -2,12 +2,23 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import AdminPanel from '@/components/AdminPanel';
 
+type AIModel = 'gemini' | 'llama' | 'gigachat' | 'phi' | 'qwen' | 'mistral';
+
+interface APIConfig {
+  gemini: { key: string; enabled: boolean };
+  llama: { key: string; enabled: boolean };
+  gigachat: { key: string; enabled: boolean };
+  phi: { key: string; enabled: boolean };
+  qwen: { key: string; enabled: boolean };
+  mistral: { key: string; enabled: boolean };
+}
+
 interface AdminPanelOverlayProps {
   show: boolean;
-  apiConfig: any;
+  apiConfig: APIConfig;
   onClose: () => void;
-  onAPIKeyChange: (model: string, key: string) => void;
-  onToggleModel: (model: string, enabled: boolean) => void;
+  onAPIKeyChange: (model: AIModel, key: string) => void;
+  onToggleModel: (model: AIModel, enabled: boolean) => void;
   onSaveSettings: () => void;
 }
 
