@@ -19,7 +19,6 @@ import AIAssistants from '@/components/AIAssistants';
 import KnowledgeBase from '@/components/KnowledgeBase';
 import Translator from '@/components/Translator';
 import Weather from '@/components/Weather';
-import ImageGenerator from '@/components/ImageGenerator';
 import OCRScanner from '@/components/OCRScanner';
 import TextRewriter from '@/components/TextRewriter';
 import { useChatLogic } from '@/hooks/useChatLogic';
@@ -203,7 +202,7 @@ export default function Index() {
 
       <div className="container mx-auto px-4 py-3 max-w-[1600px]">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-8 bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-6xl mx-auto">
+          <TabsList className="grid w-full grid-cols-7 bg-white/80 backdrop-blur-sm p-1 rounded-xl shadow-lg mb-3 max-w-5xl mx-auto">
             <TabsTrigger value="chat" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white text-xs">
               <Icon name="MessageSquare" size={14} className="mr-1.5" />
               Чат
@@ -223,10 +222,6 @@ export default function Index() {
             <TabsTrigger value="weather" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-cyan-500 data-[state=active]:to-blue-600 data-[state=active]:text-white text-xs">
               <Icon name="CloudSun" size={14} className="mr-1.5" />
               Погода
-            </TabsTrigger>
-            <TabsTrigger value="images" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-pink-600 data-[state=active]:text-white text-xs">
-              <Icon name="Sparkles" size={14} className="mr-1.5" />
-              Изображения
             </TabsTrigger>
             <TabsTrigger value="ocr" className="rounded-lg data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-red-600 data-[state=active]:text-white text-xs">
               <Icon name="ScanText" size={14} className="mr-1.5" />
@@ -356,10 +351,6 @@ export default function Index() {
 
           <TabsContent value="weather" className="mt-0">
             <Weather />
-          </TabsContent>
-
-          <TabsContent value="images" className="mt-0">
-            <ImageGenerator />
           </TabsContent>
 
           <TabsContent value="ocr" className="mt-0">
