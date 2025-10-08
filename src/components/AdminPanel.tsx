@@ -67,7 +67,6 @@ export default function AdminPanel({
                 isTesting={testingModel === model}
                 placeholder={config.placeholder}
                 keyLabel={config.keyLabel}
-                instructionColor={config.instructionColor}
                 instructionContent={config.instructionContent}
                 onKeyChange={(key) => handleKeyChange(model, key)}
                 onToggle={(enabled) => onToggleModel(model, enabled)}

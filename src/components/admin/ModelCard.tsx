@@ -20,7 +20,6 @@ interface ModelCardProps {
   isTesting: boolean;
   placeholder?: string;
   keyLabel?: string;
-  instructionColor?: string;
   instructionContent?: React.ReactNode;
   onKeyChange: (key: string) => void;
   onToggle: (enabled: boolean) => void;
@@ -42,7 +41,6 @@ export default function ModelCard({
   isTesting,
   placeholder = 'sk-or-v1-...',
   keyLabel = 'OpenRouter API Key',
-  instructionColor = 'blue',
   instructionContent,
   onKeyChange,
   onToggle,
@@ -155,11 +153,7 @@ export default function ModelCard({
           )}
         </Button>
 
-        {instructionContent && (
-          <div className={`p-4 rounded-xl bg-${instructionColor}-50 border border-${instructionColor}-200`}>
-            {instructionContent}
-          </div>
-        )}
+        {instructionContent}
       </div>
     </div>
   );
