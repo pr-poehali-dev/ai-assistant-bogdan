@@ -20,6 +20,7 @@ export default function SimpleChat() {
   } = useSimpleChat();
 
   const [showSettings, setShowSettings] = useState(false);
+  const [showCapabilities, setShowCapabilities] = useState(false);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -63,6 +64,86 @@ export default function SimpleChat() {
 
       <div className="flex-1 overflow-y-auto px-4 py-6">
         <div className="max-w-4xl mx-auto space-y-4">
+          {messages.length === 1 && (
+            <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Icon name="Sparkles" size={24} className="text-blue-600" />
+                <h2 className="text-xl font-bold text-slate-800">Что я умею</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex gap-3 p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl">
+                  <Icon name="MessageSquare" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Общение и консультации</h3>
+                    <p className="text-sm text-slate-600">Отвечаю на вопросы, объясняю сложные темы простым языком</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 p-3 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl">
+                  <Icon name="Code" size={20} className="text-purple-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Помощь с кодом</h3>
+                    <p className="text-sm text-slate-600">Пишу, исправляю и объясняю код на разных языках программирования</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-xl">
+                  <Icon name="FileText" size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Создание текстов</h3>
+                    <p className="text-sm text-slate-600">Помогаю писать статьи, письма, резюме и другие тексты</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 p-3 bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl">
+                  <Icon name="Lightbulb" size={20} className="text-orange-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Генерация идей</h3>
+                    <p className="text-sm text-slate-600">Помогаю придумывать креативные решения и концепции</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 p-3 bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl">
+                  <Icon name="Languages" size={20} className="text-pink-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Перевод текстов</h3>
+                    <p className="text-sm text-slate-600">Перевожу между языками и помогаю с изучением</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 p-3 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-xl">
+                  <Icon name="Calculator" size={20} className="text-indigo-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Решение задач</h3>
+                    <p className="text-sm text-slate-600">Помогаю с математикой, логикой и аналитикой</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 p-3 bg-gradient-to-br from-rose-50 to-rose-100 rounded-xl">
+                  <Icon name="BookOpen" size={20} className="text-rose-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Обучение</h3>
+                    <p className="text-sm text-slate-600">Объясняю новые темы, помогаю готовиться к экзаменам</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 p-3 bg-gradient-to-br from-teal-50 to-teal-100 rounded-xl">
+                  <Icon name="Search" size={20} className="text-teal-600 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="font-semibold text-slate-800 mb-1">Поиск информации</h3>
+                    <p className="text-sm text-slate-600">Нахожу и структурирую информацию по вашему запросу</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-6 p-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white">
+                <p className="text-sm font-medium mb-2">💡 Совет для начала работы:</p>
+                <p className="text-sm opacity-90">Просто напишите мне что угодно! Я работаю на нескольких бесплатных AI-моделях и автоматически выберу лучшую для вашего запроса.</p>
+              </div>
+            </div>
+          )}
+
           {messages.map((message) => (
             <div
               key={message.id}
