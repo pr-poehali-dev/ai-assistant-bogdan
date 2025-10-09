@@ -111,32 +111,49 @@ def call_openrouter_auto(message: str, api_key: str, history: List[Dict[str, str
         'content': message
     })
     
-    payload = {
-        'model': 'openrouter/auto',
-        'messages': messages,
-        'temperature': settings.get('temperature', 0.7),
-        'max_tokens': settings.get('max_tokens', 2048),
-        'route': 'fallback'
-    }
+    free_models = [
+        'meta-llama/llama-3.2-3b-instruct:free',
+        'google/gemma-2-9b-it:free',
+        'microsoft/phi-3-mini-128k-instruct:free',
+        'qwen/qwen-2-7b-instruct:free',
+    ]
     
-    try:
-        response = requests.post(url, headers=headers, json=payload, timeout=30)
-        response.raise_for_status()
-    except requests.exceptions.Timeout:
-        raise Exception('Превышено время ожидания - попробуйте ещё раз')
-    except requests.exceptions.HTTPError as e:
-        if e.response.status_code == 401:
-            raise Exception('Неверный API ключ OpenRouter. Проверьте ключ на openrouter.ai/keys')
-        elif e.response.status_code == 429:
-            raise Exception('Превышен лимит запросов. Подождите немного и попробуйте снова')
-        else:
-            raise Exception(f'Ошибка API: {str(e)}')
-    except requests.exceptions.RequestException as e:
-        raise Exception(f'Ошибка подключения: {str(e)}')
+    last_error = None
     
-    data = response.json()
+    for model in free_models:
+        payload = {
+            'model': model,
+            'messages': messages,
+            'temperature': settings.get('temperature', 0.7),
+            'max_tokens': settings.get('max_tokens', 2048)
+        }
+        
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=30)
+            response.raise_for_status()
+            
+            data = response.json()
+            
+            if 'choices' in data and len(data['choices']) > 0:
+                return data['choices'][0]['message']['content']
+                
+        except requests.exceptions.Timeout:
+            last_error = 'Превышено время ожидания'
+            continue
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 401:
+                raise Exception('Неверный API ключ OpenRouter. Получите бесплатный ключ на openrouter.ai/keys')
+            elif e.response.status_code == 429:
+                last_error = 'Превышен лимит запросов'
+                continue
+            elif e.response.status_code == 402:
+                last_error = 'Модель требует оплаты'
+                continue
+            else:
+                last_error = str(e)
+                continue
+        except requests.exceptions.RequestException as e:
+            last_error = str(e)
+            continue
     
-    if 'choices' in data and len(data['choices']) > 0:
-        return data['choices'][0]['message']['content']
-    
-    raise Exception('Некорректный формат ответа от API')
+    raise Exception(f'Все бесплатные модели недоступны. Последняя ошибка: {last_error}. Попробуйте позже или проверьте баланс на openrouter.ai')
