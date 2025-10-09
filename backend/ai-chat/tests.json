@@ -14,7 +14,7 @@
       "method": "POST",
       "path": "/",
       "body": {
-        "models": {}
+        "apiKey": "test-key"
       },
       "expectedStatus": 400,
       "expectedBody": {
@@ -23,12 +23,11 @@
       "bodyMatcher": "partial"
     },
     {
-      "name": "POST without enabled models",
+      "name": "POST without API key",
       "method": "POST",
       "path": "/",
       "body": {
-        "message": "Hello",
-        "models": {}
+        "message": "Hello"
       },
       "expectedStatus": 400,
       "expectedBody": {

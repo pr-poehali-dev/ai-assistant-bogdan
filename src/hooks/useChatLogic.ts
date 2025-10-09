@@ -70,13 +70,7 @@ export function useChatLogic() {
   const [apiConfig, setApiConfig] = useState<APIConfig>(() => {
     const saved = localStorage.getItem('ai-config');
     return saved ? JSON.parse(saved) : {
-      gemini: { key: '', enabled: true },
-      llama: { key: '', enabled: true },
-      gigachat: { key: '', enabled: true },
-      phi: { key: '', enabled: true },
-      qwen: { key: '', enabled: true },
-      mistral: { key: '', enabled: true },
-      activeModel: 'gemini',
+      openrouter: { key: '', enabled: true }
     };
   });
   const [settings, setSettings] = useState<Settings>(() => {
@@ -124,28 +118,15 @@ export function useChatLogic() {
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
-
-    const activeModel = apiConfig.activeModel || 'gemini';
     
-    if (!apiConfig[activeModel]?.enabled || !apiConfig[activeModel]?.key) {
-      const modelNames: Record<AIModel, string> = {
-        gemini: 'Gemini',
-        llama: 'Llama',
-        gigachat: 'GigaChat',
-        phi: 'Phi',
-        qwen: 'Qwen',
-        mistral: 'Mistral',
-      };
-      
+    if (!apiConfig.openrouter?.key) {
       toast({
-        title: 'Модель не настроена',
-        description: `Настройте ${modelNames[activeModel]} в панели управления`,
+        title: 'API ключ не настроен',
+        description: 'Добавьте API ключ OpenRouter в настройках (кнопка шестеренки)',
         variant: 'destructive',
       });
       return;
     }
-
-    const selectedAIModel = activeModel;
 
     const userMessage: Message = {
       id: Date.now().toString(),
