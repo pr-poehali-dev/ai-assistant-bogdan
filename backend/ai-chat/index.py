@@ -36,6 +36,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         message: str = body_data.get('message', '')
         api_key: str = body_data.get('apiKey', '')
         user_id: str = body_data.get('userId', 'default')
+        selected_model: str = body_data.get('selectedModel', '')
         history: List[Dict[str, str]] = body_data.get('history', [])
         settings: Dict[str, Any] = body_data.get('settings', {
             'temperature': 0.7,
@@ -60,7 +61,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        response_text = call_openrouter_auto(message, api_key, history, settings, knowledge_context)
+        response_text = call_openrouter_auto(message, api_key, history, settings, knowledge_context, selected_model)
         
         return {
             'statusCode': 200,
@@ -81,7 +82,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
 
 
-def call_openrouter_auto(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any], knowledge_context: str = '') -> str:
+def call_openrouter_auto(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any], knowledge_context: str = '', selected_model: str = '') -> str:
     '''Call OpenRouter with auto model selection - picks best free model automatically'''
     import requests
     
@@ -126,9 +127,14 @@ def call_openrouter_auto(message: str, api_key: str, history: List[Dict[str, str
         'qwen/qwen-2-7b-instruct:free',
     ]
     
+    if selected_model and selected_model in free_models:
+        models_to_try = [selected_model]
+    else:
+        models_to_try = free_models
+    
     last_error = None
     
-    for model in free_models:
+    for model in models_to_try:
         payload = {
             'model': model,
             'messages': messages,

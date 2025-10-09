@@ -31,6 +31,7 @@ export function useSimpleChat() {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter-key') || '');
+  const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('selected-model') || 'meta-llama/llama-3.2-3b-instruct:free');
   const [settings, setSettings] = useState<Settings>(() => {
     const saved = localStorage.getItem('ai-settings');
     return saved ? JSON.parse(saved) : {
@@ -47,6 +48,10 @@ export function useSimpleChat() {
   useEffect(() => {
     localStorage.setItem('openrouter-key', apiKey);
   }, [apiKey]);
+
+  useEffect(() => {
+    localStorage.setItem('selected-model', selectedModel);
+  }, [selectedModel]);
 
   useEffect(() => {
     localStorage.setItem('ai-settings', JSON.stringify(settings));
@@ -107,6 +112,7 @@ export function useSimpleChat() {
           message: currentInput,
           apiKey: apiKey,
           userId: 'default',
+          selectedModel: selectedModel,
           history: history,
           settings: settings,
           knowledgeContext: knowledgeContext,
@@ -163,6 +169,8 @@ export function useSimpleChat() {
     isLoading,
     apiKey,
     setApiKey,
+    selectedModel,
+    setSelectedModel,
     settings,
     setSettings,
     handleSendMessage,

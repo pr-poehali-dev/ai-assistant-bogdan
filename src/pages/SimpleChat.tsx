@@ -16,6 +16,8 @@ export default function SimpleChat() {
     isLoading,
     apiKey,
     setApiKey,
+    selectedModel,
+    setSelectedModel,
     handleSendMessage,
     clearHistory,
   } = useSimpleChat();
@@ -228,7 +230,9 @@ export default function SimpleChat() {
       {showSettings && (
         <SimpleSettings
           apiKey={apiKey}
+          selectedModel={selectedModel}
           onApiKeyChange={setApiKey}
+          onModelChange={setSelectedModel}
           onClose={() => setShowSettings(false)}
         />
       )}

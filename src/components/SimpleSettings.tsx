@@ -3,25 +3,122 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
 import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface SimpleSettingsProps {
   apiKey: string;
+  selectedModel: string;
   onApiKeyChange: (key: string) => void;
+  onModelChange: (model: string) => void;
   onClose: () => void;
 }
 
-export default function SimpleSettings({ apiKey, onApiKeyChange, onClose }: SimpleSettingsProps) {
+const AI_MODELS = [
+  {
+    id: 'meta-llama/llama-3.2-3b-instruct:free',
+    name: 'Llama 3.2 3B',
+    description: 'Быстрая модель для простых задач',
+    icon: 'Zap',
+    color: 'from-blue-500 to-blue-600',
+  },
+  {
+    id: 'google/gemma-2-9b-it:free',
+    name: 'Gemma 2 9B',
+    description: 'Сбалансированная модель от Google',
+    icon: 'Sparkles',
+    color: 'from-purple-500 to-purple-600',
+  },
+  {
+    id: 'microsoft/phi-3-mini-128k-instruct:free',
+    name: 'Phi-3 Mini',
+    description: 'Компактная модель от Microsoft',
+    icon: 'Brain',
+    color: 'from-green-500 to-green-600',
+  },
+  {
+    id: 'qwen/qwen-2-7b-instruct:free',
+    name: 'Qwen 2 7B',
+    description: 'Эффективная китайская модель',
+    icon: 'Cpu',
+    color: 'from-orange-500 to-orange-600',
+  },
+];
+
+export default function SimpleSettings({ apiKey, selectedModel, onApiKeyChange, onModelChange, onClose }: SimpleSettingsProps) {
+  const { toast } = useToast();
   const [showKey, setShowKey] = useState(false);
   const [localKey, setLocalKey] = useState(apiKey);
+  const [localModel, setLocalModel] = useState(selectedModel);
+  const [testingModel, setTestingModel] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, 'success' | 'error'>>({});
 
   const handleSave = () => {
     onApiKeyChange(localKey);
+    onModelChange(localModel);
     onClose();
+    toast({
+      title: 'Настройки сохранены',
+      description: 'API ключ и модель успешно обновлены',
+    });
+  };
+
+  const testModel = async (modelId: string) => {
+    if (!localKey) {
+      toast({
+        title: 'Ошибка',
+        description: 'Сначала введите API ключ',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setTestingModel(modelId);
+    
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://poehali.dev',
+          'X-Title': 'AI Chat Assistant'
+        },
+        body: JSON.stringify({
+          model: modelId,
+          messages: [{ role: 'user', content: 'Привет! Ответь одним словом: работает?' }],
+          max_tokens: 50,
+        }),
+      });
+
+      if (response.ok) {
+        setTestResults(prev => ({ ...prev, [modelId]: 'success' }));
+        toast({
+          title: 'Тест пройден',
+          description: 'Модель работает корректно',
+        });
+      } else {
+        setTestResults(prev => ({ ...prev, [modelId]: 'error' }));
+        toast({
+          title: 'Тест не пройден',
+          description: 'Модель недоступна или требует оплаты',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      setTestResults(prev => ({ ...prev, [modelId]: 'error' }));
+      toast({
+        title: 'Ошибка теста',
+        description: 'Не удалось протестировать модель',
+        variant: 'destructive',
+      });
+    } finally {
+      setTestingModel(null);
+    }
   };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={onClose}>
-      <div className="absolute right-0 top-0 h-full w-full max-w-2xl overflow-y-auto bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50" onClick={(e) => e.stopPropagation()}>
+      <div className="absolute right-0 top-0 h-full w-full max-w-4xl overflow-y-auto bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50" onClick={(e) => e.stopPropagation()}>
         <div className="p-8">
           <Button
             variant="ghost"
@@ -32,20 +129,20 @@ export default function SimpleSettings({ apiKey, onApiKeyChange, onClose }: Simp
             <Icon name="X" size={20} />
           </Button>
 
-          <div className="max-w-2xl mx-auto">
+          <div className="max-w-3xl mx-auto">
             <div className="mb-8">
-              <h1 className="text-3xl font-bold text-slate-800 mb-2">Настройки API</h1>
-              <p className="text-slate-600">Подключите OpenRouter для работы с AI</p>
+              <h1 className="text-3xl font-bold text-slate-800 mb-2">Настройки</h1>
+              <p className="text-slate-600">Настройте API ключ и выберите модель AI</p>
             </div>
 
-            <div className="bg-white rounded-2xl p-8 shadow-lg border-2 border-slate-200">
+            <div className="bg-white rounded-2xl p-8 shadow-lg border-2 border-slate-200 mb-6">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                  <Icon name="Sparkles" size={24} className="text-white" />
+                  <Icon name="Key" size={24} className="text-white" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-slate-800">OpenRouter API</h2>
-                  <p className="text-sm text-slate-500">Автоматический выбор лучшей модели</p>
+                  <h2 className="text-xl font-bold text-slate-800">OpenRouter API Key</h2>
+                  <p className="text-sm text-slate-500">Необходим для работы с AI моделями</p>
                 </div>
               </div>
 
@@ -86,20 +183,103 @@ export default function SimpleSettings({ apiKey, onApiKeyChange, onClose }: Simp
                         <li>Нажмите "Create Key"</li>
                         <li>Скопируйте ключ и вставьте сюда</li>
                       </ol>
-                      <p className="mt-2 text-xs">OpenRouter автоматически подберёт бесплатную модель для ваших запросов</p>
                     </div>
                   </div>
                 </div>
-
-                <Button
-                  onClick={handleSave}
-                  className="w-full h-14 text-base gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl shadow-lg"
-                >
-                  <Icon name="Save" size={20} />
-                  <span className="font-semibold">Сохранить настройки</span>
-                </Button>
               </div>
             </div>
+
+            <div className="bg-white rounded-2xl p-8 shadow-lg border-2 border-slate-200 mb-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                  <Icon name="Bot" size={24} className="text-white" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-slate-800">Выбор AI модели</h2>
+                  <p className="text-sm text-slate-500">Выберите модель и протестируйте её</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {AI_MODELS.map((model) => {
+                  const isSelected = localModel === model.id;
+                  const testResult = testResults[model.id];
+                  const isTesting = testingModel === model.id;
+
+                  return (
+                    <div
+                      key={model.id}
+                      className={`p-4 rounded-xl border-2 transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-blue-500 bg-blue-50'
+                          : testResult === 'success'
+                          ? 'border-green-400 bg-green-50'
+                          : testResult === 'error'
+                          ? 'border-red-400 bg-red-50'
+                          : 'border-slate-200 hover:border-slate-300'
+                      }`}
+                      onClick={() => setLocalModel(model.id)}
+                    >
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${model.color} flex items-center justify-center`}>
+                            <Icon name={model.icon as any} size={16} className="text-white" />
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-slate-800">{model.name}</h3>
+                            <p className="text-xs text-slate-500">{model.description}</p>
+                          </div>
+                        </div>
+                        {isSelected && (
+                          <Icon name="CheckCircle" size={20} className="text-blue-600" />
+                        )}
+                      </div>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          testModel(model.id);
+                        }}
+                        disabled={isTesting || !localKey}
+                        className="w-full"
+                      >
+                        {isTesting ? (
+                          <>
+                            <Icon name="Loader2" size={14} className="mr-2 animate-spin" />
+                            Тестирование...
+                          </>
+                        ) : testResult === 'success' ? (
+                          <>
+                            <Icon name="Check" size={14} className="mr-2 text-green-600" />
+                            Протестировано
+                          </>
+                        ) : testResult === 'error' ? (
+                          <>
+                            <Icon name="X" size={14} className="mr-2 text-red-600" />
+                            Ошибка
+                          </>
+                        ) : (
+                          <>
+                            <Icon name="Play" size={14} className="mr-2" />
+                            Протестировать
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <Button
+              onClick={handleSave}
+              className="w-full h-14 text-base gap-2 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-xl shadow-lg"
+            >
+              <Icon name="Save" size={20} />
+              <span className="font-semibold">Сохранить настройки</span>
+            </Button>
           </div>
         </div>
       </div>
