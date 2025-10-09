@@ -128,9 +128,18 @@ export function useChatLogic() {
     const activeModel = apiConfig.activeModel || 'gemini';
     
     if (!apiConfig[activeModel]?.enabled || !apiConfig[activeModel]?.key) {
+      const modelNames: Record<AIModel, string> = {
+        gemini: 'Gemini',
+        llama: 'Llama',
+        gigachat: 'GigaChat',
+        phi: 'Phi',
+        qwen: 'Qwen',
+        mistral: 'Mistral',
+      };
+      
       toast({
         title: 'Модель не настроена',
-        description: `Настройте ${modelInfo[activeModel]?.name} в панели управления`,
+        description: `Настройте ${modelNames[activeModel]} в панели управления`,
         variant: 'destructive',
       });
       return;
