@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import Icon from '@/components/ui/icon';
 import SimpleSettings from '@/components/SimpleSettings';
+import KnowledgeBasePanel from '@/components/KnowledgeBasePanel';
 import { useSimpleChat } from '@/hooks/useSimpleChat';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -21,6 +22,7 @@ export default function SimpleChat() {
 
   const [showSettings, setShowSettings] = useState(false);
   const [showCapabilities, setShowCapabilities] = useState(false);
+  const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -43,6 +45,14 @@ export default function SimpleChat() {
         </div>
 
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowKnowledgeBase(true)}
+            title="База знаний"
+          >
+            <Icon name="Database" size={18} />
+          </Button>
           <Button
             variant="outline"
             size="icon"
@@ -220,6 +230,13 @@ export default function SimpleChat() {
           apiKey={apiKey}
           onApiKeyChange={setApiKey}
           onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {showKnowledgeBase && (
+        <KnowledgeBasePanel
+          userId="default"
+          onClose={() => setShowKnowledgeBase(false)}
         />
       )}
     </div>

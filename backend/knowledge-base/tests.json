@@ -1,0 +1,34 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS request",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET knowledge base list",
+      "method": "GET",
+      "path": "/?userId=test",
+      "expectedStatus": 200,
+      "expectedBody": {
+        "files": "array"
+      },
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "POST upload without data",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "action": "upload",
+        "userId": "test"
+      },
+      "expectedStatus": 400,
+      "expectedBody": {
+        "error": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}

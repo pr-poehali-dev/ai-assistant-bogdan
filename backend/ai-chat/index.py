@@ -35,12 +35,14 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         body_data = json.loads(event.get('body', '{}'))
         message: str = body_data.get('message', '')
         api_key: str = body_data.get('apiKey', '')
+        user_id: str = body_data.get('userId', 'default')
         history: List[Dict[str, str]] = body_data.get('history', [])
         settings: Dict[str, Any] = body_data.get('settings', {
             'temperature': 0.7,
             'max_tokens': 2048,
             'system_prompt': ''
         })
+        knowledge_context: str = body_data.get('knowledgeContext', '')
         
         if not message:
             return {
@@ -58,7 +60,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'isBase64Encoded': False
             }
         
-        response_text = call_openrouter_auto(message, api_key, history, settings)
+        response_text = call_openrouter_auto(message, api_key, history, settings, knowledge_context)
         
         return {
             'statusCode': 200,
@@ -79,7 +81,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         }
 
 
-def call_openrouter_auto(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any]) -> str:
+def call_openrouter_auto(message: str, api_key: str, history: List[Dict[str, str]], settings: Dict[str, Any], knowledge_context: str = '') -> str:
     '''Call OpenRouter with auto model selection - picks best free model automatically'''
     import requests
     
@@ -94,10 +96,16 @@ def call_openrouter_auto(message: str, api_key: str, history: List[Dict[str, str
     
     messages = []
     
-    if settings.get('system_prompt'):
+    system_content = settings.get('system_prompt', '')
+    
+    if knowledge_context:
+        kb_prompt = f"\n\nБаза знаний (используй эту информацию для ответов):\n{knowledge_context}"
+        system_content = system_content + kb_prompt if system_content else kb_prompt.strip()
+    
+    if system_content:
         messages.append({
             'role': 'system',
-            'content': settings['system_prompt']
+            'content': system_content
         })
     
     for msg in history[-10:]:

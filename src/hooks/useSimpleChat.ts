@@ -82,6 +82,22 @@ export function useSimpleChat() {
         content: m.content
       }));
       
+      let knowledgeContext = '';
+      try {
+        const kbResponse = await fetch('https://functions.poehali.dev/cdaddb97-2235-4bca-af00-38bafbfc3204', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'getContext',
+            userId: 'default',
+          }),
+        });
+        const kbData = await kbResponse.json();
+        knowledgeContext = kbData.context || '';
+      } catch (e) {
+        console.warn('Failed to load knowledge base:', e);
+      }
+      
       const response = await fetch('https://functions.poehali.dev/81fdec08-160f-4043-a2da-cefa0ffbdf22', {
         method: 'POST',
         headers: {
@@ -90,8 +106,10 @@ export function useSimpleChat() {
         body: JSON.stringify({
           message: currentInput,
           apiKey: apiKey,
+          userId: 'default',
           history: history,
           settings: settings,
+          knowledgeContext: knowledgeContext,
         }),
       });
 
