@@ -166,14 +166,16 @@ export function useChatLogic() {
         content: m.content
       }));
 
+      const { activeModel: _, ...modelsOnly } = apiConfig;
+      
       const response = await fetch('https://functions.poehali.dev/81fdec08-160f-4043-a2da-cefa0ffbdf22', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+        body: JSON.dumps({
           message: currentInput,
-          models: apiConfig,
+          models: modelsOnly,
           history: history,
           settings: settings,
           preferredModel: selectedAIModel,
