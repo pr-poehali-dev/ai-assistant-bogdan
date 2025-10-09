@@ -31,7 +31,7 @@ export function useSimpleChat() {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter-key') || '');
-  const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('selected-model') || 'meta-llama/llama-3.2-3b-instruct:free');
+  const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('selected-model') || '');
   const [settings, setSettings] = useState<Settings>(() => {
     const saved = localStorage.getItem('ai-settings');
     return saved ? JSON.parse(saved) : {
@@ -64,6 +64,15 @@ export function useSimpleChat() {
       toast({
         title: 'API ключ не настроен',
         description: 'Добавьте API ключ OpenRouter в настройках',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!selectedModel) {
+      toast({
+        title: 'Модель не выбрана',
+        description: 'Выберите AI модель в настройках',
         variant: 'destructive',
       });
       return;
