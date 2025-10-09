@@ -124,7 +124,9 @@ def call_gemini_2_flash(message: str, api_key: str, history: List[Dict[str, str]
     
     headers = {
         'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://poehali.dev',
+        'X-Title': 'AI Chat'
     }
     
     messages = []
@@ -183,7 +185,9 @@ def call_llama_33_70b(message: str, api_key: str, history: List[Dict[str, str]],
     
     headers = {
         'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://poehali.dev',
+        'X-Title': 'AI Chat'
     }
     
     messages = []
@@ -317,7 +321,9 @@ def call_phi_35(message: str, api_key: str, history: List[Dict[str, str]], setti
     
     headers = {
         'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://poehali.dev',
+        'X-Title': 'AI Chat'
     }
     
     messages = []
@@ -362,7 +368,9 @@ def call_qwen_25(message: str, api_key: str, history: List[Dict[str, str]], sett
     
     headers = {
         'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://poehali.dev',
+        'X-Title': 'AI Chat'
     }
     
     messages = []
@@ -407,7 +415,9 @@ def call_mistral_nemo(message: str, api_key: str, history: List[Dict[str, str]],
     
     headers = {
         'Authorization': f'Bearer {api_key}',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'HTTP-Referer': 'https://poehali.dev',
+        'X-Title': 'AI Chat'
     }
     
     messages = []
