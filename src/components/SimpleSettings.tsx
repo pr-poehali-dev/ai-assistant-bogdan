@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Icon from '@/components/ui/icon';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 interface SimpleSettingsProps {
@@ -65,6 +65,29 @@ export default function SimpleSettings({ apiKey, selectedModel, onApiKeyChange, 
   const [localModel, setLocalModel] = useState(selectedModel);
   const [testingModel, setTestingModel] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<Record<string, 'success' | 'error'>>({});
+  const [loadingServerKey, setLoadingServerKey] = useState(false);
+
+  useEffect(() => {
+    const loadServerKey = async () => {
+      if (localKey) return;
+      
+      setLoadingServerKey(true);
+      try {
+        const response = await fetch('https://functions.poehali.dev/de994f2d-2a71-42b9-9f8f-80229de307c7');
+        const data = await response.json();
+        
+        if (data.apiKey) {
+          setLocalKey(data.apiKey);
+        }
+      } catch (error) {
+        console.error('Failed to load server API key:', error);
+      } finally {
+        setLoadingServerKey(false);
+      }
+    };
+    
+    loadServerKey();
+  }, []);
 
   const handleSave = () => {
     onApiKeyChange(localKey);
@@ -166,40 +189,61 @@ export default function SimpleSettings({ apiKey, selectedModel, onApiKeyChange, 
                     API ключ OpenRouter
                   </Label>
                   <div className="flex gap-2">
-                    <Input
-                      id="api-key"
-                      type={showKey ? 'text' : 'password'}
-                      value={localKey}
-                      onChange={(e) => setLocalKey(e.target.value)}
-                      placeholder="sk-or-v1-..."
-                      className="flex-1 h-12 text-base"
-                    />
+                    <div className="relative flex-1">
+                      <Input
+                        id="api-key"
+                        type={showKey ? 'text' : 'password'}
+                        value={localKey}
+                        onChange={(e) => setLocalKey(e.target.value)}
+                        placeholder={loadingServerKey ? 'Загрузка ключа с сервера...' : 'sk-or-v1-...'}
+                        className="h-12 text-base pr-10"
+                        disabled={loadingServerKey}
+                      />
+                      {loadingServerKey && (
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                          <Icon name="Loader2" size={18} className="text-slate-400 animate-spin" />
+                        </div>
+                      )}
+                    </div>
                     <Button
                       type="button"
                       variant="outline"
                       size="icon"
                       onClick={() => setShowKey(!showKey)}
                       className="h-12 w-12"
+                      disabled={loadingServerKey}
                     >
                       <Icon name={showKey ? 'EyeOff' : 'Eye'} size={18} />
                     </Button>
                   </div>
                 </div>
 
-                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                  <div className="flex gap-3">
-                    <Icon name="Info" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
-                    <div className="text-sm text-blue-900">
-                      <p className="font-semibold mb-2">Как получить API ключ:</p>
-                      <ol className="list-decimal list-inside space-y-1 text-blue-800">
-                        <li>Зайдите на <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="underline font-medium">openrouter.ai/keys</a></li>
-                        <li>Войдите через Google или GitHub</li>
-                        <li>Нажмите "Create Key"</li>
-                        <li>Скопируйте ключ и вставьте сюда</li>
-                      </ol>
+{localKey && !loadingServerKey ? (
+                  <div className="bg-green-50 border border-green-200 rounded-xl p-4">
+                    <div className="flex gap-3">
+                      <Icon name="CheckCircle" size={20} className="text-green-600 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm text-green-900">
+                        <p className="font-semibold">API ключ загружен из секретов проекта</p>
+                        <p className="text-green-700 mt-1">Ключ применяется для всех пользователей автоматически</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div className="flex gap-3">
+                      <Icon name="Info" size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+                      <div className="text-sm text-blue-900">
+                        <p className="font-semibold mb-2">Как получить API ключ:</p>
+                        <ol className="list-decimal list-inside space-y-1 text-blue-800">
+                          <li>Зайдите на <a href="https://openrouter.ai/keys" target="_blank" rel="noopener noreferrer" className="underline font-medium">openrouter.ai/keys</a></li>
+                          <li>Войдите через Google или GitHub</li>
+                          <li>Нажмите "Create Key"</li>
+                          <li>Скопируйте ключ и вставьте сюда</li>
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
 
