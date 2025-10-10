@@ -14,6 +14,8 @@ export default function SimpleChat() {
     inputMessage,
     setInputMessage,
     isLoading,
+    apiKey,
+    setApiKey,
     selectedModel,
     setSelectedModel,
     handleSendMessage,
@@ -21,7 +23,7 @@ export default function SimpleChat() {
   } = useSimpleChat();
 
   const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
-  const [showModelSelector, setShowModelSelector] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -55,18 +57,18 @@ export default function SimpleChat() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => setShowModelSelector(true)}
-            title="Выбор AI модели"
-          >
-            <Icon name="Bot" size={18} />
-          </Button>
-          <Button
-            variant="outline"
-            size="icon"
             onClick={clearHistory}
             title="Очистить историю"
           >
             <Icon name="Trash2" size={18} />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowSettings(true)}
+            title="Админ-панель"
+          >
+            <Icon name="Settings" size={18} />
           </Button>
         </div>
       </header>
@@ -242,11 +244,13 @@ export default function SimpleChat() {
         />
       )}
 
-      {showModelSelector && (
+      {showSettings && (
         <SimpleSettings
+          apiKey={apiKey}
           selectedModel={selectedModel}
+          onApiKeyChange={setApiKey}
           onModelChange={setSelectedModel}
-          onClose={() => setShowModelSelector(false)}
+          onClose={() => setShowSettings(false)}
         />
       )}
     </div>

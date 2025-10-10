@@ -30,6 +30,7 @@ export function useSimpleChat() {
   
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [apiKey, setApiKey] = useState(() => localStorage.getItem('openrouter-key') || '');
   const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('selected-model') || '');
   const [settings, setSettings] = useState<Settings>(() => {
     const saved = localStorage.getItem('ai-settings');
@@ -45,6 +46,10 @@ export function useSimpleChat() {
   }, [messages]);
 
   useEffect(() => {
+    localStorage.setItem('openrouter-key', apiKey);
+  }, [apiKey]);
+
+  useEffect(() => {
     localStorage.setItem('selected-model', selectedModel);
   }, [selectedModel]);
 
@@ -54,6 +59,15 @@ export function useSimpleChat() {
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
+    
+    if (!apiKey) {
+      toast({
+        title: 'API ключ не настроен',
+        description: 'Добавьте API ключ OpenRouter в настройках',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -96,6 +110,7 @@ export function useSimpleChat() {
         },
         body: JSON.stringify({
           message: currentInput,
+          apiKey: apiKey,
           userId: 'default',
           selectedModel: selectedModel,
           history: history,
@@ -152,6 +167,8 @@ export function useSimpleChat() {
     inputMessage,
     setInputMessage,
     isLoading,
+    apiKey,
+    setApiKey,
     selectedModel,
     setSelectedModel,
     settings,

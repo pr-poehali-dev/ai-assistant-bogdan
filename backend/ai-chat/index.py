@@ -65,12 +65,12 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
-    api_key = os.environ.get('OPENROUTER_API_KEY', '')
+    api_key = body_data.get('apiKey', '') or os.environ.get('OPENROUTER_API_KEY', '')
     if not api_key:
         return {
-            'statusCode': 500,
+            'statusCode': 400,
             'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-            'body': json.dumps({'error': 'API ключ OpenRouter не настроен. Обратитесь к администратору.'}),
+            'body': json.dumps({'error': 'API ключ OpenRouter обязателен. Получите бесплатный ключ на openrouter.ai'}),
             'isBase64Encoded': False
         }
     
