@@ -21,6 +21,7 @@ export default function SimpleChat() {
   } = useSimpleChat();
 
   const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
+  const [showModelSelector, setShowModelSelector] = useState(false);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -50,6 +51,14 @@ export default function SimpleChat() {
             title="База знаний"
           >
             <Icon name="Database" size={18} />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => setShowModelSelector(true)}
+            title="Выбор AI модели"
+          >
+            <Icon name="Bot" size={18} />
           </Button>
           <Button
             variant="outline"
@@ -230,6 +239,14 @@ export default function SimpleChat() {
         <KnowledgeBasePanel
           userId="default"
           onClose={() => setShowKnowledgeBase(false)}
+        />
+      )}
+
+      {showModelSelector && (
+        <SimpleSettings
+          selectedModel={selectedModel}
+          onModelChange={setSelectedModel}
+          onClose={() => setShowModelSelector(false)}
         />
       )}
     </div>
