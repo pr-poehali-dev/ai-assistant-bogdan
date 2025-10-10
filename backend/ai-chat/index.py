@@ -123,11 +123,13 @@ def call_openrouter_auto(message: str, api_key: str, history: List[Dict[str, str
     free_models = [
         'meta-llama/llama-3.2-3b-instruct:free',
         'google/gemma-2-9b-it:free',
-        'microsoft/phi-3-mini-128k-instruct:free',
+        'deepseek/deepseek-r1-distill-llama-70b:free',
+        'google/gemini-2.0-flash-exp:free',
         'qwen/qwen-2-7b-instruct:free',
+        'microsoft/phi-3-mini-128k-instruct:free',
     ]
     
-    if selected_model and selected_model in free_models:
+    if selected_model:
         models_to_try = [selected_model]
     else:
         models_to_try = free_models
