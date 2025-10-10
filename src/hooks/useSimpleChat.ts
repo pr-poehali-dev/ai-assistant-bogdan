@@ -22,7 +22,7 @@ export function useSimpleChat() {
       {
         id: '1',
         role: 'assistant',
-        content: 'Здравствуйте! Я AI-ассистент на базе OpenRouter. Чем могу помочь?',
+        content: 'Привет! Я Богдан — твой AI-помощник. Задавай любые вопросы, помогу чем смогу!',
         timestamp: new Date(),
       },
     ];
@@ -59,15 +59,6 @@ export function useSimpleChat() {
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
-    
-    if (!apiKey) {
-      toast({
-        title: 'API ключ не настроен',
-        description: 'Добавьте API ключ OpenRouter в настройках',
-        variant: 'destructive',
-      });
-      return;
-    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -156,7 +147,7 @@ export function useSimpleChat() {
     setMessages([{
       id: '1',
       role: 'assistant',
-      content: 'История очищена. Чем могу помочь?',
+      content: 'Привет! Я Богдан — твой AI-помощник. Задавай любые вопросы, помогу чем смогу!',
       timestamp: new Date(),
     }]);
   };

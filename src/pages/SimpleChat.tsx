@@ -40,8 +40,8 @@ export default function SimpleChat() {
             <Icon name="Sparkles" size={20} className="text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-800">AI Ассистент</h1>
-            <p className="text-xs text-slate-500">Работает на OpenRouter</p>
+            <h1 className="text-xl font-bold text-slate-800">Богдан AI</h1>
+            <p className="text-xs text-slate-500">Ваш умный помощник</p>
           </div>
         </div>
 
@@ -83,7 +83,7 @@ export default function SimpleChat() {
                 </div>
                 <div className="flex-1">
                   <p className="text-lg text-slate-800 leading-relaxed mb-3">
-                    Здравствуйте! Я AI-ассистент на базе OpenRouter. Чем могу помочь?
+                    Привет! Я Богдан — твой AI-помощник. Задавай любые вопросы, помогу чем смогу!
                   </p>
                   <p className="text-sm text-slate-500">меньше минуты назад</p>
                 </div>
