@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Dict, Any, List
 
 def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
@@ -31,36 +32,49 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             'isBase64Encoded': False
         }
     
+    body_str = event.get('body', '{}')
+    if not body_str or body_str.strip() == '':
+        body_str = '{}'
+    
     try:
-        body_data = json.loads(event.get('body', '{}'))
-        message: str = body_data.get('message', '')
-        api_key: str = body_data.get('apiKey', '')
-        user_id: str = body_data.get('userId', 'default')
-        selected_model: str = body_data.get('selectedModel', '')
-        history: List[Dict[str, str]] = body_data.get('history', [])
-        settings: Dict[str, Any] = body_data.get('settings', {
-            'temperature': 0.7,
-            'max_tokens': 2048,
-            'system_prompt': ''
-        })
-        knowledge_context: str = body_data.get('knowledgeContext', '')
-        
-        if not message:
-            return {
-                'statusCode': 400,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'Сообщение обязательно'}),
-                'isBase64Encoded': False
-            }
-        
-        if not api_key:
-            return {
-                'statusCode': 400,
-                'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
-                'body': json.dumps({'error': 'API ключ OpenRouter обязателен. Получите бесплатный ключ на openrouter.ai'}),
-                'isBase64Encoded': False
-            }
-        
+        body_data = json.loads(body_str)
+    except json.JSONDecodeError:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Неверный формат JSON'}),
+            'isBase64Encoded': False
+        }
+    
+    message: str = body_data.get('message', '')
+    user_id: str = body_data.get('userId', 'default')
+    selected_model: str = body_data.get('selectedModel', '')
+    history: List[Dict[str, str]] = body_data.get('history', [])
+    settings: Dict[str, Any] = body_data.get('settings', {
+        'temperature': 0.7,
+        'max_tokens': 2048,
+        'system_prompt': ''
+    })
+    knowledge_context: str = body_data.get('knowledgeContext', '')
+    
+    if not message:
+        return {
+            'statusCode': 400,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'Сообщение обязательно'}),
+            'isBase64Encoded': False
+        }
+    
+    api_key = os.environ.get('OPENROUTER_API_KEY', '')
+    if not api_key:
+        return {
+            'statusCode': 500,
+            'headers': {'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*'},
+            'body': json.dumps({'error': 'API ключ OpenRouter не настроен. Обратитесь к администратору.'}),
+            'isBase64Encoded': False
+        }
+    
+    try:
         response_text = call_openrouter_auto(message, api_key, history, settings, knowledge_context, selected_model)
         
         return {

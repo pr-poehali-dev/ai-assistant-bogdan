@@ -13,9 +13,7 @@
       "name": "POST without message",
       "method": "POST",
       "path": "/",
-      "body": {
-        "apiKey": "test-key"
-      },
+      "body": {},
       "expectedStatus": 400,
       "expectedBody": {
         "error": "string"
@@ -23,15 +21,15 @@
       "bodyMatcher": "partial"
     },
     {
-      "name": "POST without API key",
+      "name": "POST with message returns response",
       "method": "POST",
       "path": "/",
       "body": {
         "message": "Hello"
       },
-      "expectedStatus": 400,
+      "expectedStatus": 200,
       "expectedBody": {
-        "error": "string"
+        "response": "string"
       },
       "bodyMatcher": "partial"
     }

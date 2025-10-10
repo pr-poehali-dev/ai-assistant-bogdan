@@ -14,16 +14,12 @@ export default function SimpleChat() {
     inputMessage,
     setInputMessage,
     isLoading,
-    apiKey,
-    setApiKey,
     selectedModel,
     setSelectedModel,
     handleSendMessage,
     clearHistory,
   } = useSimpleChat();
 
-  const [showSettings, setShowSettings] = useState(false);
-  const [showCapabilities, setShowCapabilities] = useState(false);
   const [showKnowledgeBase, setShowKnowledgeBase] = useState(false);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -63,14 +59,6 @@ export default function SimpleChat() {
           >
             <Icon name="Trash2" size={18} />
           </Button>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => setShowSettings(true)}
-            title="Настройки API"
-          >
-            <Icon name="Settings" size={18} />
-          </Button>
         </div>
       </header>
 
@@ -78,9 +66,20 @@ export default function SimpleChat() {
         <div className="max-w-4xl mx-auto space-y-4">
           {messages.length === 1 && (
             <div className="bg-white rounded-2xl p-6 shadow-lg border border-slate-200 mb-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Icon name="Sparkles" size={24} className="text-blue-600" />
-                <h2 className="text-xl font-bold text-slate-800">Что я умею</h2>
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                  <Icon name="Bot" size={24} className="text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-lg text-slate-800 leading-relaxed mb-3">
+                    Здравствуйте! Я AI-ассистент на базе OpenRouter. Чем могу помочь?
+                  </p>
+                  <p className="text-sm text-slate-500">меньше минуты назад</p>
+                </div>
+              </div>
+
+              <div className="mt-6">
+                <h2 className="text-lg font-bold text-slate-800 mb-4">Что я умею</h2>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -226,16 +225,6 @@ export default function SimpleChat() {
           </Button>
         </div>
       </div>
-
-      {showSettings && (
-        <SimpleSettings
-          apiKey={apiKey}
-          selectedModel={selectedModel}
-          onApiKeyChange={setApiKey}
-          onModelChange={setSelectedModel}
-          onClose={() => setShowSettings(false)}
-        />
-      )}
 
       {showKnowledgeBase && (
         <KnowledgeBasePanel
